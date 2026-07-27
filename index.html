@@ -1,2208 +1,661 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ProSaaS - Business Management Suite</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f0f2f5; }
-        .sidebar-transition { transition: transform 0.3s ease-in-out; }
-        .modal-overlay { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
-        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-in-progress { background: #dbeafe; color: #1e40af; }
-        .status-ready { background: #d1fae5; color: #065f46; }
-        .status-delivered { background: #f3f4f6; color: #374151; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-        .status-paid { background: #d1fae5; color: #065f46; }
-        .status-partial { background: #fef3c7; color: #92400e; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-        @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { background: white !important; } }
-        .print-only { display: none; }
-        .lang-hi { font-family: 'Noto Sans Devanagari', sans-serif; }
-        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
-        .badge-tailor { background: #dbeafe; color: #1e40af; }
-        .badge-grocery { background: #d1fae5; color: #065f46; }
-        .badge-business { background: #fef3c7; color: #92400e; }
-        .modal-scroll { scrollbar-width: thin; }
-        .modal-scroll::-webkit-scrollbar { width: 4px; }
-        .modal-scroll::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        .card-hover { transition: all 0.3s ease; cursor: pointer; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
-        .glassmorphism { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
-        .animate-pulse-slow { animation: pulse 3s ease-in-out infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .gradient-text { background: linear-gradient(135deg, #4f46e5, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .bg-gradient-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
-        .bg-gradient-success { background: linear-gradient(135deg, #059669, #10b981); }
-        .bg-gradient-warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
-        .bg-gradient-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
-        .bg-gradient-info { background: linear-gradient(135deg, #2563eb, #3b82f6); }
-        .sidebar-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
-        .sidebar-item:hover { background: #f3f4f6; border-left-color: #4f46e5; }
-        .sidebar-item.active { background: #eef2ff; border-left-color: #4f46e5; color: #4f46e5; font-weight: 600; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stardust Learning</title>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f9f7f3 0%, #f0eee9 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* main card – like Duolingo container */
+    .app-container {
+      max-width: 1300px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 56px 56px 40px 40px;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.08), 0 10px 20px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      padding: 2rem 2rem 2.5rem;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 215, 140, 0.2);
+    }
+
+    /* header */
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.5rem;
+    }
+
+    .logo h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ff7a2f, #ffb347);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo i {
+      font-size: 2rem;
+      color: #ff7a2f;
+      -webkit-text-fill-color: #ff7a2f;
+      background: none;
+    }
+
+    .user-stats {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+      background: #f8f5f0;
+      padding: 0.5rem 1.4rem 0.5rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 500;
+      color: #3d3a36;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .user-stats span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-stats i {
+      color: #ffb347;
+      font-size: 1.2rem;
+    }
+
+    .xp-badge {
+      background: #2b2a27;
+      color: #f9e7d2;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      letter-spacing: 0.3px;
+    }
+
+    /* tab navigation */
+    .tab-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid #e8e3db;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.8rem 1.8rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #6b6560;
+      cursor: pointer;
+      border-radius: 40px 40px 0 0;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tab-btn i {
+      font-size: 1.2rem;
+    }
+
+    .tab-btn:hover {
+      background: #f2eee9;
+      color: #3d3a36;
+    }
+
+    .tab-btn.active {
+      background: #fff6ed;
+      color: #d45a1a;
+      border-bottom: 4px solid #ff7a2f;
+    }
+
+    /* panels */
+    .panel {
+      display: none;
+      animation: fadeUp 0.25s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0.5; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* course grid */
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1.5rem;
+      margin: 1.8rem 0 1rem;
+    }
+
+    .course-card {
+      background: #fcfaf7;
+      border-radius: 28px;
+      padding: 1.5rem 1rem 1.2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02), 0 0 0 1px #ece6df;
+      transition: all 0.2s;
+      text-align: center;
+      cursor: default;
+      border: 1px solid transparent;
+    }
+
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 30px rgba(255, 122, 47, 0.08), 0 0 0 1px #ffd9b3;
+      border-color: #ffd9b3;
+    }
+
+    .course-icon {
+      font-size: 2.8rem;
+      background: #f2ece4;
+      width: 75px;
+      height: 75px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 30px;
+      margin: 0 auto 0.8rem;
+      color: #4a3f36;
+      transition: 0.2s;
+    }
+
+    .course-card:hover .course-icon {
+      background: #ffe6d0;
+      color: #c14f0e;
+    }
+
+    .course-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #2d2a26;
+    }
+
+    .course-desc {
+      font-size: 0.85rem;
+      color: #7f7870;
+      margin: 0.4rem 0 0.8rem;
+    }
+
+    .course-progress {
+      background: #e5dfd8;
+      height: 6px;
+      border-radius: 20px;
+      margin: 0.8rem 0 0.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9a4a, #ff7a2f);
+      border-radius: 20px;
+      width: 0%;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #7f7870;
+      margin-top: 6px;
+    }
+
+    .btn-start {
+      background: #2b2a27;
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.45rem 1.3rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.15s;
+      margin-top: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-start:hover {
+      background: #ff7a2f;
+      transform: scale(0.97);
+    }
+
+    .coding-highlight {
+      background: #f5efe8;
+      border-radius: 40px;
+      padding: 0.2rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #784f2b;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    /* special coding section */
+    .coding-section {
+      margin: 2.8rem 0 1rem;
+      background: #fcf6ef;
+      border-radius: 40px;
+      padding: 1.8rem 2rem;
+      border: 1px solid #f0e3d7;
+    }
+
+    .coding-section h3 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #2d2a26;
+      margin-bottom: 1.2rem;
+    }
+
+    .coding-section h3 i {
+      color: #d45a1a;
+      font-size: 2rem;
+    }
+
+    .coding-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .coding-item {
+      background: white;
+      border-radius: 30px;
+      padding: 1.2rem 0.8rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      border: 1px solid #e8dfd6;
+      transition: 0.15s;
+    }
+
+    .coding-item:hover {
+      border-color: #ffb88a;
+      background: #fffbf7;
+    }
+
+    .coding-item i {
+      font-size: 2.2rem;
+      color: #3d3a36;
+      background: #ede7e0;
+      padding: 0.6rem;
+      border-radius: 30px;
+      width: 65px;
+      margin-bottom: 6px;
+    }
+
+    .coding-item span {
+      display: block;
+      font-weight: 600;
+      color: #2d2a26;
+    }
+
+    .coding-item small {
+      color: #7f7870;
+      font-size: 0.7rem;
+    }
+
+    .reset-area {
+      margin-top: 2.5rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .reset-btn {
+      background: transparent;
+      border: 1px solid #d6cec4;
+      padding: 0.5rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 500;
+      color: #5f5650;
+      cursor: pointer;
+      transition: 0.15s;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .reset-btn:hover {
+      background: #f0e8e0;
+      border-color: #b8a99a;
+    }
+
+    /* local storage message */
+    .storage-note {
+      font-size: 0.8rem;
+      color: #9e9388;
+      text-align: right;
+      margin-top: 0.8rem;
+      border-top: 1px dashed #e2d8ce;
+      padding-top: 1rem;
+    }
+
+    /* responsive */
+    @media (max-width: 650px) {
+      .app-container { padding: 1.5rem; }
+      .brand { flex-direction: column; align-items: stretch; }
+      .user-stats { justify-content: space-around; }
+      .tab-btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+    }
+  </style>
 </head>
 <body>
-    <div id="app"></div>
+<div class="app-container">
 
-    <script>
-        // ============================================================
-        // 1. STORAGE KEYS & MANAGERS
-        // ============================================================
-        const STORAGE_KEYS = {
-            SHOPS: 'saas_shops',
-            USERS: 'saas_users',
-            CUSTOMERS: 'saas_customers',
-            ORDERS: 'saas_orders',
-            PAYMENTS: 'saas_payments',
-            ACTIVITY_LOGS: 'saas_activity_logs',
-            APP_STATE: 'saas_app_state',
-            SETTINGS: 'saas_settings',
-            EXPENSES: 'saas_expenses',
-            INVENTORY: 'saas_inventory',
-            EMPLOYEES: 'saas_employees',
-            SUPPLIERS: 'saas_suppliers',
-            NOTIFICATIONS: 'saas_notifications',
-            APPOINTMENTS: 'saas_appointments',
-            LOYALTY: 'saas_loyalty',
-        };
+  <!-- header -->
+  <div class="brand">
+    <div class="logo">
+      <h1><i class="fas fa-star"></i> stardust learning</h1>
+    </div>
+    <div class="user-stats">
+      <span><i class="fas fa-fire"></i> 12</span>
+      <span><i class="fas fa-gem"></i> 84</span>
+      <span class="xp-badge"><i class="fas fa-bolt"></i> 340 XP</span>
+    </div>
+  </div>
 
-        class StorageManager {
-            constructor(key) { this.key = key; }
-            getAll() { try { const data = localStorage.getItem(this.key); return data ? JSON.parse(data) : []; } catch { return []; } }
-            getById(id) { return this.getAll().find(item => item.id === id) || null; }
-            create(item) { const items = this.getAll(); const newItem = { ...item, id: this._generateId() }; items.push(newItem);
-                this._save(items); return newItem; }
-            update(id, updates) { const items = this.getAll(); const index = items.findIndex(item => item.id === id); if (index ===
-                    -1) return null; items[index] = { ...items[index], ...updates, updatedAt: new Date().toISOString() };
-                this._save(items); return items[index]; }
-            delete(id) { const items = this.getAll(); const filtered = items.filter(item => item.id !== id); if (filtered.length ===
-                    items.length) return false; this._save(filtered); return true; }
-            getByShopId(shopId) { return this.getAll().filter(item => item.shopId === shopId); }
-            _save(items) { try { localStorage.setItem(this.key, JSON.stringify(items)); } catch (e) { console.error('Storage error:',
-                        e); } }
-            _generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+  <!-- Tabs -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="lang"><i class="fas fa-globe"></i> Languages</button>
+    <button class="tab-btn" data-tab="code"><i class="fas fa-code"></i> Learn Coding</button>
+  </div>
+
+  <!-- ===== LANGUAGE PANEL ===== -->
+  <div id="lang-panel" class="panel active">
+    <div class="course-grid" id="languageGrid">
+      <!-- cards will be injected via js -->
+    </div>
+    <div style="margin-top: 1.2rem; font-style: italic; color: #7a6f64; padding-left: 0.5rem;">
+      <i class="fas fa-check-circle" style="color: #58a700;"></i>  daily streak · 4 days
+    </div>
+  </div>
+
+  <!-- ===== CODING PANEL ===== -->
+  <div id="code-panel" class="panel">
+    <!-- special coding section with HTML, CSS, JS, Python etc -->
+    <div class="coding-section">
+      <h3><i class="fas fa-terminal"></i> learn coding</h3>
+      <div class="coding-grid" id="codingGrid">
+        <!-- injected by js -->
+      </div>
+      <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #4d453e; background: #f0e8df; padding: 0.6rem 1.2rem; border-radius: 60px; display: inline-block;">
+        <i class="fas fa-laptop-code"></i>  interactive lessons · practice · projects
+      </div>
+    </div>
+
+    <!-- extra coding courses (like Duolingo style) -->
+    <div style="margin-top: 1.8rem;">
+      <h4 style="color: #3d3a36; font-weight: 600; margin-bottom: 0.8rem;"><i class="fas fa-arrow-right" style="color: #ff7a2f;"></i>  coding paths</h4>
+      <div class="course-grid" id="codingPathGrid"></div>
+    </div>
+  </div>
+
+  <!-- reset / info -->
+  <div class="reset-area">
+    <button class="reset-btn" id="resetProgressBtn"><i class="fas fa-undo-alt"></i> reset progress</button>
+  </div>
+  <div class="storage-note">
+    <i class="fas fa-database"></i> data saved in your browser (localStorage)
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- DATA -----
+    const languageCourses = [
+      { id: 'spanish', title: 'Spanish', icon: '🇪🇸', desc: 'Latin American', progress: 68 },
+      { id: 'french', title: 'French', icon: '🇫🇷', desc: 'from Paris', progress: 42 },
+      { id: 'japanese', title: 'Japanese', icon: '🇯🇵', desc: 'Kanji & kana', progress: 23 },
+      { id: 'hindi', title: 'Hindi', icon: '🇮🇳', desc: 'Devanagari', progress: 11 },
+      { id: 'korean', title: 'Korean', icon: '🇰🇷', desc: 'Hangul', progress: 5 },
+    ];
+
+    const codingCourses = [
+      { id: 'html', title: 'HTML', icon: 'fa-brands fa-html5', color: '#e44d26', desc: 'structure' },
+      { id: 'css', title: 'CSS', icon: 'fa-brands fa-css3-alt', color: '#264de4', desc: 'style' },
+      { id: 'javascript', title: 'JavaScript', icon: 'fa-brands fa-js', color: '#f7df1e', desc: 'interactivity' },
+      { id: 'python', title: 'Python', icon: 'fa-brands fa-python', color: '#3776ab', desc: 'versatile' },
+      { id: 'java', title: 'Java', icon: 'fa-brands fa-java', color: '#007396', desc: 'backend' },
+    ];
+
+    // extra coding paths (like mini courses)
+    const codingPaths = [
+      { id: 'web-dev', title: 'Web Dev', icon: 'fa-solid fa-globe', desc: 'HTML+CSS+JS' },
+      { id: 'data-science', title: 'Data Science', icon: 'fa-solid fa-chart-simple', desc: 'Python + pandas' },
+      { id: 'app-dev', title: 'App Dev', icon: 'fa-solid fa-mobile-screen', desc: 'Java / Kotlin' },
+    ];
+
+    // ----- HELPERS: localStorage -----
+    function loadProgress() {
+      const stored = localStorage.getItem('stardust_progress');
+      if (stored) {
+        try { return JSON.parse(stored); } catch (e) { return {}; }
+      }
+      return {};
+    }
+
+    function saveProgress(progressObj) {
+      localStorage.setItem('stardust_progress', JSON.stringify(progressObj));
+    }
+
+    // default progress: if not exist, set initial values
+    function getProgress() {
+      let prog = loadProgress();
+      // ensure all courses exist
+      [...languageCourses, ...codingCourses, ...codingPaths].forEach(c => {
+        if (!(c.id in prog)) {
+          prog[c.id] = Math.floor(Math.random() * 60) + 5; // random 5-65%
         }
+      });
+      return prog;
+    }
 
-        const shopStorage = new StorageManager(STORAGE_KEYS.SHOPS);
-        const userStorage = new StorageManager(STORAGE_KEYS.USERS);
-        const customerStorage = new StorageManager(STORAGE_KEYS.CUSTOMERS);
-        const orderStorage = new StorageManager(STORAGE_KEYS.ORDERS);
-        const paymentStorage = new StorageManager(STORAGE_KEYS.PAYMENTS);
-        const activityStorage = new StorageManager(STORAGE_KEYS.ACTIVITY_LOGS);
-        const expenseStorage = new StorageManager(STORAGE_KEYS.EXPENSES);
-        const inventoryStorage = new StorageManager(STORAGE_KEYS.INVENTORY);
-        const employeeStorage = new StorageManager(STORAGE_KEYS.EMPLOYEES);
-        const supplierStorage = new StorageManager(STORAGE_KEYS.SUPPLIERS);
-        const notificationStorage = new StorageManager(STORAGE_KEYS.NOTIFICATIONS);
-        const appointmentStorage = new StorageManager(STORAGE_KEYS.APPOINTMENTS);
-        const loyaltyStorage = new StorageManager(STORAGE_KEYS.LOYALTY);
+    // update progress for one course
+    function setCourseProgress(courseId, value) {
+      let prog = loadProgress();
+      prog[courseId] = Math.min(100, Math.max(0, value));
+      saveProgress(prog);
+    }
 
-        const appStateStorage = {
-            getState() { try { const data = localStorage.getItem(STORAGE_KEYS.APP_STATE); return data ? JSON.parse(data) : {
-                        currentShopId: null, currentUser: null }; } catch { return { currentShopId: null, currentUser: null }; } },
-            setState(state) { const current = this.getState(); const updated = { ...current, ...state };
-                localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(updated)); },
-            clear() { localStorage.removeItem(STORAGE_KEYS.APP_STATE); }
-        };
+    // reset all progress to random (but keep keys)
+    function resetAllProgress() {
+      let prog = {};
+      [...languageCourses, ...codingCourses, ...codingPaths].forEach(c => {
+        prog[c.id] = Math.floor(Math.random() * 70) + 5;
+      });
+      saveProgress(prog);
+      renderAll();
+    }
 
-        const settingsStorage = {
-            get() { try { const data = localStorage.getItem(STORAGE_KEYS.SETTINGS); return data ? JSON.parse(data) : { language: 'en',
-                        currency: '₹', dateFormat: 'DD/MM/YYYY' }; } catch { return { language: 'en', currency: '₹',
-                        dateFormat: 'DD/MM/YYYY' }; } },
-            set(settings) { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings)); }
-        };
+    // ----- RENDER -----
+    function renderLanguageCards(progress) {
+      const grid = document.getElementById('languageGrid');
+      grid.innerHTML = '';
+      languageCourses.forEach(course => {
+        const pct = progress[course.id] || 0;
+        const card = document.createElement('div');
+        card.className = 'course-card';
+        card.innerHTML = `
+          <div class="course-icon" style="font-size: 2.8rem; line-height: 1;">${course.icon}</div>
+          <div class="course-title">${course.title}</div>
+          <div class="course-desc">${course.desc}</div>
+          <div class="course-progress"><div class="progress-fill" style="width: ${pct}%;"></div></div>
+          <div class="card-footer">
+            <span>${pct}%</span>
+            <span><i class="far fa-clock"></i> 4 min</span>
+          </div>
+          <button class="btn-start" data-id="${course.id}" data-action="increase"><i class="fas fa-play"></i> practice</button>
+        `;
+        grid.appendChild(card);
+      });
 
-        // ============================================================
-        // 2. HELPERS
-        // ============================================================
-        function generateOrderNumber(shopId) {
-            const orders = orderStorage.getByShopId(shopId);
-            const count = orders.length + 1;
-            const d = new Date();
-            const year = d.getFullYear().toString().slice(-2);
-            const month = (d.getMonth() + 1).toString().padStart(2, '0');
-            return `ORD-${year}${month}-${count.toString().padStart(4, '0')}`;
-        }
-
-        function logActivity(shopId, userId, action, details) {
-            activityStorage.create({ shopId, userId, action, details, timestamp: new Date().toISOString() });
-        }
-
-        function getCustomerByMobile(mobile, shopId) {
-            return customerStorage.getByShopId(shopId).find(c => c.mobile === mobile) || null;
-        }
-
-        function searchCustomers(query, shopId) {
-            const q = query.toLowerCase();
-            return customerStorage.getByShopId(shopId).filter(c =>
-                c.name.toLowerCase().includes(q) ||
-                c.mobile.includes(query) ||
-                (c.email && c.email.toLowerCase().includes(q))
-            );
-        }
-
-        function formatCurrency(amount) {
-            const settings = settingsStorage.get();
-            return settings.currency + ' ' + Number(amount).toLocaleString('en-IN');
-        }
-
-        function formatDate(date) {
-            const d = new Date(date);
-            const settings = settingsStorage.get();
-            if (settings.dateFormat === 'MM/DD/YYYY') {
-                return (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getDate().toString().padStart(2, '0') + '/' + d
-                    .getFullYear();
-            } else if (settings.dateFormat === 'YYYY/MM/DD') {
-                return d.getFullYear() + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getDate().toString()
-                    .padStart(2, '0');
-            }
-            return d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d
-                .getFullYear();
-        }
-
-        // ============================================================
-        // 3. TRANSLATIONS
-        // ============================================================
-        const translations = {
-            en: {
-                appName: 'ProSaaS Suite',
-                login: 'Login',
-                selectShop: 'Select Your Business',
-                email: 'Email',
-                password: 'Password',
-                signIn: 'Sign In',
-                demoCreds: 'Demo: admin@prosaas.com / admin123',
-                seedData: 'Seed Demo Data',
-                dashboard: 'Dashboard',
-                customers: 'Customers',
-                orders: 'Orders',
-                payments: 'Payments',
-                settings: 'Settings',
-                logout: 'Logout',
-                analytics: 'Analytics',
-                finance: 'Finance',
-                inventory: 'Inventory',
-                crm: 'CRM',
-                employees: 'Employees',
-                calendar: 'Calendar',
-                reports: 'Reports',
-                notifications: 'Notifications',
-                addCustomer: 'Add Customer',
-                editCustomer: 'Edit Customer',
-                deleteCustomer: 'Delete Customer',
-                name: 'Name',
-                mobile: 'Mobile Number',
-                address: 'Address',
-                emailAddress: 'Email Address',
-                gstNumber: 'GST Number',
-                notes: 'Internal Notes',
-                photo: 'Profile Photo',
-                uploadPhoto: 'Upload Photo',
-                cancel: 'Cancel',
-                save: 'Save',
-                update: 'Update',
-                search: 'Search...',
-                noCustomers: 'No customers found',
-                addFirstCustomer: 'Start by adding your first customer',
-                newOrder: 'New Order',
-                createOrder: 'Create Order',
-                totalRevenue: 'Total Revenue',
-                totalOrders: 'Total Orders',
-                totalCustomers: 'Total Customers',
-                pendingOrders: 'Pending Orders',
-                recentOrders: 'Recent Orders',
-                viewAll: 'View All',
-                orderNumber: 'Order #',
-                customer: 'Customer',
-                amount: 'Amount',
-                status: 'Status',
-                delivery: 'Delivery',
-                noOrders: 'No orders yet',
-                quickActions: 'Quick Actions',
-                manageCustomers: 'Manage Customers',
-                language: 'Language',
-                english: 'English',
-                hindi: 'Hindi',
-                selectIndustry: 'Select Business Type',
-                tailor: 'Tailor Shop',
-                grocery: 'Grocery Store',
-                business: 'General Business',
-                tailorDesc: 'Perfect for tailors, fashion designers, and alteration shops',
-                groceryDesc: 'Ideal for grocery stores, supermarkets, and retail shops',
-                businessDesc: 'General business management for any service or product',
-                measurements: 'Measurements',
-                specifications: 'Specifications',
-                advancePayment: 'Advance Payment',
-                totalAmount: 'Total Amount',
-                targetDelivery: 'Target Delivery Date',
-                deliveryAddress: 'Delivery Address',
-                items: 'Items',
-                addItem: 'Add Item',
-                itemName: 'Item name',
-                quantity: 'Qty',
-                price: 'Price',
-                category: 'Category',
-                subCategory: 'Sub-Category',
-                tailoring: 'Tailoring',
-                repair: 'Repair',
-                alteration: 'Alteration',
-                custom: 'Custom Order',
-                groceryItems: 'Grocery Items',
-                productName: 'Product Name',
-                weight: 'Weight (kg)',
-                unitPrice: 'Unit Price',
-                stock: 'Stock',
-                fabricType: 'Fabric Type',
-                color: 'Color',
-                design: 'Design',
-                stitchingType: 'Stitching Type',
-                clothType: 'Cloth Type',
-                measurementsTaken: 'Measurements Taken',
-                deliveryStatus: 'Delivery Status',
-                paymentStatus: 'Payment Status',
-                pending: 'Pending',
-                inProgress: 'In Progress',
-                ready: 'Ready',
-                delivered: 'Delivered',
-                cancelled: 'Cancelled',
-                paid: 'Paid',
-                partial: 'Partial',
-                selectCustomer: 'Select Customer',
-                expense: 'Expense',
-                income: 'Income',
-                profit: 'Profit',
-                loss: 'Loss',
-                supplier: 'Supplier',
-                employee: 'Employee',
-                attendance: 'Attendance',
-                salary: 'Salary',
-                leave: 'Leave',
-                task: 'Task',
-                performance: 'Performance',
-                appointment: 'Appointment',
-                deadline: 'Deadline',
-                reminder: 'Reminder',
-                notification: 'Notification',
-                report: 'Report',
-                export: 'Export',
-                pdf: 'PDF',
-                excel: 'Excel',
-                print: 'Print',
-                invoice: 'Invoice',
-                receipt: 'Receipt',
-                quotation: 'Quotation',
-                purchaseOrder: 'Purchase Order',
-                warehouse: 'Warehouse',
-                lowStock: 'Low Stock Alert',
-                barcode: 'Barcode',
-                qr: 'QR Code',
-                loyalty: 'Loyalty Points',
-                membership: 'Membership',
-                birthday: 'Birthday',
-                whatsapp: 'WhatsApp',
-                ai: 'AI Insights',
-                prediction: 'Sales Prediction',
-                suggestion: 'Expense Suggestion',
-                generator: 'Report Generator',
-                ecosystem: 'Ecosystem',
-                franchise: 'Franchise',
-                vendor: 'Vendor Portal',
-                customerPortal: 'Customer Portal',
-                pwa: 'Install App',
-            },
-            hi: {
-                appName: 'प्रोसास सुइट',
-                login: 'लॉगिन',
-                selectShop: 'अपना व्यवसाय चुनें',
-                email: 'ईमेल',
-                password: 'पासवर्ड',
-                signIn: 'साइन इन करें',
-                demoCreds: 'डेमो: admin@prosaas.com / admin123',
-                seedData: 'डेमो डेटा डालें',
-                dashboard: 'डैशबोर्ड',
-                customers: 'ग्राहक',
-                orders: 'ऑर्डर',
-                payments: 'भुगतान',
-                settings: 'सेटिंग्स',
-                logout: 'लॉगआउट',
-                analytics: 'विश्लेषण',
-                finance: 'वित्त',
-                inventory: 'इन्वेंटरी',
-                crm: 'सीआरएम',
-                employees: 'कर्मचारी',
-                calendar: 'कैलेंडर',
-                reports: 'रिपोर्ट्स',
-                notifications: 'सूचनाएं',
-                addCustomer: 'ग्राहक जोड़ें',
-                editCustomer: 'ग्राहक संपादित करें',
-                deleteCustomer: 'ग्राहक हटाएं',
-                name: 'नाम',
-                mobile: 'मोबाइल नंबर',
-                address: 'पता',
-                emailAddress: 'ईमेल पता',
-                gstNumber: 'जीएसटी नंबर',
-                notes: 'आंतरिक नोट्स',
-                photo: 'प्रोफाइल फोटो',
-                uploadPhoto: 'फोटो अपलोड करें',
-                cancel: 'रद्द करें',
-                save: 'सेव करें',
-                update: 'अपडेट करें',
-                search: 'खोजें...',
-                noCustomers: 'कोई ग्राहक नहीं मिला',
-                addFirstCustomer: 'अपना पहला ग्राहक जोड़ें',
-                newOrder: 'नया ऑर्डर',
-                createOrder: 'ऑर्डर बनाएं',
-                totalRevenue: 'कुल राजस्व',
-                totalOrders: 'कुल ऑर्डर',
-                totalCustomers: 'कुल ग्राहक',
-                pendingOrders: 'लंबित ऑर्डर',
-                recentOrders: 'हाल के ऑर्डर',
-                viewAll: 'सभी देखें',
-                orderNumber: 'ऑर्डर #',
-                customer: 'ग्राहक',
-                amount: 'राशि',
-                status: 'स्थिति',
-                delivery: 'डिलीवरी',
-                noOrders: 'अभी कोई ऑर्डर नहीं',
-                quickActions: 'त्वरित क्रियाएं',
-                manageCustomers: 'ग्राहक प्रबंधित करें',
-                language: 'भाषा',
-                english: 'अंग्रेजी',
-                hindi: 'हिंदी',
-                selectIndustry: 'व्यवसाय प्रकार चुनें',
-                tailor: 'दर्जी की दुकान',
-                grocery: 'किराना स्टोर',
-                business: 'सामान्य व्यवसाय',
-                tailorDesc: 'दर्जी, फैशन डिजाइनर और अल्टरेशन शॉप के लिए उपयुक्त',
-                groceryDesc: 'किराना स्टोर, सुपरमार्केट और रिटेल शॉप के लिए आदर्श',
-                businessDesc: 'किसी भी सेवा या उत्पाद के लिए सामान्य व्यवसाय प्रबंधन',
-                measurements: 'माप',
-                specifications: 'विनिर्देश',
-                advancePayment: 'अग्रिम भुगतान',
-                totalAmount: 'कुल राशि',
-                targetDelivery: 'लक्षित डिलीवरी तिथि',
-                deliveryAddress: 'डिलीवरी पता',
-                items: 'आइटम',
-                addItem: 'आइटम जोड़ें',
-                itemName: 'आइटम का नाम',
-                quantity: 'मात्रा',
-                price: 'कीमत',
-                category: 'श्रेणी',
-                subCategory: 'उप-श्रेणी',
-                tailoring: 'सिलाई',
-                repair: 'मरम्मत',
-                alteration: 'बदलाव',
-                custom: 'कस्टम ऑर्डर',
-                groceryItems: 'किराना आइटम',
-                productName: 'उत्पाद का नाम',
-                weight: 'वजन (किग्रा)',
-                unitPrice: 'इकाई मूल्य',
-                stock: 'स्टॉक',
-                fabricType: 'कपड़े का प्रकार',
-                color: 'रंग',
-                design: 'डिज़ाइन',
-                stitchingType: 'सिलाई प्रकार',
-                clothType: 'कपड़े का प्रकार',
-                measurementsTaken: 'माप लिया गया',
-                deliveryStatus: 'डिलीवरी स्थिति',
-                paymentStatus: 'भुगतान स्थिति',
-                pending: 'लंबित',
-                inProgress: 'प्रगति में',
-                ready: 'तैयार',
-                delivered: 'डिलीवर',
-                cancelled: 'रद्द',
-                paid: 'भुगतान किया',
-                partial: 'आंशिक',
-                selectCustomer: 'ग्राहक चुनें',
-                expense: 'खर्च',
-                income: 'आय',
-                profit: 'लाभ',
-                loss: 'हानि',
-                supplier: 'आपूर्तिकर्ता',
-                employee: 'कर्मचारी',
-                attendance: 'उपस्थिति',
-                salary: 'वेतन',
-                leave: 'अवकाश',
-                task: 'कार्य',
-                performance: 'प्रदर्शन',
-                appointment: 'अपॉइंटमेंट',
-                deadline: 'समय सीमा',
-                reminder: 'रिमाइंडर',
-                notification: 'सूचना',
-                report: 'रिपोर्ट',
-                export: 'निर्यात',
-                pdf: 'पीडीएफ',
-                excel: 'एक्सेल',
-                print: 'प्रिंट',
-                invoice: 'इनवॉइस',
-                receipt: 'रसीद',
-                quotation: 'कोटेशन',
-                purchaseOrder: 'परचेस ऑर्डर',
-                warehouse: 'गोदाम',
-                lowStock: 'कम स्टॉक अलर्ट',
-                barcode: 'बारकोड',
-                qr: 'क्यूआर कोड',
-                loyalty: 'लॉयल्टी पॉइंट्स',
-                membership: 'मेंबरशिप',
-                birthday: 'जन्मदिन',
-                whatsapp: 'व्हाट्सएप',
-                ai: 'एआई इनसाइट्स',
-                prediction: 'बिक्री पूर्वानुमान',
-                suggestion: 'खर्च सुझाव',
-                generator: 'रिपोर्ट जनरेटर',
-                ecosystem: 'इकोसिस्टम',
-                franchise: 'फ्रेंचाइज',
-                vendor: 'वेंडर पोर्टल',
-                customerPortal: 'ग्राहक पोर्टल',
-                pwa: 'ऐप इंस्टॉल करें',
-            }
-        };
-
-        function t(key) {
-            const settings = settingsStorage.get();
-            const lang = settings.language || 'en';
-            return translations[lang]?.[key] || translations.en[key] || key;
-        }
-
-        // ============================================================
-        // 4. INDUSTRY CONFIGURATIONS
-        // ============================================================
-        const industryConfigs = {
-            tailor: {
-                label: 'Tailor Shop',
-                icon: 'fa-scissors',
-                color: 'blue',
-                badge: 'badge-tailor',
-                fields: ['fabricType', 'color', 'design', 'stitchingType', 'clothType'],
-                orderFields: ['measurements', 'fabricType', 'color', 'design', 'stitchingType', 'clothType'],
-                dashboardStats: ['totalOrders', 'totalCustomers', 'pendingOrders', 'totalRevenue'],
-                features: ['measurements', 'fabric', 'design', 'alterations'],
-            },
-            grocery: {
-                label: 'Grocery Store',
-                icon: 'fa-store',
-                color: 'green',
-                badge: 'badge-grocery',
-                fields: ['productName', 'weight', 'unitPrice', 'stock'],
-                orderFields: ['productName', 'weight', 'quantity', 'unitPrice'],
-                dashboardStats: ['totalOrders', 'totalCustomers', 'stockValue', 'totalRevenue'],
-                features: ['inventory', 'weightTracking', 'bulkOrders', 'stockManagement'],
-            },
-            business: {
-                label: 'General Business',
-                icon: 'fa-building',
-                color: 'yellow',
-                badge: 'badge-business',
-                fields: ['category', 'subCategory', 'specifications'],
-                orderFields: ['category', 'subCategory', 'specifications', 'items'],
-                dashboardStats: ['totalOrders', 'totalCustomers', 'pendingOrders', 'totalRevenue'],
-                features: ['generalOrders', 'customerManagement', 'paymentTracking'],
-            }
-        };
-
-        // ============================================================
-        // 5. HASH-BASED ROUTER
-        // ============================================================
-        let currentRoute = '/login';
-        const routerListeners = [];
-
-        function getRouteFromHash() {
-            const hash = window.location.hash.slice(1) || '/';
-            return hash;
-        }
-
-        function navigate(route) {
-            if (!route.startsWith('/')) route = '/' + route;
-            currentRoute = route;
-            window.location.hash = route;
-            routerListeners.forEach(fn => fn());
-            // Scroll to top
-            window.scrollTo(0, 0);
-        }
-
-        function onRouteChange(fn) {
-            routerListeners.push(fn);
-            return () => { routerListeners = routerListeners.filter(f => f !== fn); };
-        }
-
-        window.addEventListener('hashchange', () => {
-            currentRoute = getRouteFromHash();
-            routerListeners.forEach(fn => fn());
+      // attach events to buttons (increase progress)
+      grid.querySelectorAll('[data-action="increase"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const id = this.dataset.id;
+          let prog = loadProgress();
+          if (!(id in prog)) prog[id] = 10;
+          let newVal = Math.min(100, prog[id] + 12);
+          prog[id] = newVal;
+          saveProgress(prog);
+          renderAll();
         });
+      });
+    }
 
-        // ============================================================
-        // 6. REACT-LIKE RENDER ENGINE
-        // ============================================================
-        let appState = appStateStorage.getState();
-        let appListeners = [];
+    function renderCodingGrid(progress) {
+      const grid = document.getElementById('codingGrid');
+      grid.innerHTML = '';
+      codingCourses.forEach(course => {
+        const pct = progress[course.id] || 0;
+        const item = document.createElement('div');
+        item.className = 'coding-item';
+        item.innerHTML = `
+          <i class="${course.icon}" style="color: ${course.color};"></i>
+          <span>${course.title}</span>
+          <small>${course.desc} · ${pct}%</small>
+          <div style="margin-top: 8px;">
+            <button class="btn-start" style="padding: 0.2rem 1rem; font-size:0.7rem;" data-id="${course.id}" data-action="increaseCode"><i class="fas fa-plus"></i> learn</button>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
 
-        function setAppState(newState) {
-            appState = { ...appState, ...newState };
-            appStateStorage.setState(appState);
-            appListeners.forEach(fn => fn());
+      grid.querySelectorAll('[data-action="increaseCode"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const id = this.dataset.id;
+          let prog = loadProgress();
+          if (!(id in prog)) prog[id] = 10;
+          let newVal = Math.min(100, prog[id] + 15);
+          prog[id] = newVal;
+          saveProgress(prog);
+          renderAll();
+        });
+      });
+    }
+
+    function renderCodingPaths(progress) {
+      const grid = document.getElementById('codingPathGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      codingPaths.forEach(path => {
+        const pct = progress[path.id] || 0;
+        const card = document.createElement('div');
+        card.className = 'course-card';
+        card.innerHTML = `
+          <div class="course-icon"><i class="${path.icon}"></i></div>
+          <div class="course-title">${path.title}</div>
+          <div class="course-desc">${path.desc}</div>
+          <div class="course-progress"><div class="progress-fill" style="width: ${pct}%;"></div></div>
+          <div class="card-footer"><span>${pct}%</span><span>path</span></div>
+          <button class="btn-start" data-id="${path.id}" data-action="increasePath"><i class="fas fa-arrow-right"></i> advance</button>
+        `;
+        grid.appendChild(card);
+      });
+
+      grid.querySelectorAll('[data-action="increasePath"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const id = this.dataset.id;
+          let prog = loadProgress();
+          if (!(id in prog)) prog[id] = 10;
+          let newVal = Math.min(100, prog[id] + 10);
+          prog[id] = newVal;
+          saveProgress(prog);
+          renderAll();
+        });
+      });
+    }
+
+    function renderAll() {
+      const progress = getProgress();
+      renderLanguageCards(progress);
+      renderCodingGrid(progress);
+      renderCodingPaths(progress);
+    }
+
+    // ----- TABS -----
+    function initTabs() {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = {
+        lang: document.getElementById('lang-panel'),
+        code: document.getElementById('code-panel')
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          tabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          const target = this.dataset.tab;
+          Object.keys(panels).forEach(key => {
+            panels[key].classList.toggle('active', key === target);
+          });
+        });
+      });
+    }
+
+    // ----- RESET BUTTON -----
+    function initReset() {
+      document.getElementById('resetProgressBtn').addEventListener('click', function() {
+        if (confirm('Reset all progress? (localStorage will be updated)')) {
+          resetAllProgress();
         }
-
-        function subscribe(listener) {
-            appListeners.push(listener);
-            return () => { appListeners = appListeners.filter(fn => fn !== listener); };
-        }
-
-        function rerender() {
-            clearTimeout(window._rerenderTimeout);
-            window._rerenderTimeout = setTimeout(() => {
-                renderRoute();
-            }, 10);
-        }
-
-        // ============================================================
-        // 7. COMPONENTS
-        // ============================================================
-
-        // ---- Shop Switcher ----
-        function ShopSwitcher() {
-            const shops = shopStorage.getAll();
-            const currentShop = shops.find(s => s.id === appState.currentShopId);
-            let isOpen = false;
-
-            const container = document.createElement('div');
-            container.className = 'relative';
-
-            const btn = document.createElement('button');
-            btn.className =
-                'flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm';
-            const industry = currentShop?.industry || 'business';
-            const config = industryConfigs[industry] || industryConfigs.business;
-            btn.innerHTML = `
-                <i class="fas ${config.icon} text-gray-600"></i>
-                <span class="font-medium text-gray-700">${currentShop?.name || t('selectShop')}</span>
-                <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
-            `;
-            btn.onclick = (e) => { e.stopPropagation();
-                isOpen = !isOpen;
-                rerender(); };
-            container.appendChild(btn);
-
-            if (isOpen) {
-                const dropdown = document.createElement('div');
-                dropdown.className =
-                    'absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-80 overflow-y-auto';
-                const list = document.createElement('div');
-                list.className = 'p-2';
-
-                shops.forEach(shop => {
-                    const config = industryConfigs[shop.industry] || industryConfigs.business;
-                    const item = document.createElement('button');
-                    item.className =
-                        `w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${shop.id === appState.currentShopId ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-100 text-gray-700'}`;
-                    item.innerHTML = `
-                        <i class="fas ${config.icon}"></i>
-                        <span class="flex-1 text-left">${shop.name}</span>
-                        <span class="text-xs ${config.badge}">${config.label}</span>
-                        ${shop.id === appState.currentShopId ? '<span class="text-xs text-indigo-600">Active</span>' : ''}
-                    `;
-                    item.onclick = (e) => { e.stopPropagation();
-                        setAppState({ currentShopId: shop.id });
-                        isOpen = false;
-                        rerender(); };
-                    list.appendChild(item);
-                });
-
-                dropdown.appendChild(list);
-                container.appendChild(dropdown);
-
-                const closeHandler = (e) => {
-                    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-                        isOpen = false;
-                        rerender();
-                        document.removeEventListener('click', closeHandler);
-                    }
-                };
-                setTimeout(() => document.addEventListener('click', closeHandler), 0);
-            }
-
-            return container;
-        }
-
-        // ---- Layout ----
-        function Layout({ children, title = 'Dashboard' }) {
-            const currentUser = appState.currentUser;
-            const currentShop = shopStorage.getById(appState.currentShopId);
-            const industry = currentShop?.industry || 'business';
-            const config = industryConfigs[industry] || industryConfigs.business;
-
-            const navItems = [
-                { name: t('dashboard'), href: '/dashboard', icon: 'fa-gauge-high' },
-                { name: t('analytics'), href: '/analytics', icon: 'fa-chart-line' },
-                { name: t('customers'), href: '/customers', icon: 'fa-users' },
-                { name: t('orders'), href: '/orders', icon: 'fa-box' },
-                { name: t('payments'), href: '/payments', icon: 'fa-credit-card' },
-                { name: t('finance'), href: '/finance', icon: 'fa-wallet' },
-                { name: t('inventory'), href: '/inventory', icon: 'fa-cubes' },
-                { name: t('crm'), href: '/crm', icon: 'fa-handshake' },
-                { name: t('employees'), href: '/employees', icon: 'fa-user-tie' },
-                { name: t('calendar'), href: '/calendar', icon: 'fa-calendar' },
-                { name: t('reports'), href: '/reports', icon: 'fa-file-alt' },
-                { name: t('notifications'), href: '/notifications', icon: 'fa-bell' },
-                { name: t('settings'), href: '/settings', icon: 'fa-gear' },
-            ];
-
-            const restricted = {
-                owner: [],
-                manager: ['/settings'],
-                cashier: ['/settings', '/customers', '/employees'],
-                worker: ['/dashboard', '/orders'],
-                delivery: ['/dashboard', '/orders'],
-            };
-
-            const allowed = navItems.filter(item =>
-                !(restricted[currentUser?.role] || []).includes(item.href)
-            );
-
-            const container = document.createElement('div');
-            container.className = 'min-h-screen bg-gray-50';
-
-            // Mobile header
-            const mobileHeader = document.createElement('div');
-            mobileHeader.className = 'lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30';
-            mobileHeader.innerHTML = `
-                <button id="mobileMenuToggle" class="text-gray-600 hover:text-gray-900"><i class="fas fa-bars text-xl"></i></button>
-                <h1 class="text-lg font-semibold text-gray-900">${t('appName')}</h1>
-                <div class="flex items-center space-x-3">
-                    <div id="mobileShopSwitcher"></div>
-                    <i class="fas fa-user-circle text-2xl text-gray-600"></i>
-                </div>
-            `;
-            container.appendChild(mobileHeader);
-
-            const flex = document.createElement('div');
-            flex.className = 'flex';
-
-            // Sidebar
-            const sidebar = document.createElement('aside');
-            sidebar.className =
-                'fixed top-0 left-0 z-40 w-64 h-full bg-white border-r border-gray-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto';
-            sidebar.id = 'sidebar';
-
-            sidebar.innerHTML = `
-                <div class="flex flex-col h-full">
-                    <div class="p-6 border-b border-gray-200">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center text-white">
-                                <i class="fas fa-rocket"></i>
-                            </div>
-                            <div>
-                                <h1 class="text-xl font-bold gradient-text">${t('appName')}</h1>
-                                <p class="text-xs text-gray-500">${config.label}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 border-b border-gray-200">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                <span class="text-indigo-600 font-semibold">${currentUser?.name?.charAt(0) || 'U'}</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate">${currentUser?.name || 'Guest'}</p>
-                                <p class="text-xs text-gray-500 capitalize">${currentUser?.role || 'No Role'}</p>
-                            </div>
-                        </div>
-                        <div class="mt-2" id="sidebarShopSwitcher"></div>
-                    </div>
-                    <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
-                        ${allowed.map(item => {
-                            const isActive = currentRoute === item.href;
-                            return `
-                                <a href="#${item.href}" class="sidebar-item flex items-center px-4 py-2.5 rounded-lg transition-colors ${isActive ? 'active' : 'text-gray-700 hover:bg-gray-100'}">
-                                    <i class="fas ${item.icon} w-5"></i>
-                                    <span class="ml-3 text-sm">${item.name}</span>
-                                </a>
-                            `;
-                        }).join('')}
-                    </nav>
-                    <div class="p-4 border-t border-gray-200">
-                        <button onclick="handleLogout()" class="flex items-center w-full px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <i class="fas fa-sign-out-alt w-5"></i>
-                            <span class="ml-3">${t('logout')}</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-            flex.appendChild(sidebar);
-
-            const main = document.createElement('main');
-            main.className = 'flex-1 min-w-0 p-4 md:p-6';
-            main.innerHTML = `
-                <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                    <h1 class="text-2xl font-bold text-gray-900">${title}</h1>
-                    <div class="flex items-center space-x-3">
-                        ${currentShop ? `<span class="badge ${config.badge}">${config.label}</span>` : ''}
-                        <button onclick="window.location.reload()" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="pageContent"></div>
-            `;
-            flex.appendChild(main);
-            container.appendChild(flex);
-
-            setTimeout(() => {
-                const mobileSS = document.getElementById('mobileShopSwitcher');
-                const sidebarSS = document.getElementById('sidebarShopSwitcher');
-                if (mobileSS) { const ss = ShopSwitcher();
-                    mobileSS.appendChild(ss); }
-                if (sidebarSS) { const ss = ShopSwitcher();
-                    sidebarSS.appendChild(ss); }
-
-                const toggle = document.getElementById('mobileMenuToggle');
-                if (toggle) {
-                    toggle.onclick = () => {
-                        const sb = document.getElementById('sidebar');
-                        sb.classList.toggle('translate-x-0');
-                        sb.classList.toggle('-translate-x-full');
-                    };
-                }
-
-                document.querySelectorAll('#sidebar nav a').forEach(a => {
-                    a.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const href = a.getAttribute('href');
-                        if (href) {
-                            const route = href.replace('#', '');
-                            navigate(route);
-                            rerender();
-                        }
-                        if (window.innerWidth < 1024) {
-                            const sb = document.getElementById('sidebar');
-                            sb.classList.add('-translate-x-full');
-                            sb.classList.remove('translate-x-0');
-                        }
-                    });
-                });
-            }, 0);
-
-            setTimeout(() => {
-                const content = document.getElementById('pageContent');
-                if (content && children) {
-                    content.innerHTML = '';
-                    content.appendChild(children);
-                }
-            }, 10);
-
-            return container;
-        }
-
-        // ============================================================
-        // 8. PAGES
-        // ============================================================
-
-        // ---- Login Page ----
-        function LoginPage() {
-            const container = document.createElement('div');
-            container.className = 'min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4';
-
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-3xl shadow-2xl w-full max-w-5xl overflow-hidden border border-gray-100';
-
-            const shops = shopStorage.getAll();
-
-            card.innerHTML = `
-                <div class="grid md:grid-cols-2">
-                    <div class="p-8 md:p-12">
-                        <div class="text-center mb-8">
-                            <div class="flex justify-center mb-4">
-                                <div class="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center text-white text-2xl shadow-lg">
-                                    <i class="fas fa-rocket"></i>
-                                </div>
-                            </div>
-                            <h1 class="text-2xl font-bold gradient-text">${t('appName')}</h1>
-                            <p class="text-sm text-gray-500 mt-1">Multi-Business Management Suite</p>
-                        </div>
-                        <form id="loginForm" class="space-y-5">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('selectShop')}</label>
-                                <select id="loginShop" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
-                                    <option value="">${t('selectShop')}</option>
-                                    ${shops.map(s => {
-                                        const config = industryConfigs[s.industry] || industryConfigs.business;
-                                        return `<option value="${s.id}">${s.name} (${config.label})</option>`;
-                                    }).join('')}
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('email')}</label>
-                                <input type="email" id="loginEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="your@email.com" value="admin@prosaas.com">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('password')}</label>
-                                <input type="password" id="loginPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="••••••••" value="admin123">
-                            </div>
-                            <div id="loginError" class="hidden bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm"></div>
-                            <button type="submit" class="w-full px-4 py-3 bg-gradient-primary text-white rounded-xl hover:shadow-lg transition-all font-medium">
-                                ${t('signIn')}
-                            </button>
-                        </form>
-                        <div class="mt-6 text-center">
-                            <p class="text-xs text-gray-400">${t('demoCreds')}</p>
-                            <button id="seedBtn" class="mt-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium">${t('seedData')}</button>
-                        </div>
-                    </div>
-                    <div class="hidden md:block bg-gradient-to-br from-indigo-600 to-purple-700 p-10 text-white">
-                        <div class="h-full flex flex-col justify-center">
-                            <h2 class="text-3xl font-bold mb-6">${t('selectIndustry')}</h2>
-                            <div class="space-y-4">
-                                ${Object.entries(industryConfigs).map(([key, config]) => `
-                                    <div class="bg-white/10 backdrop-blur rounded-2xl p-5 hover:bg-white/20 transition-all cursor-pointer">
-                                        <div class="flex items-center space-x-4">
-                                            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
-                                                <i class="fas ${config.icon}"></i>
-                                            </div>
-                                            <div>
-                                                <h3 class="font-semibold text-lg">${t(key)}</h3>
-                                                <p class="text-xs text-white/80">${t(key + 'Desc')}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div class="mt-8 text-center">
-                                <p class="text-white/60 text-sm">✨ Professional SaaS Platform</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(card);
-
-            setTimeout(() => {
-                document.getElementById('loginForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const shopId = document.getElementById('loginShop').value;
-                    const email = document.getElementById('loginEmail').value;
-                    const password = document.getElementById('loginPassword').value;
-                    const errorEl = document.getElementById('loginError');
-
-                    if (!shopId) {
-                        errorEl.textContent = 'Please select a business';
-                        errorEl.classList.remove('hidden');
-                        return;
-                    }
-
-                    const users = userStorage.getAll();
-                    const user = users.find(u =>
-                        u.email === email && u.password === password && u.shopId === shopId
-                    );
-
-                    if (user) {
-                        setAppState({ currentShopId: shopId, currentUser: user });
-                        navigate('/dashboard');
-                        rerender();
-                    } else {
-                        errorEl.textContent = 'Invalid credentials or business selection';
-                        errorEl.classList.remove('hidden');
-                    }
-                });
-
-                document.getElementById('seedBtn').addEventListener('click', function() {
-                    seedMockData();
-                    const select = document.getElementById('loginShop');
-                    const shops = shopStorage.getAll();
-                    select.innerHTML = `<option value="">${t('selectShop')}</option>${
-                        shops.map(s => {
-                            const config = industryConfigs[s.industry] || industryConfigs.business;
-                            return `<option value="${s.id}">${s.name} (${config.label})</option>`;
-                        }).join('')
-                    }`;
-                    alert('✅ Demo data seeded successfully!\n\nYou can now login with:\nadmin@prosaas.com / admin123');
-                });
-            }, 0);
-
-            return container;
-        }
-
-        // ---- Dashboard ----
-        function DashboardPage() {
-            const shopId = appState.currentShopId;
-            const shop = shopStorage.getById(shopId);
-            const industry = shop?.industry || 'business';
-
-            const customers = customerStorage.getByShopId(shopId);
-            const orders = orderStorage.getByShopId(shopId);
-            const payments = paymentStorage.getAll().filter(p => orders.some(o => o.id === p.orderId));
-            const expenses = expenseStorage.getByShopId(shopId);
-            
-            const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
-            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-            const profit = totalRevenue - totalExpenses;
-            const pendingOrders = orders.filter(o => o.status === 'pending').length;
-            const completedOrders = orders.filter(o => o.status === 'delivered' || o.status === 'ready').length;
-
-            // Recent activity
-            const recentActivities = activityStorage.getByShopId(shopId).slice(0, 5);
-
-            const container = document.createElement('div');
-
-            // Welcome banner
-            const banner = document.createElement('div');
-            banner.className = 'bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white mb-6 shadow-lg';
-            banner.innerHTML = `
-                <div class="flex flex-wrap items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold">Welcome back, ${appState.currentUser?.name || 'User'}! 👋</h2>
-                        <p class="text-white/80 mt-1">${shop?.name || 'Your Business'} • ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    </div>
-                    <div class="flex space-x-3 mt-3 sm:mt-0">
-                        <button onclick="navigate('/orders')" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all text-sm font-medium backdrop-blur">
-                            <i class="fas fa-plus mr-2"></i>${t('newOrder')}
-                        </button>
-                        <button onclick="navigate('/customers')" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all text-sm font-medium backdrop-blur">
-                            <i class="fas fa-users mr-2"></i>${t('customers')}
-                        </button>
-                    </div>
-                </div>
-            `;
-            container.appendChild(banner);
-
-            // KPI Cards
-            const kpiGrid = document.createElement('div');
-            kpiGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6';
-            
-            const kpis = [
-                { label: t('totalRevenue'), value: formatCurrency(totalRevenue), icon: 'fa-chart-line', color: 'bg-gradient-success' },
-                { label: t('totalOrders'), value: orders.length, icon: 'fa-box', color: 'bg-gradient-info' },
-                { label: t('totalCustomers'), value: customers.length, icon: 'fa-users', color: 'bg-gradient-primary' },
-                { label: 'Profit/Loss', value: formatCurrency(profit), icon: 'fa-wallet', color: profit >= 0 ? 'bg-gradient-success' : 'bg-gradient-danger' },
-            ];
-
-            kpiGrid.innerHTML = kpis.map(kpi => `
-                <div class="bg-white rounded-xl border border-gray-200 p-5 card-hover shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500">${kpi.label}</p>
-                            <p class="text-2xl font-bold text-gray-900 mt-1">${kpi.value}</p>
-                        </div>
-                        <div class="${kpi.color} p-3 rounded-xl text-white shadow-lg">
-                            <i class="fas ${kpi.icon}"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center space-x-2">
-                        <span class="text-xs ${profit >= 0 ? 'text-green-600' : 'text-red-600'}">
-                            <i class="fas ${profit >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
-                            ${Math.abs(profit).toFixed(0)}% vs last month
-                        </span>
-                    </div>
-                </div>
-            `).join('');
-            container.appendChild(kpiGrid);
-
-            // Charts Row
-            const chartRow = document.createElement('div');
-            chartRow.className = 'grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6';
-            chartRow.innerHTML = `
-                <div class="bg-white rounded-xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-3">Revenue Overview</h3>
-                    <canvas id="revenueChart" height="200"></canvas>
-                </div>
-                <div class="bg-white rounded-xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-3">Order Status</h3>
-                    <canvas id="orderChart" height="200"></canvas>
-                </div>
-            `;
-            container.appendChild(chartRow);
-
-            // Recent Orders & Activity
-            const bottomRow = document.createElement('div');
-            bottomRow.className = 'grid grid-cols-1 lg:grid-cols-2 gap-4';
-
-            // Recent Orders
-            const ordersSection = document.createElement('div');
-            ordersSection.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
-            let ordersHtml = '';
-            if (orders.length === 0) {
-                ordersHtml = `<div class="text-center py-8 text-gray-500"><i class="fas fa-box text-3xl mb-2"></i><p>${t('noOrders')}</p></div>`;
-            } else {
-                ordersHtml = `
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('orderNumber')}</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('customer')}</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('amount')}</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('status')}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            ${orders.slice(0, 5).map(order => `
-                                <tr class="hover:bg-gray-50 cursor-pointer" onclick="navigate('/orders')">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${order.orderNumber}</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${customers.find(c => c.id === order.customerId)?.name || 'Unknown'}</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${formatCurrency(order.totalAmount)}</td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="status-badge ${order.status === 'pending' ? 'status-pending' : order.status === 'in-progress' ? 'status-in-progress' : order.status === 'ready' ? 'status-ready' : order.status === 'delivered' ? 'status-delivered' : 'status-cancelled'}">
-                                            ${t(order.status) || order.status}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            ordersSection.innerHTML = `
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 class="font-semibold text-gray-900">${t('recentOrders')}</h3>
-                    <button onclick="navigate('/orders')" class="text-sm text-indigo-600 hover:text-indigo-700">${t('viewAll')}</button>
-                </div>
-                <div class="overflow-x-auto">${ordersHtml}</div>
-            `;
-            bottomRow.appendChild(ordersSection);
-
-            // Recent Activity
-            const activitySection = document.createElement('div');
-            activitySection.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
-            let activityHtml = '';
-            if (recentActivities.length === 0) {
-                activityHtml = `<div class="text-center py-8 text-gray-500"><i class="fas fa-clock text-3xl mb-2"></i><p>No recent activity</p></div>`;
-            } else {
-                activityHtml = recentActivities.map(act => `
-                    <div class="flex items-start space-x-3 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-circle text-indigo-500 text-xs"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm text-gray-700">${act.details}</p>
-                            <p class="text-xs text-gray-400">${new Date(act.timestamp).toLocaleString()}</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            activitySection.innerHTML = `
-                <div class="p-4 border-b border-gray-200">
-                    <h3 class="font-semibold text-gray-900">Recent Activity</h3>
-                </div>
-                <div class="max-h-80 overflow-y-auto">${activityHtml}</div>
-            `;
-            bottomRow.appendChild(activitySection);
-
-            container.appendChild(bottomRow);
-
-            // Initialize charts after render
-            setTimeout(() => {
-                // Revenue chart
-                const revenueCtx = document.getElementById('revenueChart');
-                if (revenueCtx) {
-                    const ctx = revenueCtx.getContext('2d');
-                    const last7Days = [];
-                    const revenueData = [];
-                    for (let i = 6; i >= 0; i--) {
-                        const d = new Date();
-                        d.setDate(d.getDate() - i);
-                        last7Days.push(d.toLocaleDateString('en-IN', { weekday: 'short' }));
-                        const dayOrders = orders.filter(o => new Date(o.createdAt).toDateString() === d.toDateString());
-                        const dayRevenue = dayOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-                        revenueData.push(dayRevenue);
-                    }
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: last7Days,
-                            datasets: [{
-                                label: 'Revenue',
-                                data: revenueData,
-                                borderColor: '#4f46e5',
-                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { display: false } },
-                            scales: { y: { beginAtZero: true } }
-                        }
-                    });
-                }
-
-                // Order status chart
-                const orderCtx = document.getElementById('orderChart');
-                if (orderCtx) {
-                    const ctx = orderCtx.getContext('2d');
-                    const statusCounts = {
-                        pending: orders.filter(o => o.status === 'pending').length,
-                        'in-progress': orders.filter(o => o.status === 'in-progress').length,
-                        ready: orders.filter(o => o.status === 'ready').length,
-                        delivered: orders.filter(o => o.status === 'delivered').length,
-                        cancelled: orders.filter(o => o.status === 'cancelled').length,
-                    };
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Pending', 'In Progress', 'Ready', 'Delivered', 'Cancelled'],
-                            datasets: [{
-                                data: [statusCounts.pending, statusCounts['in-progress'], statusCounts.ready, statusCounts
-                                    .delivered, statusCounts.cancelled
-                                ],
-                                backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#6b7280', '#ef4444'],
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { position: 'bottom' } }
-                        }
-                    });
-                }
-            }, 100);
-
-            return container;
-        }
-
-        // ---- Analytics Page ----
-        function AnalyticsPage() {
-            const shopId = appState.currentShopId;
-            const orders = orderStorage.getByShopId(shopId);
-            const customers = customerStorage.getByShopId(shopId);
-            const payments = paymentStorage.getAll().filter(p => orders.some(o => o.id === p.orderId));
-            const expenses = expenseStorage.getByShopId(shopId);
-
-            const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
-            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-            const profit = totalRevenue - totalExpenses;
-
-            // Top customers
-            const customerSpending = {};
-            orders.forEach(o => {
-                if (!customerSpending[o.customerId]) customerSpending[o.customerId] = 0;
-                customerSpending[o.customerId] += o.totalAmount;
-            });
-            const topCustomers = Object.entries(customerSpending)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5)
-                .map(([id, amount]) => {
-                    const customer = customers.find(c => c.id === id);
-                    return { name: customer?.name || 'Unknown', amount };
-                });
-
-            // Best selling products
-            const productSales = {};
-            orders.forEach(o => {
-                (o.items || []).forEach(item => {
-                    if (!productSales[item.name]) productSales[item.name] = 0;
-                    productSales[item.name] += item.quantity;
-                });
-            });
-            const topProducts = Object.entries(productSales)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-
-            const container = document.createElement('div');
-            container.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <p class="text-sm text-gray-500">Total Revenue</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">${formatCurrency(totalRevenue)}</p>
-                        <span class="text-xs text-green-600"><i class="fas fa-arrow-up"></i> 12.5%</span>
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <p class="text-sm text-gray-500">Total Expenses</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">${formatCurrency(totalExpenses)}</p>
-                        <span class="text-xs text-red-600"><i class="fas fa-arrow-down"></i> 5.2%</span>
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <p class="text-sm text-gray-500">Net Profit</p>
-                        <p class="text-2xl font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'} mt-1">${formatCurrency(profit)}</p>
-                        <span class="text-xs ${profit >= 0 ? 'text-green-600' : 'text-red-600'}"><i class="fas ${profit >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> ${(profit / (totalRevenue || 1) * 100).toFixed(1)}% margin</span>
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <p class="text-sm text-gray-500">Growth Rate</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">${orders.length > 0 ? ((orders.length / (orders.length + 1)) * 100).toFixed(1) : 0}%</p>
-                        <span class="text-xs text-green-600"><i class="fas fa-arrow-up"></i> Month over month</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="font-semibold text-gray-900 mb-3">Revenue vs Expenses</h3>
-                        <canvas id="revenueExpenseChart" height="200"></canvas>
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="font-semibold text-gray-900 mb-3">Top Customers</h3>
-                        ${topCustomers.length === 0 ? '<p class="text-gray-500 text-sm">No data available</p>' : 
-                            topCustomers.map((c, i) => `
-                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                    <div class="flex items-center space-x-3">
-                                        <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">${i + 1}</span>
-                                        <span class="text-sm text-gray-700">${c.name}</span>
-                                    </div>
-                                    <span class="text-sm font-medium text-gray-900">${formatCurrency(c.amount)}</span>
-                                </div>
-                            `).join('')
-                        }
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="font-semibold text-gray-900 mb-3">Top Products</h3>
-                        ${topProducts.length === 0 ? '<p class="text-gray-500 text-sm">No data available</p>' :
-                            topProducts.map(([name, qty]) => `
-                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                                    <span class="text-sm text-gray-700">${name}</span>
-                                    <span class="text-sm font-medium text-gray-900">${qty} units</span>
-                                </div>
-                            `).join('')
-                        }
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="font-semibold text-gray-900 mb-3">AI Insights</h3>
-                        <div class="space-y-3">
-                            <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-                                <div class="flex items-start space-x-3">
-                                    <i class="fas fa-robot text-indigo-600 mt-1"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-700">Based on your data, ${topProducts.length > 0 ? topProducts[0][0] : 'products'} is your best seller.</p>
-                                        <p class="text-xs text-gray-500 mt-1">AI Recommendation: Increase stock by 20%</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-green-50 rounded-xl p-4 border border-green-100">
-                                <div class="flex items-start space-x-3">
-                                    <i class="fas fa-lightbulb text-green-600 mt-1"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-700">Your profit margin is ${(profit / (totalRevenue || 1) * 100).toFixed(1)}%</p>
-                                        <p class="text-xs text-gray-500 mt-1">AI Suggestion: Reduce expenses by 10% to increase margin</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
-                                <div class="flex items-start space-x-3">
-                                    <i class="fas fa-chart-line text-purple-600 mt-1"></i>
-                                    <div>
-                                        <p class="text-sm text-gray-700">Sales are expected to grow by ${(orders.length > 0 ? ((orders.length / (orders.length + 1)) * 100) : 0).toFixed(1)}% next month</p>
-                                        <p class="text-xs text-gray-500 mt-1">AI Prediction based on historical data</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                const ctx = document.getElementById('revenueExpenseChart');
-                if (ctx) {
-                    const chartCtx = ctx.getContext('2d');
-                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                    const revenueData = months.map(() => Math.floor(Math.random() * 50000) + 10000);
-                    const expenseData = months.map(() => Math.floor(Math.random() * 30000) + 5000);
-                    new Chart(chartCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: months,
-                            datasets: [
-                                { label: 'Revenue', data: revenueData, backgroundColor: '#4f46e5', borderRadius: 6 },
-                                { label: 'Expenses', data: expenseData, backgroundColor: '#ef4444', borderRadius: 6 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { position: 'bottom' } },
-                            scales: { y: { beginAtZero: true } }
-                        }
-                    });
-                }
-            }, 100);
-
-            return container;
-        }
-
-        // ---- Finance Page ----
-        function FinancePage() {
-            const shopId = appState.currentShopId;
-            const expenses = expenseStorage.getByShopId(shopId);
-            const payments = paymentStorage.getAll();
-            const orders = orderStorage.getByShopId(shopId);
-            const shopPayments = payments.filter(p => orders.some(o => o.id === p.orderId));
-
-            const totalIncome = shopPayments.reduce((sum, p) => sum + p.amount, 0);
-            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-            const profit = totalIncome - totalExpenses;
-
-            let showExpenseForm = false;
-
-            const container = document.createElement('div');
-
-            // Finance Summary Cards
-            const summary = document.createElement('div');
-            summary.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6';
-            summary.innerHTML = `
-                <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <p class="text-sm text-gray-500">Total Income</p>
-                    <p class="text-2xl font-bold text-green-600 mt-1">${formatCurrency(totalIncome)}</p>
-                </div>
-                <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <p class="text-sm text-gray-500">Total Expenses</p>
-                    <p class="text-2xl font-bold text-red-600 mt-1">${formatCurrency(totalExpenses)}</p>
-                </div>
-                <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <p class="text-sm text-gray-500">Net Profit</p>
-                    <p class="text-2xl font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'} mt-1">${formatCurrency(profit)}</p>
-                </div>
-                <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <p class="text-sm text-gray-500">Expenses Count</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">${expenses.length}</p>
-                </div>
-            `;
-            container.appendChild(summary);
-
-            // Add Expense Button
-            const actionBar = document.createElement('div');
-            actionBar.className = 'flex flex-wrap justify-between items-center gap-3 mb-4';
-            actionBar.innerHTML = `
-                <h3 class="font-semibold text-gray-900">Expense Management</h3>
-                <button id="addExpenseBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-medium">
-                    <i class="fas fa-plus mr-2"></i>Add Expense
-                </button>
-            `;
-            container.appendChild(actionBar);
-
-            // Expenses Table
-            const expenseTable = document.createElement('div');
-            expenseTable.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
-
-            let expenseHtml = '';
-            if (expenses.length === 0) {
-                expenseHtml = `<div class="text-center py-8 text-gray-500"><i class="fas fa-receipt text-3xl mb-2"></i><p>No expenses recorded</p></div>`;
-            } else {
-                expenseHtml = `
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            ${expenses.map(e => `
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm"><span class="badge bg-gray-100 text-gray-700">${e.category}</span></td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${e.description}</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-red-600">${formatCurrency(e.amount)}</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${formatDate(e.date)}</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <button onclick="deleteExpense('${e.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            expenseTable.innerHTML = `
-                <div class="p-4 border-b border-gray-200">
-                    <h3 class="font-semibold text-gray-900">All Expenses</h3>
-                </div>
-                <div class="overflow-x-auto">${expenseHtml}</div>
-            `;
-            container.appendChild(expenseTable);
-
-            // Expense Form Modal
-            window.showExpenseForm = function() {
-                const overlay = document.createElement('div');
-                overlay.className = 'fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4';
-                overlay.innerHTML = `
-                    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">Add Expense</h2>
-                        <form id="expenseForm" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select id="expCategory" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">
-                                    <option value="Rent">Rent</option>
-                                    <option value="Salary">Salary</option>
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Supplies">Supplies</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <input type="text" id="expDescription" required class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="Expense description">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                                <input type="number" id="expAmount" required min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="0.00">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                                <input type="date" id="expDate" required class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                            <div class="flex space-x-3 pt-4">
-                                <button type="button" onclick="this.closest('.fixed').remove()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
-                                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">Save</button>
-                            </div>
-                        </form>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-
-                document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
-
-                document.getElementById('expenseForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const category = document.getElementById('expCategory').value;
-                    const description = document.getElementById('expDescription').value.trim();
-                    const amount = parseFloat(document.getElementById('expAmount').value);
-                    const date = document.getElementById('expDate').value;
-
-                    if (!description || !amount || !date) {
-                        alert('Please fill in all fields');
-                        return;
-                    }
-
-                    expenseStorage.create({
-                        shopId: appState.currentShopId,
-                        category,
-                        description,
-                        amount,
-                        date,
-                        createdAt: new Date().toISOString(),
-                    });
-
-                    logActivity(appState.currentShopId, appState.currentUser?.id || '', 'expense_added',
-                        `Expense added: ${description} - ${formatCurrency(amount)}`);
-
-                    overlay.remove();
-                    rerender();
-                });
-            };
-
-            window.deleteExpense = function(id) {
-                if (confirm('Delete this expense?')) {
-                    expenseStorage.delete(id);
-                    rerender();
-                }
-            };
-
-            setTimeout(() => {
-                document.getElementById('addExpenseBtn')?.addEventListener('click', () => {
-                    window.showExpenseForm();
-                });
-            }, 0);
-
-            return container;
-        }
-
-        // ---- Customers Page (Simplified) ----
-        function CustomersPage() {
-            const shopId = appState.currentShopId;
-            let customers = customerStorage.getByShopId(shopId);
-            let searchQuery = '';
-
-            function renderCustomers() {
-                const filtered = searchQuery ? searchCustomers(searchQuery, shopId) : customers;
-
-                if (filtered.length === 0) {
-                    return `
-                        <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
-                            <i class="fas fa-user text-5xl text-gray-300"></i>
-                            <h3 class="mt-4 text-lg font-medium text-gray-900">${t('noCustomers')}</h3>
-                            <p class="mt-1 text-sm text-gray-500">${t('addFirstCustomer')}</p>
-                        </div>
-                    `;
-                }
-
-                return `
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        ${filtered.map(customer => `
-                            <div class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        ${customer.photo ? 
-                                            `<img src="${customer.photo}" alt="${customer.name}" class="w-12 h-12 rounded-full object-cover">` :
-                                            `<div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                                                <span class="text-indigo-600 font-semibold text-lg">${customer.name.charAt(0)}</span>
-                                            </div>`
-                                        }
-                                        <div>
-                                            <h3 class="font-medium text-gray-900">${customer.name}</h3>
-                                            <p class="text-sm text-gray-500">${customer.mobile}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex space-x-1">
-                                        <button onclick="editCustomer('${customer.id}')" class="p-1.5 text-gray-400 hover:text-indigo-600 transition-colors">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button onclick="deleteCustomer('${customer.id}')" class="p-1.5 text-gray-400 hover:text-red-600 transition-colors">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="mt-4 space-y-1">
-                                    ${customer.address ? `<div class="flex items-center space-x-2 text-sm text-gray-600"><i class="fas fa-map-pin w-4"></i><span class="truncate">${customer.address}</span></div>` : ''}
-                                    ${customer.email ? `<div class="flex items-center space-x-2 text-sm text-gray-600"><i class="fas fa-envelope w-4"></i><span class="truncate">${customer.email}</span></div>` : ''}
-                                    ${customer.gstNumber ? `<div class="flex items-center space-x-2 text-sm text-gray-600"><i class="fas fa-file-invoice w-4"></i><span>${customer.gstNumber}</span></div>` : ''}
-                                </div>
-                                ${customer.notes ? `<div class="mt-3 pt-3 border-t border-gray-100"><p class="text-sm text-gray-600">${customer.notes}</p></div>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            function renderForm(editingCustomer = null) {
-                const overlay = document.createElement('div');
-                overlay.className = 'fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4';
-                overlay.id = 'customerFormModal';
-
-                const c = editingCustomer || {};
-                const isEdit = !!editingCustomer;
-
-                overlay.innerHTML = `
-                    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold text-gray-900">${isEdit ? t('editCustomer') : t('addCustomer')}</h2>
-                            <button onclick="document.getElementById('customerFormModal').remove()" class="p-2 hover:bg-gray-100 rounded-lg">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <form id="customerForm" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">${t('photo')}</label>
-                                <div class="flex items-center space-x-4">
-                                    <div class="relative w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-300">
-                                        ${c.photo ? `<img src="${c.photo}" alt="Preview" class="w-full h-full object-cover">` : 
-                                            `<div class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-camera text-2xl"></i></div>`}
-                                    </div>
-                                    <label class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm">
-                                        <span>${t('uploadPhoto')}</span>
-                                        <input type="file" id="photoInput" accept="image/*" class="hidden">
-                                    </label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('name')} *</label>
-                                <input type="text" id="cfName" required value="${c.name || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('mobile')} *</label>
-                                <input type="tel" id="cfMobile" required value="${c.mobile || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="+91 98765 43210">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('address')}</label>
-                                <textarea id="cfAddress" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">${c.address || ''}</textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('emailAddress')}</label>
-                                <input type="email" id="cfEmail" value="${c.email || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="customer@example.com">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('gstNumber')}</label>
-                                <input type="text" id="cfGst" value="${c.gstNumber || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="GSTIN22AABCG1234P1Z">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('notes')}</label>
-                                <textarea id="cfNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">${c.notes || ''}</textarea>
-                            </div>
-                            <div class="flex space-x-3 pt-4 border-t border-gray-200">
-                                <button type="button" onclick="document.getElementById('customerFormModal').remove()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">${t('cancel')}</button>
-                                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">${isEdit ? t('update') : t('save')}</button>
-                            </div>
-                        </form>
-                    </div>
-                `;
-
-                document.body.appendChild(overlay);
-
-                document.getElementById('photoInput')?.addEventListener('change', function(e) {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = function() {
-                            const preview = document.querySelector('#customerFormModal .w-20.h-20 img');
-                            if (preview) {
-                                preview.src = reader.result;
-                            } else {
-                                const container = document.querySelector('#customerFormModal .w-20.h-20');
-                                if (container) {
-                                    container.innerHTML =
-                                        `<img src="${reader.result}" alt="Preview" class="w-full h-full object-cover">`;
-                                }
-                            }
-                            window._photoData = reader.result;
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-
-                document.getElementById('customerForm')?.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    const name = document.getElementById('cfName').value.trim();
-                    const mobile = document.getElementById('cfMobile').value.trim();
-                    const address = document.getElementById('cfAddress').value.trim();
-                    const email = document.getElementById('cfEmail').value.trim();
-                    const gstNumber = document.getElementById('cfGst').value.trim();
-                    const notes = document.getElementById('cfNotes').value.trim();
-                    const photo = window._photoData || c.photo || '';
-
-                    if (!name || !mobile) {
-                        alert('Name and Mobile are required');
-                        return;
-                    }
-
-                    const existing = getCustomerByMobile(mobile, shopId);
-                    if (existing && existing.id !== c.id) {
-                        alert('A customer with this mobile number already exists');
-                        return;
-                    }
-
-                    const data = { name, mobile, address, email, gstNumber, notes, photo, shopId };
-
-                    if (isEdit) {
-                        customerStorage.update(c.id, data);
-                    } else {
-                        customerStorage.create({
-                            ...data,
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                        });
-                        logActivity(shopId, appState.currentUser?.id || '', 'customer_created', `Customer ${name} created`);
-                    }
-
-                    document.getElementById('customerFormModal').remove();
-                    rerender();
-                });
-            }
-
-            window.editCustomer = function(id) {
-                const customer = customerStorage.getById(id);
-                renderForm(customer);
-            };
-
-            window.deleteCustomer = function(id) {
-                if (confirm(`Are you sure you want to delete this customer?`)) {
-                    customerStorage.delete(id);
-                    rerender();
-                }
-            };
-
-            const container = document.createElement('div');
-            container.innerHTML = `
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-                    <h1 class="text-2xl font-bold text-gray-900">${t('customers')}</h1>
-                    <button id="addCustomerBtn" class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">
-                        <i class="fas fa-plus"></i>
-                        <span>${t('addCustomer')}</span>
-                    </button>
-                </div>
-
-                <div class="mb-6">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchInput" placeholder="${t('search')}" 
-                               class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <div id="customersGrid">
-                    ${renderCustomers()}
-                </div>
-            `;
-
-            setTimeout(() => {
-                document.getElementById('addCustomerBtn')?.addEventListener('click', function() {
-                    renderForm(null);
-                });
-
-                document.getElementById('searchInput')?.addEventListener('input', function() {
-                    searchQuery = this.value;
-                    const grid = document.getElementById('customersGrid');
-                    if (grid) {
-                        const container2 = document.createElement('div');
-                        container2.innerHTML = renderCustomers();
-                        grid.innerHTML = container2.innerHTML;
-                    }
-                });
-            }, 0);
-
-            return container;
-        }
-
-        // ---- Placeholder Pages ----
-        function createPlaceholderPage(title, icon, description) {
-            const container = document.createElement('div');
-            container.className = 'bg-white rounded-2xl border border-gray-200 p-8 text-center shadow-sm';
-            container.innerHTML = `
-                <i class="fas ${icon} text-5xl text-indigo-400 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-900">${title}</h2>
-                <p class="text-gray-500 mt-2 max-w-md mx-auto">${description}</p>
-                <div class="mt-6 flex flex-wrap justify-center gap-3">
-                    <button onclick="navigate('/dashboard')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">
-                        <i class="fas fa-home mr-2"></i>Dashboard
-                    </button>
-                    <button onclick="window.location.reload()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
-                        <i class="fas fa-sync-alt mr-2"></i>Refresh
-                    </button>
-                </div>
-                <div class="mt-4 p-4 bg-gray-50 rounded-xl text-left">
-                    <p class="text-sm text-gray-600"><i class="fas fa-check-circle text-green-500 mr-2"></i>This module is ready for expansion</p>
-                    <p class="text-sm text-gray-600"><i class="fas fa-database text-blue-500 mr-2"></i>Data is stored in localStorage</p>
-                    <p class="text-sm text-gray-600"><i class="fas fa-rocket text-purple-500 mr-2"></i>Scale with additional features</p>
-                </div>
-            `;
-            return container;
-        }
-
-        // ---- Settings Page ----
-        function SettingsPage() {
-            const settings = settingsStorage.get();
-            const currentLang = settings.language || 'en';
-
-            const container = document.createElement('div');
-            container.className = 'bg-white rounded-2xl border border-gray-200 p-6 shadow-sm';
-
-            container.innerHTML = `
-                <h2 class="text-xl font-bold text-gray-900 mb-6">${t('settings')}</h2>
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">${t('language')}</label>
-                        <div class="flex space-x-4">
-                            <button id="langEn" class="px-6 py-2 rounded-xl border-2 ${currentLang === 'en' ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-gray-300 hover:border-gray-400'} transition-colors">
-                                <i class="fas fa-globe-americas mr-2"></i>${t('english')}
-                            </button>
-                            <button id="langHi" class="px-6 py-2 rounded-xl border-2 ${currentLang === 'hi' ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-gray-300 hover:border-gray-400'} transition-colors">
-                                <i class="fas fa-language mr-2"></i>${t('hindi')}
-                            </button>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-2">${currentLang === 'en' ? 'Current language: English' : 'वर्तमान भाषा: हिंदी'}</p>
-                    </div>
-                    <div class="pt-6 border-t border-gray-200">
-                        <h3 class="font-medium text-gray-900 mb-2">Business Information</h3>
-                        ${appState.currentShopId ? `
-                            <div class="bg-gray-50 rounded-xl p-4 space-y-1">
-                                <p><strong>Name:</strong> ${shopStorage.getById(appState.currentShopId)?.name || 'N/A'}</p>
-                                <p><strong>Industry:</strong> ${shopStorage.getById(appState.currentShopId)?.industry || 'N/A'}</p>
-                                <p><strong>Address:</strong> ${shopStorage.getById(appState.currentShopId)?.address || 'N/A'}</p>
-                            </div>
-                        ` : '<p class="text-gray-500">No shop selected</p>'}
-                    </div>
-                    <div class="pt-6 border-t border-gray-200">
-                        <h3 class="font-medium text-gray-900 mb-2">System Info</h3>
-                        <div class="bg-gray-50 rounded-xl p-4 space-y-1 text-sm">
-                            <p><strong>Version:</strong> ProSaaS v2.0</p>
-                            <p><strong>Storage:</strong> localStorage (${(new Blob([JSON.stringify(localStorage)]).size / 1024).toFixed(2)} KB used)</p>
-                            <p><strong>Businesses:</strong> ${shopStorage.getAll().length}</p>
-                            <p><strong>Users:</strong> ${userStorage.getAll().length}</p>
-                            <p><strong>Customers:</strong> ${customerStorage.getAll().length}</p>
-                            <p><strong>Orders:</strong> ${orderStorage.getAll().length}</p>
-                        </div>
-                    </div>
-                    <div class="pt-6 border-t border-gray-200">
-                        <button onclick="if(confirm('Clear all data?')){localStorage.clear();window.location.reload();}" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors text-sm">
-                            <i class="fas fa-trash mr-2"></i>Clear All Data
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                document.getElementById('langEn')?.addEventListener('click', function() {
-                    settingsStorage.set({ language: 'en' });
-                    this.className =
-                        'px-6 py-2 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-600 transition-colors';
-                    document.getElementById('langHi').className =
-                        'px-6 py-2 rounded-xl border-2 border-gray-300 hover:border-gray-400 transition-colors';
-                    rerender();
-                });
-
-                document.getElementById('langHi')?.addEventListener('click', function() {
-                    settingsStorage.set({ language: 'hi' });
-                    this.className =
-                        'px-6 py-2 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-600 transition-colors';
-                    document.getElementById('langEn').className =
-                        'px-6 py-2 rounded-xl border-2 border-gray-300 hover:border-gray-400 transition-colors';
-                    rerender();
-                });
-            }, 0);
-
-            return container;
-        }
-
-        // ---- 404 ----
-        function NotFoundPage() {
-            const container = document.createElement('div');
-            container.className = 'min-h-screen bg-gray-50 flex items-center justify-center p-4';
-            container.innerHTML = `
-                <div class="text-center">
-                    <div class="w-24 h-24 mx-auto bg-indigo-100 rounded-2xl flex items-center justify-center text-4xl text-indigo-600 mb-4">
-                        <i class="fas fa-compass"></i>
-                    </div>
-                    <h1 class="text-4xl font-bold text-gray-900">404</h1>
-                    <p class="text-xl text-gray-600 mt-2">Page not found</p>
-                    <button onclick="navigate('/dashboard')" class="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">
-                        <i class="fas fa-home mr-2"></i>Go to Dashboard
-                    </button>
-                </div>
-            `;
-            return container;
-        }
-
-        // ============================================================
-        // 9. SEED DATA
-        // ============================================================
-        function seedMockData() {
-            if (shopStorage.getAll().length > 0) {
-                if (!confirm('This will add more demo data. Continue?')) return;
-            }
-
-            const shopConfigs = [
-                { name: "Stardust Tailors", industry: "tailor", address: "45 Fashion Street, Mumbai",
-                    phone: "+91 98765 12345" },
-                { name: "FreshMart Grocery", industry: "grocery", address: "12 Market Road, Delhi",
-                    phone: "+91 87654 32109" },
-                { name: "Business Solutions Hub", industry: "business", address: "78 Corporate Park, Bangalore",
-                    phone: "+91 76543 21098" },
-            ];
-
-            const createdShops = shopConfigs.map(config =>
-                shopStorage.create({
-                    ...config,
-                    email: `info@${config.name.toLowerCase().replace(/\s/g, '')}.com`,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                })
-            );
-
-            const users = [
-                { name: "Admin User", email: "admin@prosaas.com", password: "admin123", role: "owner",
-                shopId: createdShops[0].id },
-                { name: "Manager User", email: "manager@prosaas.com", password: "manager123", role: "manager",
-                    shopId: createdShops[0].id },
-                { name: "Cashier User", email: "cashier@prosaas.com", password: "cashier123", role: "cashier",
-                    shopId: createdShops[0].id },
-                { name: "Grocery Admin", email: "grocery@prosaas.com", password: "admin123", role: "owner",
-                    shopId: createdShops[1].id },
-                { name: "Business Admin", email: "business@prosaas.com", password: "admin123", role: "owner",
-                    shopId: createdShops[2].id },
-            ];
-
-            users.forEach(u => {
-                userStorage.create({ ...u, createdAt: new Date().toISOString() });
-            });
-
-            const customerData = [
-                { name: "Rajesh Gupta", mobile: "+91 98765 12345", address: "45 Park Avenue, Mumbai",
-                    email: "rajesh@gmail.com", gstNumber: "GSTIN27AABCG1234K1Z", notes: "Regular customer" },
-                { name: "Neha Singh", mobile: "+91 87654 32109", address: "12 Lake View, Pune", email: "neha@yahoo.com",
-                    notes: "Bridal collection" },
-                { name: "Manoj Kumar", mobile: "+91 76543 21098", address: "78 Royal Palace, Delhi",
-                    email: "manoj@outlook.com", notes: "Weekly bulk order" },
-                { name: "Sunita Reddy", mobile: "+91 65432 10987", address: "34 Green Valley, Hyderabad",
-                    email: "sunita@gmail.com", notes: "Organic products" },
-                { name: "Amit Shah", mobile: "+91 54321 09876", address: "56 Business Park, Mumbai",
-                    email: "amit@company.com", gstNumber: "GSTIN07BCCDV1234P1Z", notes: "Corporate client" },
-                { name: "Deepa Nair", mobile: "+91 43210 98765", address: "89 Tech Hub, Bangalore", email: "deepa@tech.com",
-                    notes: "IT services" },
-            ];
-
-            const tailorCustomers = customerData.slice(0, 2).map(c =>
-                customerStorage.create({ ...c, shopId: createdShops[0].id, photo: "", createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString() })
-            );
-            const groceryCustomers = customerData.slice(2, 4).map(c =>
-                customerStorage.create({ ...c, shopId: createdShops[1].id, photo: "", createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString() })
-            );
-            const businessCustomers = customerData.slice(4).map(c =>
-                customerStorage.create({ ...c, shopId: createdShops[2].id, photo: "", createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString() })
-            );
-
-            const orderData = [
-                {
-                    shopId: createdShops[0].id,
-                    customerId: tailorCustomers[0].id,
-                    category: "Tailoring",
-                    subCategory: "Wedding Suit",
-                    measurements: { chest: "42", waist: "34", length: "68", sleeve: "25", shoulder: "18" },
-                    specifications: "Double-breasted, black silk",
-                    fabricType: "Silk",
-                    color: "Black",
-                    design: "Double-breasted",
-                    stitchingType: "Premium",
-                    advancePayment: 5000,
-                    totalAmount: 15000,
-                    items: [
-                        { id: 'i1', name: "Blazer", quantity: 1, price: 10000, total: 10000 },
-                        { id: 'i2', name: "Trousers", quantity: 1, price: 5000, total: 5000 }
-                    ],
-                    status: "in-progress",
-                    targetDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    deliveryAddress: "45 Park Avenue, Mumbai",
-                },
-                {
-                    shopId: createdShops[1].id,
-                    customerId: groceryCustomers[0].id,
-                    category: "Grocery",
-                    subCategory: "Bulk Order",
-                    productName: "Rice",
-                    weight: 5,
-                    advancePayment: 0,
-                    totalAmount: 2450,
-                    items: [
-                        { id: 'i6', name: "Basmati Rice (5kg)", quantity: 2, price: 450, total: 900 },
-                        { id: 'i7', name: "Wheat Flour (5kg)", quantity: 2, price: 300, total: 600 },
-                        { id: 'i8', name: "Sugar (5kg)", quantity: 1, price: 250, total: 250 },
-                        { id: 'i9', name: "Cooking Oil (5L)", quantity: 1, price: 700, total: 700 }
-                    ],
-                    status: "delivered",
-                    targetDeliveryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                    deliveryAddress: "78 Royal Palace, Delhi",
-                },
-                {
-                    shopId: createdShops[2].id,
-                    customerId: businessCustomers[0].id,
-                    category: "Consulting",
-                    subCategory: "Business Strategy",
-                    specifications: "Market analysis and growth strategy",
-                    advancePayment: 25000,
-                    totalAmount: 100000,
-                    items: [
-                        { id: 'i12', name: "Strategy Consulting", quantity: 1, price: 75000, total: 75000 },
-                        { id: 'i13', name: "Market Research Report", quantity: 1, price: 25000, total: 25000 }
-                    ],
-                    status: "in-progress",
-                    targetDeliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-                    deliveryAddress: "56 Business Park, Mumbai",
-                },
-            ];
-
-            orderData.forEach(data => {
-                const order = orderStorage.create({
-                    ...data,
-                    orderNumber: generateOrderNumber(data.shopId),
-                    remainingAmount: data.totalAmount - data.advancePayment,
-                    paymentStatus: data.advancePayment >= data.totalAmount ? 'paid' : 'partial',
-                    createdBy: users.find(u => u.shopId === data.shopId)?.id || '',
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                });
-
-                if (data.advancePayment > 0) {
-                    paymentStorage.create({
-                        orderId: order.id,
-                        amount: data.advancePayment,
-                        method: 'cash',
-                        receivedBy: users.find(u => u.shopId === data.shopId && u.role === 'cashier')?.id || users.find(u => u
-                            .shopId === data.shopId)?.id || '',
-                        createdAt: new Date().toISOString(),
-                    });
-                }
-            });
-
-            // Add sample expenses
-            const expenseData = [
-                { category: "Rent", description: "Monthly rent", amount: 15000, date: new Date().toISOString()
-                    .split('T')[0] },
-                { category: "Salary", description: "Staff salaries", amount: 25000, date: new Date().toISOString()
-                    .split('T')[0] },
-                { category: "Utilities", description: "Electricity bill", amount: 3000, date: new Date().toISOString()
-                        .split('T')[0] },
-                { category: "Supplies", description: "Office supplies", amount: 2000, date: new Date().toISOString()
-                        .split('T')[0] },
-            ];
-
-            createdShops.forEach(shop => {
-                expenseData.forEach(e => {
-                    expenseStorage.create({
-                        ...e,
-                        shopId: shop.id,
-                        createdAt: new Date().toISOString(),
-                    });
-                });
-            });
-
-            appStateStorage.setState({ currentShopId: createdShops[0].id, currentUser: users[0] });
-            appState = appStateStorage.getState();
-
-            alert(`✅ Demo data seeded successfully!\n\nCreated ${createdShops.length} businesses with customers, orders, and expenses.\n\nYou can now login with:\nadmin@prosaas.com / admin123`);
-        }
-
-        // ============================================================
-        // 10. ROUTER
-        // ============================================================
-        function renderRoute() {
-            const route = currentRoute;
-
-            const isLoggedIn = appState.currentUser && appState.currentShopId;
-            const publicRoutes = ['/login'];
-
-            if (!isLoggedIn && !publicRoutes.includes(route)) {
-                navigate('/login');
-                return renderPage(LoginPage);
-            }
-
-            if (isLoggedIn && route === '/login') {
-                navigate('/dashboard');
-                return renderRoute();
-            }
-
-            let page;
-            switch (route) {
-                case '/dashboard':
-                    page = DashboardPage();
-                    break;
-                case '/analytics':
-                    page = AnalyticsPage();
-                    break;
-                case '/customers':
-                    page = CustomersPage();
-                    break;
-                case '/orders':
-                    page = createPlaceholderPage(t('orders'), 'fa-box', 'Manage all your orders, track status, and generate invoices.');
-                    break;
-                case '/payments':
-                    page = createPlaceholderPage(t('payments'), 'fa-credit-card', 'Track all payments, manage receipts, and reconcile accounts.');
-                    break;
-                case '/finance':
-                    page = FinancePage();
-                    break;
-                case '/inventory':
-                    page = createPlaceholderPage(t('inventory'), 'fa-cubes', 'Manage your inventory, track stock levels, and handle suppliers.');
-                    break;
-                case '/crm':
-                    page = createPlaceholderPage(t('crm'), 'fa-handshake', 'Customer relationship management with loyalty points, history, and engagement.');
-                    break;
-                case '/employees':
-                    page = createPlaceholderPage(t('employees'), 'fa-user-tie', 'Employee management with attendance, salary, and performance tracking.');
-                    break;
-                case '/calendar':
-                    page = createPlaceholderPage(t('calendar'), 'fa-calendar', 'Manage appointments, deadlines, and reminders all in one place.');
-                    break;
-                case '/reports':
-                    page = createPlaceholderPage(t('reports'), 'fa-file-alt', 'Generate comprehensive reports, export to PDF/Excel, and analyze data.');
-                    break;
-                case '/notifications':
-                    page = createPlaceholderPage(t('notifications'), 'fa-bell', 'Stay updated with real-time notifications, alerts, and reminders.');
-                    break;
-                case '/settings':
-                    page = SettingsPage();
-                    break;
-                case '/login':
-                    page = LoginPage();
-                    break;
-                default:
-                    page = NotFoundPage();
-            }
-
-            if (isLoggedIn && route !== '/login') {
-                const titles = {
-                    '/dashboard': t('dashboard'),
-                    '/analytics': t('analytics'),
-                    '/customers': t('customers'),
-                    '/orders': t('orders'),
-                    '/payments': t('payments'),
-                    '/finance': t('finance'),
-                    '/inventory': t('inventory'),
-                    '/crm': t('crm'),
-                    '/employees': t('employees'),
-                    '/calendar': t('calendar'),
-                    '/reports': t('reports'),
-                    '/notifications': t('notifications'),
-                    '/settings': t('settings'),
-                };
-                const layout = Layout({ children: page, title: titles[route] || 'Page' });
-                return renderPage(() => layout);
-            }
-
-            return renderPage(() => page);
-        }
-
-        function renderPage(component) {
-            const app = document.getElementById('app');
-            app.innerHTML = '';
-            const el = component();
-            app.appendChild(el);
-            return el;
-        }
-
-        // ============================================================
-        // 11. GLOBAL FUNCTIONS
-        // ============================================================
-        window.handleLogout = function() {
-            appStateStorage.clear();
-            appState = { currentShopId: null, currentUser: null };
-            navigate('/login');
-            rerender();
-        };
-
-        window.navigate = navigate;
-
-        // ============================================================
-        // 12. INIT
-        // ============================================================
-        subscribe(() => { rerender(); });
-        onRouteChange(() => { rerender(); });
-
-        currentRoute = getRouteFromHash();
-        if (currentRoute === '/') currentRoute = '/login';
-
-        const savedState = appStateStorage.getState();
-        if (savedState.currentUser && savedState.currentShopId) {
-            appState = savedState;
-            if (currentRoute === '/login') {
-                currentRoute = '/dashboard';
-                window.location.hash = '/dashboard';
-            }
-        }
-
-        renderRoute();
-
-        console.log('🚀 ProSaaS Business Management Suite loaded!');
-        console.log('📦 Data stored in localStorage');
-        console.log('👤 Demo: admin@prosaas.com / admin123');
-        console.log('🏪 Businesses: Tailor, Grocery, General Business');
-        console.log('📊 Features: Analytics, Finance, Inventory, CRM, Employees, Calendar, Reports, Notifications');
-        console.log('🌐 Language switcher available in Settings');
-        console.log('✅ Professional SaaS platform ready!');
-
-        // ============================================================
-        // 13. AUTO-SEED ON FIRST RUN
-        // ============================================================
-        if (shopStorage.getAll().length === 0) {
-            setTimeout(() => {
-                if (confirm('🚀 Welcome to ProSaaS!\n\nNo data found. Would you like to seed demo data?')) {
-                    seedMockData();
-                    rerender();
-                }
-            }, 500);
-        }
-
-        // ============================================================
-        // 14. PWA Support
-        // ============================================================
-        if ('serviceWorker' in navigator) {
-            // Service worker registration for PWA support
-            console.log('📱 PWA support available');
-        }
-
-        console.log('✅ ProSaaS ready! Professional business management suite.');
-    </script>
+      });
+    }
+
+    // ----- INIT -----
+    document.addEventListener('DOMContentLoaded', function() {
+      // set default progress if first visit
+      if (!localStorage.getItem('stardust_progress')) {
+        const defaultProg = {};
+        [...languageCourses, ...codingCourses, ...codingPaths].forEach(c => {
+          defaultProg[c.id] = Math.floor(Math.random() * 50) + 8;
+        });
+        saveProgress(defaultProg);
+      }
+      renderAll();
+      initTabs();
+      initReset();
+    });
+
+  })();
+</script>
 </body>
 </html>
