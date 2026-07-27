@@ -34,6 +34,10 @@
         .badge-tailor { background: #dbeafe; color: #1e40af; }
         .badge-grocery { background: #d1fae5; color: #065f46; }
         .badge-business { background: #fef3c7; color: #92400e; }
+        /* Hide scrollbar on modals */
+        .modal-scroll { scrollbar-width: thin; }
+        .modal-scroll::-webkit-scrollbar { width: 4px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -366,7 +370,36 @@
         };
 
         // ============================================================
-        // 6. REACT-LIKE RENDER ENGINE
+        // 6. HASH-BASED ROUTER (FIXED FOR GITHUB PAGES)
+        // ============================================================
+        let currentRoute = '/login';
+        const routerListeners = [];
+
+        function getRouteFromHash() {
+            const hash = window.location.hash.slice(1) || '/';
+            return hash;
+        }
+
+        function navigate(route) {
+            if (!route.startsWith('/')) route = '/' + route;
+            currentRoute = route;
+            window.location.hash = route;
+            routerListeners.forEach(fn => fn());
+        }
+
+        function onRouteChange(fn) {
+            routerListeners.push(fn);
+            return () => { routerListeners = routerListeners.filter(f => f !== fn); };
+        }
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', () => {
+            currentRoute = getRouteFromHash();
+            routerListeners.forEach(fn => fn());
+        });
+
+        // ============================================================
+        // 7. REACT-LIKE RENDER ENGINE
         // ============================================================
         let appState = appStateStorage.getState();
         let appListeners = [];
@@ -382,25 +415,6 @@
             return () => { appListeners = appListeners.filter(fn => fn !== listener); };
         }
 
-        let currentRoute = '/login';
-        const routerListeners = [];
-
-        function navigate(route) {
-            currentRoute = route;
-            routerListeners.forEach(fn => fn());
-            window.history.pushState({}, '', route);
-        }
-
-        function onRouteChange(fn) {
-            routerListeners.push(fn);
-            return () => { routerListeners = routerListeners.filter(f => f !== fn); };
-        }
-
-        window.addEventListener('popstate', () => {
-            currentRoute = window.location.pathname;
-            routerListeners.forEach(fn => fn());
-        });
-
         function rerender() {
             clearTimeout(window._rerenderTimeout);
             window._rerenderTimeout = setTimeout(() => {
@@ -409,7 +423,7 @@
         }
 
         // ============================================================
-        // 7. COMPONENTS
+        // 8. COMPONENTS
         // ============================================================
 
         // ---- Shop Switcher ----
@@ -431,14 +445,15 @@
                 <span class="font-medium text-gray-700">${currentShop?.name || t('selectShop')}</span>
                 <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
             `;
-            btn.onclick = () => { isOpen = !isOpen;
+            btn.onclick = (e) => { e.stopPropagation();
+                isOpen = !isOpen;
                 rerender(); };
             container.appendChild(btn);
 
             if (isOpen) {
                 const dropdown = document.createElement('div');
                 dropdown.className =
-                'absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20';
+                    'absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50';
                 const list = document.createElement('div');
                 list.className = 'p-2';
 
@@ -453,17 +468,17 @@
                         <span class="text-xs ${config.badge}">${config.label}</span>
                         ${shop.id === appState.currentShopId ? '<span class="text-xs text-indigo-600">Active</span>' : ''}
                     `;
-                    item.onclick = () => {
+                    item.onclick = (e) => { e.stopPropagation();
                         setAppState({ currentShopId: shop.id });
                         isOpen = false;
-                        rerender();
-                    };
+                        rerender(); };
                     list.appendChild(item);
                 });
 
                 dropdown.appendChild(list);
                 container.appendChild(dropdown);
 
+                // Close on outside click
                 const closeHandler = (e) => {
                     if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
                         isOpen = false;
@@ -553,12 +568,15 @@
                         <div class="mt-2" id="sidebarShopSwitcher"></div>
                     </div>
                     <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-                        ${allowed.map(item => `
-                            <a href="${item.href}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors ${window.location.pathname === item.href ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}">
-                                <i class="fas ${item.icon} w-5"></i>
-                                <span class="ml-3">${item.name}</span>
-                            </a>
-                        `).join('')}
+                        ${allowed.map(item => {
+                            const isActive = currentRoute === item.href;
+                            return `
+                                <a href="#${item.href}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors ${isActive ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}">
+                                    <i class="fas ${item.icon} w-5"></i>
+                                    <span class="ml-3">${item.name}</span>
+                                </a>
+                            `;
+                        }).join('')}
                     </nav>
                     <div class="p-4 border-t border-gray-200">
                         <button onclick="handleLogout()" class="flex items-center w-full px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
@@ -599,8 +617,16 @@
                     };
                 }
 
+                // Handle sidebar navigation clicks
                 document.querySelectorAll('#sidebar nav a').forEach(a => {
-                    a.addEventListener('click', () => {
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const href = a.getAttribute('href');
+                        if (href) {
+                            const route = href.replace('#', '');
+                            navigate(route);
+                            rerender();
+                        }
                         if (window.innerWidth < 1024) {
                             const sb = document.getElementById('sidebar');
                             sb.classList.add('-translate-x-full');
@@ -629,6 +655,8 @@
             const card = document.createElement('div');
             card.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden';
 
+            const shops = shopStorage.getAll();
+
             card.innerHTML = `
                 <div class="grid md:grid-cols-2">
                     <div class="p-8 md:p-10">
@@ -641,7 +669,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">${t('selectShop')}</label>
                                 <select id="loginShop" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                     <option value="">${t('selectShop')}</option>
-                                    ${shopStorage.getAll().map(s => {
+                                    ${shops.map(s => {
                                         const config = industryConfigs[s.industry] || industryConfigs.business;
                                         return `<option value="${s.id}">${s.name} (${config.label})</option>`;
                                     }).join('')}
@@ -718,8 +746,9 @@
                 document.getElementById('seedBtn').addEventListener('click', function() {
                     seedMockData();
                     const select = document.getElementById('loginShop');
+                    const shops = shopStorage.getAll();
                     select.innerHTML = `<option value="">${t('selectShop')}</option>${
-                        shopStorage.getAll().map(s => {
+                        shops.map(s => {
                             const config = industryConfigs[s.industry] || industryConfigs.business;
                             return `<option value="${s.id}">${s.name} (${config.label})</option>`;
                         }).join('')
@@ -803,7 +832,6 @@
             const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
             const pendingOrders = orders.filter(o => o.status === 'pending').length;
 
-            // Industry-specific stats
             let stats = [
                 { label: t('totalCustomers'), value: customers.length, icon: 'fa-users', color: 'bg-blue-500' },
                 { label: t('totalOrders'), value: orders.length, icon: 'fa-box', color: 'bg-purple-500' },
@@ -812,7 +840,6 @@
                     color: 'bg-green-500' },
             ];
 
-            // Grocery specific stats
             if (industry === 'grocery') {
                 const totalStock = orders.reduce((sum, o) => {
                     const items = o.items || [];
@@ -821,7 +848,6 @@
                 stats.push({ label: 'Total Stock', value: totalStock, icon: 'fa-cubes', color: 'bg-orange-500' });
             }
 
-            // Tailor specific stats
             if (industry === 'tailor') {
                 const inProgress = orders.filter(o => o.status === 'in-progress').length;
                 const ready = orders.filter(o => o.status === 'ready').length;
@@ -963,7 +989,6 @@
             `;
             container.appendChild(ordersSection);
 
-            // Order Form Modal
             setTimeout(() => {
                 document.getElementById('newOrderBtn')?.addEventListener('click', function() {
                     renderOrderForm();
@@ -1000,7 +1025,6 @@
             let newItem = { name: '', quantity: 1, price: 0 };
 
             function renderForm() {
-                // Industry-specific form fields
                 let extraFields = '';
                 if (industry === 'tailor') {
                     extraFields = `
@@ -1049,7 +1073,7 @@
                 }
 
                 const html = `
-                    <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto modal-scroll">
                         <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
                             <h2 class="text-xl font-bold text-gray-900">${t('createOrder')}</h2>
                             <button onclick="document.getElementById('orderFormModal').remove()" class="p-2 hover:bg-gray-100 rounded-lg">
@@ -1121,13 +1145,11 @@
 
                 overlay.innerHTML = html;
 
-                // Set default delivery date
                 const deliveryInput = document.getElementById('ofDelivery');
                 if (deliveryInput) {
                     deliveryInput.value = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                 }
 
-                // Auto-fill address from customer
                 document.getElementById('ofCustomer')?.addEventListener('change', function() {
                     const customer = customers.find(c => c.id === this.value);
                     if (customer && customer.address) {
@@ -1135,7 +1157,6 @@
                     }
                 });
 
-                // Add item
                 document.getElementById('ofAddItem')?.addEventListener('click', function() {
                     const name = document.getElementById('ofItemName').value.trim();
                     const qty = parseInt(document.getElementById('ofItemQty').value) || 1;
@@ -1174,7 +1195,6 @@
                     }
                 };
 
-                // Form submit
                 document.getElementById('orderForm')?.addEventListener('submit', function(e) {
                     e.preventDefault();
 
@@ -1190,7 +1210,6 @@
                         return;
                     }
 
-                    // Collect measurements for tailor
                     const measurements = {};
                     document.querySelectorAll('.measurement-input').forEach(inp => {
                         if (inp.value.trim()) {
@@ -1198,7 +1217,6 @@
                         }
                     });
 
-                    // Collect extra fields
                     let extraData = {};
                     if (industry === 'tailor') {
                         extraData = {
@@ -1327,7 +1345,7 @@
                 const isEdit = !!editingCustomer;
 
                 overlay.innerHTML = `
-                    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll">
                         <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
                             <h2 class="text-xl font-bold text-gray-900">${isEdit ? t('editCustomer') : t('addCustomer')}</h2>
                             <button onclick="document.getElementById('customerFormModal').remove()" class="p-2 hover:bg-gray-100 rounded-lg">
@@ -1382,7 +1400,6 @@
 
                 document.body.appendChild(overlay);
 
-                // Photo upload
                 document.getElementById('photoInput')?.addEventListener('change', function(e) {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -1404,7 +1421,6 @@
                     }
                 });
 
-                // Form submit
                 document.getElementById('customerForm')?.addEventListener('submit', function(e) {
                     e.preventDefault();
 
@@ -1587,7 +1603,6 @@
                 });
             }, 0);
 
-            // Global functions for orders
             window.updateOrderStatus = function(orderId) {
                 const order = orderStorage.getById(orderId);
                 if (!order) return;
@@ -1603,84 +1618,6 @@
                         `Order ${order.orderNumber} status updated to ${newStatus}`);
                     rerender();
                 }
-            };
-
-            window.printInvoice = function(orderId) {
-                const order = orderStorage.getById(orderId);
-                if (!order) { alert('Order not found'); return; }
-
-                const customer = customerStorage.getById(order.customerId);
-                const payments = paymentStorage.getAll().filter(p => p.orderId === orderId);
-                const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
-
-                const printWindow = window.open('', '_blank', 'width=800,height=600');
-                if (!printWindow) { alert('Please allow popups to print invoices'); return; }
-
-                const shop = shopStorage.getById(order.shopId);
-
-                printWindow.document.write(`
-                    <html>
-                    <head><title>Invoice ${order.orderNumber}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-                        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; }
-                        .header h1 { margin: 0; color: #4f46e5; }
-                        .details { display: flex; justify-content: space-between; margin: 20px 0; padding: 10px 0; }
-                        .items { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                        .items th, .items td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
-                        .items th { background: #f3f4f6; }
-                        .totals { text-align: right; margin-top: 20px; }
-                        .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
-                        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
-                    </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                            <h1>INVOICE</h1>
-                            <p>${shop?.name || 'Business'}</p>
-                            <p>Order #: ${order.orderNumber}</p>
-                        </div>
-                        <div class="details">
-                            <div>
-                                <strong>Customer:</strong> ${customer?.name || 'Unknown'}<br>
-                                <strong>Mobile:</strong> ${customer?.mobile || 'N/A'}<br>
-                                <strong>Address:</strong> ${customer?.address || 'N/A'}
-                            </div>
-                            <div>
-                                <strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
-                                <strong>Delivery Date:</strong> ${new Date(order.targetDeliveryDate).toLocaleDateString()}<br>
-                                <strong>Status:</strong> <span class="badge">${order.status}</span>
-                            </div>
-                        </div>
-                        <h3>Order Items</h3>
-                        <table class="items">
-                            <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
-                            <tbody>
-                                ${(order.items || []).map(item => `
-                                    <tr><td>${item.name}</td><td>${item.quantity}</td><td>₹${item.price}</td><td>₹${item.total}</td></tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                        <div class="totals">
-                            <p><strong>Total Amount:</strong> ₹${order.totalAmount.toLocaleString()}</p>
-                            <p><strong>Advance Paid:</strong> ₹${order.advancePayment.toLocaleString()}</p>
-                            <p><strong>Remaining:</strong> ₹${(order.totalAmount - totalPaid).toLocaleString()}</p>
-                        </div>
-                        ${order.specifications ? `<p><strong>Specifications:</strong> ${order.specifications}</p>` : ''}
-                        ${order.measurements && Object.keys(order.measurements).length > 0 ? 
-                            `<p><strong>Measurements:</strong> ${Object.entries(order.measurements).map(([k,v]) => `${k}: ${v}`).join(', ')}</p>` : ''}
-                        <div class="footer">
-                            <p>Thank you for your business!</p>
-                            <p>${new Date().toLocaleString()}</p>
-                        </div>
-                        <script>
-                            window.print();
-                            window.close();
-                        <\/script>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
             };
 
             return container;
@@ -1775,14 +1712,13 @@
         }
 
         // ============================================================
-        // 8. SEED DATA
+        // 9. SEED DATA
         // ============================================================
         function seedMockData() {
             if (shopStorage.getAll().length > 0) {
                 if (!confirm('This will add more demo data. Continue?')) return;
             }
 
-            // Create shops for each industry
             const shopConfigs = [
                 { name: "Stardust Tailors", industry: "tailor", address: "45 Fashion Street, Mumbai",
                     phone: "+91 98765 12345" },
@@ -1801,7 +1737,6 @@
                 })
             );
 
-            // Create users for each shop
             const users = [
                 { name: "Arjun Kumar", email: "arjun@stardust.com", password: "owner123", role: "owner",
                 shopId: createdShops[0].id },
@@ -1819,26 +1754,21 @@
                 userStorage.create({ ...u, createdAt: new Date().toISOString() });
             });
 
-            // Create customers for each shop
             const customerData = [
-                // Tailor customers
                 { name: "Rajesh Gupta", mobile: "+91 98765 12345", address: "45 Park Avenue, Mumbai",
                     email: "rajesh@gmail.com", gstNumber: "GSTIN27AABCG1234K1Z", notes: "Regular customer" },
                 { name: "Neha Singh", mobile: "+91 87654 32109", address: "12 Lake View, Pune", email: "neha@yahoo.com",
                     notes: "Bridal collection" },
-                // Grocery customers
                 { name: "Manoj Kumar", mobile: "+91 76543 21098", address: "78 Royal Palace, Delhi",
                     email: "manoj@outlook.com", notes: "Weekly bulk order" },
                 { name: "Sunita Reddy", mobile: "+91 65432 10987", address: "34 Green Valley, Hyderabad",
                     email: "sunita@gmail.com", notes: "Organic products" },
-                // Business customers
                 { name: "Amit Shah", mobile: "+91 54321 09876", address: "56 Business Park, Mumbai",
                     email: "amit@company.com", gstNumber: "GSTIN07BCCDV1234P1Z", notes: "Corporate client" },
                 { name: "Deepa Nair", mobile: "+91 43210 98765", address: "89 Tech Hub, Bangalore", email: "deepa@tech.com",
                     notes: "IT services" },
             ];
 
-            // Assign customers to shops
             const tailorCustomers = customerData.slice(0, 2).map(c =>
                 customerStorage.create({ ...c, shopId: createdShops[0].id, photo: "", createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString() })
@@ -1852,9 +1782,7 @@
                     updatedAt: new Date().toISOString() })
             );
 
-            // Create orders for each shop
             const orderData = [
-                // Tailor orders
                 {
                     shopId: createdShops[0].id,
                     customerId: tailorCustomers[0].id,
@@ -1898,7 +1826,6 @@
                     targetDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
                     deliveryAddress: "12 Lake View, Pune",
                 },
-                // Grocery orders
                 {
                     shopId: createdShops[1].id,
                     customerId: groceryCustomers[0].id,
@@ -1935,7 +1862,6 @@
                     targetDeliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
                     deliveryAddress: "34 Green Valley, Hyderabad",
                 },
-                // Business orders
                 {
                     shopId: createdShops[2].id,
                     customerId: businessCustomers[0].id,
@@ -1993,7 +1919,6 @@
                 }
             });
 
-            // Set first shop as default
             appStateStorage.setState({ currentShopId: createdShops[0].id, currentUser: users[0] });
             appState = appStateStorage.getState();
 
@@ -2001,16 +1926,10 @@
         }
 
         // ============================================================
-        // 9. ROUTER
+        // 10. ROUTER
         // ============================================================
-        function getCurrentRoute() {
-            const path = window.location.pathname;
-            if (path === '/') return '/dashboard';
-            return path || '/login';
-        }
-
         function renderRoute() {
-            const route = getCurrentRoute();
+            const route = currentRoute;
 
             const isLoggedIn = appState.currentUser && appState.currentShopId;
             const publicRoutes = ['/login'];
@@ -2073,7 +1992,7 @@
         }
 
         // ============================================================
-        // 10. GLOBAL FUNCTIONS
+        // 11. GLOBAL FUNCTIONS
         // ============================================================
         window.handleLogout = function() {
             appStateStorage.clear();
@@ -2085,7 +2004,7 @@
         window.navigate = navigate;
 
         // ============================================================
-        // 11. INIT
+        // 12. INIT
         // ============================================================
         // Subscribe to state changes
         subscribe(() => { rerender(); });
@@ -2093,9 +2012,9 @@
         // Route changes
         onRouteChange(() => { rerender(); });
 
-        // Initial route
-        const initialPath = window.location.pathname;
-        currentRoute = initialPath && initialPath !== '/' ? initialPath : '/login';
+        // Initial route from hash
+        currentRoute = getRouteFromHash();
+        if (currentRoute === '/') currentRoute = '/login';
 
         // Check if user is already logged in
         const savedState = appStateStorage.getState();
@@ -2103,6 +2022,7 @@
             appState = savedState;
             if (currentRoute === '/login') {
                 currentRoute = '/dashboard';
+                window.location.hash = '/dashboard';
             }
         }
 
@@ -2114,9 +2034,10 @@
         console.log('👤 Demo: arjun@stardust.com / owner123');
         console.log('🏪 Businesses: Tailor, Grocery, General Business');
         console.log('🌐 Language switcher available in Settings');
+        console.log('✅ No 404 errors - hash-based routing works on GitHub Pages!');
 
         // ============================================================
-        // 12. PRINT INVOICE (global)
+        // 13. PRINT INVOICE (global)
         // ============================================================
         window.printInvoice = function(orderId) {
             const order = orderStorage.getById(orderId);
@@ -2203,7 +2124,7 @@
         };
 
         // ============================================================
-        // 13. AUTO-SEED ON FIRST RUN
+        // 14. AUTO-SEED ON FIRST RUN
         // ============================================================
         if (shopStorage.getAll().length === 0) {
             setTimeout(() => {
@@ -2214,7 +2135,7 @@
             }, 500);
         }
 
-        console.log('✅ App ready!');
+        console.log('✅ App ready! No 404 errors on GitHub Pages!');
     </script>
 </body>
 </html>
