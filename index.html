@@ -3,30 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Multi-Tenant SaaS Management</title>
+    <title>Multi-Tenant Business Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* Custom styles */
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-        .sidebar-transition {
-            transition: transform 0.3s ease-in-out;
-        }
-        .modal-overlay {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-        }
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        .modal-overlay { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-in-progress { background: #dbeafe; color: #1e40af; }
         .status-ready { background: #d1fae5; color: #065f46; }
@@ -35,21 +20,20 @@
         .status-paid { background: #d1fae5; color: #065f46; }
         .status-partial { background: #fef3c7; color: #92400e; }
         .status-pending-payment { background: #fee2e2; color: #991b1b; }
-        
-        /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-        
-        /* Print styles for invoices */
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; }
-            .print-padding { padding: 20px !important; }
-        }
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { background: white !important; } }
         .print-only { display: none; }
+        .lang-hi { font-family: 'Noto Sans Devanagari', sans-serif; }
+        .industry-card { transition: all 0.3s ease; cursor: pointer; }
+        .industry-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .industry-card.selected { border-color: #4f46e5; border-width: 3px; background: #eef2ff; }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .badge-tailor { background: #dbeafe; color: #1e40af; }
+        .badge-grocery { background: #d1fae5; color: #065f46; }
+        .badge-business { background: #fef3c7; color: #92400e; }
     </style>
 </head>
 <body>
@@ -67,74 +51,29 @@
             PAYMENTS: 'saas_payments',
             ACTIVITY_LOGS: 'saas_activity_logs',
             APP_STATE: 'saas_app_state',
+            SETTINGS: 'saas_settings',
         };
 
         // ============================================================
-        // 2. STORAGE MANAGER (Generic CRUD)
+        // 2. STORAGE MANAGER
         // ============================================================
         class StorageManager {
-            constructor(key) {
-                this.key = key;
-            }
-
-            getAll() {
-                try {
-                    const data = localStorage.getItem(this.key);
-                    return data ? JSON.parse(data) : [];
-                } catch {
-                    return [];
-                }
-            }
-
-            getById(id) {
-                return this.getAll().find(item => item.id === id) || null;
-            }
-
-            create(item) {
-                const items = this.getAll();
-                const newItem = { ...item, id: this._generateId() };
-                items.push(newItem);
-                this._save(items);
-                return newItem;
-            }
-
-            update(id, updates) {
-                const items = this.getAll();
-                const index = items.findIndex(item => item.id === id);
-                if (index === -1) return null;
-                items[index] = { ...items[index], ...updates, updatedAt: new Date().toISOString() };
-                this._save(items);
-                return items[index];
-            }
-
-            delete(id) {
-                const items = this.getAll();
-                const filtered = items.filter(item => item.id !== id);
-                if (filtered.length === items.length) return false;
-                this._save(filtered);
-                return true;
-            }
-
-            getByShopId(shopId) {
-                return this.getAll().filter(item => item.shopId === shopId);
-            }
-
-            _save(items) {
-                try {
-                    localStorage.setItem(this.key, JSON.stringify(items));
-                } catch (e) {
-                    console.error('Storage error:', e);
-                }
-            }
-
-            _generateId() {
-                return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-            }
+            constructor(key) { this.key = key; }
+            getAll() { try { const data = localStorage.getItem(this.key); return data ? JSON.parse(data) : []; } catch { return []; } }
+            getById(id) { return this.getAll().find(item => item.id === id) || null; }
+            create(item) { const items = this.getAll(); const newItem = { ...item, id: this._generateId() }; items.push(newItem);
+                this._save(items); return newItem; }
+            update(id, updates) { const items = this.getAll(); const index = items.findIndex(item => item.id === id); if (index ===
+                    -1) return null; items[index] = { ...items[index], ...updates, updatedAt: new Date().toISOString() };
+                this._save(items); return items[index]; }
+            delete(id) { const items = this.getAll(); const filtered = items.filter(item => item.id !== id); if (filtered.length ===
+                    items.length) return false; this._save(filtered); return true; }
+            getByShopId(shopId) { return this.getAll().filter(item => item.shopId === shopId); }
+            _save(items) { try { localStorage.setItem(this.key, JSON.stringify(items)); } catch (e) { console.error('Storage error:',
+                        e); } }
+            _generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
         }
 
-        // ============================================================
-        // 3. STORAGE INSTANCES
-        // ============================================================
         const shopStorage = new StorageManager(STORAGE_KEYS.SHOPS);
         const userStorage = new StorageManager(STORAGE_KEYS.USERS);
         const customerStorage = new StorageManager(STORAGE_KEYS.CUSTOMERS);
@@ -143,26 +82,20 @@
         const activityStorage = new StorageManager(STORAGE_KEYS.ACTIVITY_LOGS);
 
         const appStateStorage = {
-            getState() {
-                try {
-                    const data = localStorage.getItem(STORAGE_KEYS.APP_STATE);
-                    return data ? JSON.parse(data) : { currentShopId: null, currentUser: null };
-                } catch {
-                    return { currentShopId: null, currentUser: null };
-                }
-            },
-            setState(state) {
-                const current = this.getState();
-                const updated = { ...current, ...state };
-                localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(updated));
-            },
-            clear() {
-                localStorage.removeItem(STORAGE_KEYS.APP_STATE);
-            }
+            getState() { try { const data = localStorage.getItem(STORAGE_KEYS.APP_STATE); return data ? JSON.parse(data) : {
+                        currentShopId: null, currentUser: null }; } catch { return { currentShopId: null, currentUser: null }; } },
+            setState(state) { const current = this.getState(); const updated = { ...current, ...state };
+                localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(updated)); },
+            clear() { localStorage.removeItem(STORAGE_KEYS.APP_STATE); }
+        };
+
+        const settingsStorage = {
+            get() { try { const data = localStorage.getItem(STORAGE_KEYS.SETTINGS); return data ? JSON.parse(data) : { language: 'en' }; } catch { return { language: 'en' }; } },
+            set(settings) { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings)); }
         };
 
         // ============================================================
-        // 4. HELPER FUNCTIONS
+        // 3. HELPERS
         // ============================================================
         function generateOrderNumber(shopId) {
             const orders = orderStorage.getByShopId(shopId);
@@ -173,20 +106,8 @@
             return `ORD-${year}${month}-${count.toString().padStart(4, '0')}`;
         }
 
-        function calculateRemainingAmount(order) {
-            const payments = paymentStorage.getAll().filter(p => p.orderId === order.id);
-            const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-            return order.totalAmount - totalPaid;
-        }
-
         function logActivity(shopId, userId, action, details) {
-            activityStorage.create({
-                shopId,
-                userId,
-                action,
-                details,
-                timestamp: new Date().toISOString(),
-            });
+            activityStorage.create({ shopId, userId, action, details, timestamp: new Date().toISOString() });
         }
 
         function getCustomerByMobile(mobile, shopId) {
@@ -203,127 +124,249 @@
         }
 
         // ============================================================
-        // 5. SEED DATA
+        // 4. TRANSLATIONS
         // ============================================================
-        function seedMockData() {
-            if (shopStorage.getAll().length > 0) return;
+        const translations = {
+            en: {
+                appName: 'Business Manager',
+                login: 'Login',
+                selectShop: 'Select Your Business',
+                email: 'Email',
+                password: 'Password',
+                signIn: 'Sign In',
+                demoCreds: 'Demo: arjun@stardust.com / owner123',
+                seedData: 'Seed Demo Data',
+                dashboard: 'Dashboard',
+                customers: 'Customers',
+                orders: 'Orders',
+                payments: 'Payments',
+                settings: 'Settings',
+                logout: 'Logout',
+                addCustomer: 'Add Customer',
+                editCustomer: 'Edit Customer',
+                deleteCustomer: 'Delete Customer',
+                name: 'Name',
+                mobile: 'Mobile Number',
+                address: 'Address',
+                emailAddress: 'Email Address',
+                gstNumber: 'GST Number',
+                notes: 'Internal Notes',
+                photo: 'Profile Photo',
+                uploadPhoto: 'Upload Photo',
+                cancel: 'Cancel',
+                save: 'Save',
+                update: 'Update',
+                search: 'Search customers...',
+                noCustomers: 'No customers found',
+                addFirstCustomer: 'Start by adding your first customer',
+                newOrder: 'New Order',
+                createOrder: 'Create Order',
+                totalRevenue: 'Total Revenue',
+                totalOrders: 'Total Orders',
+                totalCustomers: 'Total Customers',
+                pendingOrders: 'Pending Orders',
+                recentOrders: 'Recent Orders',
+                viewAll: 'View All',
+                orderNumber: 'Order #',
+                customer: 'Customer',
+                amount: 'Amount',
+                status: 'Status',
+                delivery: 'Delivery',
+                noOrders: 'No orders yet',
+                quickActions: 'Quick Actions',
+                manageCustomers: 'Manage Customers',
+                language: 'Language',
+                english: 'English',
+                hindi: 'Hindi',
+                selectIndustry: 'Select Business Type',
+                tailor: 'Tailor Shop',
+                grocery: 'Grocery Store',
+                business: 'General Business',
+                tailorDesc: 'Perfect for tailors, fashion designers, and alteration shops',
+                groceryDesc: 'Ideal for grocery stores, supermarkets, and retail shops',
+                businessDesc: 'General business management for any service or product',
+                measurements: 'Measurements',
+                specifications: 'Specifications',
+                advancePayment: 'Advance Payment',
+                totalAmount: 'Total Amount',
+                targetDelivery: 'Target Delivery Date',
+                deliveryAddress: 'Delivery Address',
+                items: 'Items',
+                addItem: 'Add Item',
+                itemName: 'Item name',
+                quantity: 'Qty',
+                price: 'Price',
+                category: 'Category',
+                subCategory: 'Sub-Category',
+                tailoring: 'Tailoring',
+                repair: 'Repair',
+                alteration: 'Alteration',
+                custom: 'Custom Order',
+                groceryItems: 'Grocery Items',
+                productName: 'Product Name',
+                weight: 'Weight (kg)',
+                unitPrice: 'Unit Price',
+                stock: 'Stock',
+                fabricType: 'Fabric Type',
+                color: 'Color',
+                design: 'Design',
+                stitchingType: 'Stitching Type',
+                clothType: 'Cloth Type',
+                measurementsTaken: 'Measurements Taken',
+                deliveryStatus: 'Delivery Status',
+                paymentStatus: 'Payment Status',
+                pending: 'Pending',
+                inProgress: 'In Progress',
+                ready: 'Ready',
+                delivered: 'Delivered',
+                cancelled: 'Cancelled',
+                paid: 'Paid',
+                partial: 'Partial',
+                selectCustomer: 'Select Customer',
+            },
+            hi: {
+                appName: 'बिजनेस मैनेजर',
+                login: 'लॉगिन',
+                selectShop: 'अपना व्यवसाय चुनें',
+                email: 'ईमेल',
+                password: 'पासवर्ड',
+                signIn: 'साइन इन करें',
+                demoCreds: 'डेमो: arjun@stardust.com / owner123',
+                seedData: 'डेमो डेटा डालें',
+                dashboard: 'डैशबोर्ड',
+                customers: 'ग्राहक',
+                orders: 'ऑर्डर',
+                payments: 'भुगतान',
+                settings: 'सेटिंग्स',
+                logout: 'लॉगआउट',
+                addCustomer: 'ग्राहक जोड़ें',
+                editCustomer: 'ग्राहक संपादित करें',
+                deleteCustomer: 'ग्राहक हटाएं',
+                name: 'नाम',
+                mobile: 'मोबाइल नंबर',
+                address: 'पता',
+                emailAddress: 'ईमेल पता',
+                gstNumber: 'जीएसटी नंबर',
+                notes: 'आंतरिक नोट्स',
+                photo: 'प्रोफाइल फोटो',
+                uploadPhoto: 'फोटो अपलोड करें',
+                cancel: 'रद्द करें',
+                save: 'सेव करें',
+                update: 'अपडेट करें',
+                search: 'ग्राहक खोजें...',
+                noCustomers: 'कोई ग्राहक नहीं मिला',
+                addFirstCustomer: 'अपना पहला ग्राहक जोड़ें',
+                newOrder: 'नया ऑर्डर',
+                createOrder: 'ऑर्डर बनाएं',
+                totalRevenue: 'कुल राजस्व',
+                totalOrders: 'कुल ऑर्डर',
+                totalCustomers: 'कुल ग्राहक',
+                pendingOrders: 'लंबित ऑर्डर',
+                recentOrders: 'हाल के ऑर्डर',
+                viewAll: 'सभी देखें',
+                orderNumber: 'ऑर्डर #',
+                customer: 'ग्राहक',
+                amount: 'राशि',
+                status: 'स्थिति',
+                delivery: 'डिलीवरी',
+                noOrders: 'अभी कोई ऑर्डर नहीं',
+                quickActions: 'त्वरित क्रियाएं',
+                manageCustomers: 'ग्राहक प्रबंधित करें',
+                language: 'भाषा',
+                english: 'अंग्रेजी',
+                hindi: 'हिंदी',
+                selectIndustry: 'व्यवसाय प्रकार चुनें',
+                tailor: 'दर्जी की दुकान',
+                grocery: 'किराना स्टोर',
+                business: 'सामान्य व्यवसाय',
+                tailorDesc: 'दर्जी, फैशन डिजाइनर और अल्टरेशन शॉप के लिए उपयुक्त',
+                groceryDesc: 'किराना स्टोर, सुपरमार्केट और रिटेल शॉप के लिए आदर्श',
+                businessDesc: 'किसी भी सेवा या उत्पाद के लिए सामान्य व्यवसाय प्रबंधन',
+                measurements: 'माप',
+                specifications: 'विनिर्देश',
+                advancePayment: 'अग्रिम भुगतान',
+                totalAmount: 'कुल राशि',
+                targetDelivery: 'लक्षित डिलीवरी तिथि',
+                deliveryAddress: 'डिलीवरी पता',
+                items: 'आइटम',
+                addItem: 'आइटम जोड़ें',
+                itemName: 'आइटम का नाम',
+                quantity: 'मात्रा',
+                price: 'कीमत',
+                category: 'श्रेणी',
+                subCategory: 'उप-श्रेणी',
+                tailoring: 'सिलाई',
+                repair: 'मरम्मत',
+                alteration: 'बदलाव',
+                custom: 'कस्टम ऑर्डर',
+                groceryItems: 'किराना आइटम',
+                productName: 'उत्पाद का नाम',
+                weight: 'वजन (किग्रा)',
+                unitPrice: 'इकाई मूल्य',
+                stock: 'स्टॉक',
+                fabricType: 'कपड़े का प्रकार',
+                color: 'रंग',
+                design: 'डिज़ाइन',
+                stitchingType: 'सिलाई प्रकार',
+                clothType: 'कपड़े का प्रकार',
+                measurementsTaken: 'माप लिया गया',
+                deliveryStatus: 'डिलीवरी स्थिति',
+                paymentStatus: 'भुगतान स्थिति',
+                pending: 'लंबित',
+                inProgress: 'प्रगति में',
+                ready: 'तैयार',
+                delivered: 'डिलीवर',
+                cancelled: 'रद्द',
+                paid: 'भुगतान किया',
+                partial: 'आंशिक',
+                selectCustomer: 'ग्राहक चुनें',
+            }
+        };
 
-            const shop = shopStorage.create({
-                name: "Stardust Business Hub",
-                address: "123 Main Street, City Center",
-                phone: "+91 98765 43210",
-                email: "info@stardustbusiness.com",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            });
-
-            const owner = userStorage.create({
-                name: "Arjun Kumar",
-                email: "arjun@stardust.com",
-                password: "owner123",
-                role: "owner",
-                shopId: shop.id,
-                createdAt: new Date().toISOString(),
-            });
-
-            const manager = userStorage.create({
-                name: "Priya Sharma",
-                email: "priya@stardust.com",
-                password: "manager123",
-                role: "manager",
-                shopId: shop.id,
-                createdAt: new Date().toISOString(),
-            });
-
-            const cashier = userStorage.create({
-                name: "Rahul Verma",
-                email: "rahul@stardust.com",
-                password: "cashier123",
-                role: "cashier",
-                shopId: shop.id,
-                createdAt: new Date().toISOString(),
-            });
-
-            const customers = [
-                { name: "Rajesh Gupta", mobile: "+91 98765 12345", address: "45 Park Avenue, Mumbai",
-                    email: "rajesh@gmail.com", gstNumber: "GSTIN27AABCG1234K1Z", notes: "Regular customer" },
-                { name: "Sneha Patel", mobile: "+91 87654 32109", address: "12 Lake View, Pune",
-                    email: "sneha@yahoo.com", gstNumber: "", notes: "First-time customer" },
-                { name: "Vikram Singh", mobile: "+91 76543 21098", address: "78 Royal Palace, Delhi",
-                    email: "vikram@outlook.com", gstNumber: "GSTIN07BCCDV1234P1Z", notes: "Corporate client" },
-            ];
-
-            const createdCustomers = customers.map(c =>
-                customerStorage.create({
-                    ...c,
-                    shopId: shop.id,
-                    photo: "",
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                })
-            );
-
-            const orderData = [{
-                customerId: createdCustomers[0].id,
-                category: "Tailoring",
-                subCategory: "Wedding Suit",
-                measurements: { chest: "42", waist: "34", length: "68", sleeve: "25", shoulder: "18" },
-                specifications: "Double-breasted, black silk, gold buttons",
-                advancePayment: 5000,
-                totalAmount: 15000,
-                items: [
-                    { id: 'i1', name: "Blazer", quantity: 1, price: 10000, total: 10000 },
-                    { id: 'i2', name: "Trousers", quantity: 1, price: 5000, total: 5000 }
-                ],
-                status: "in-progress",
-                targetDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                deliveryAddress: "45 Park Avenue, Mumbai",
-            }, {
-                customerId: createdCustomers[1].id,
-                category: "Repair",
-                subCategory: "Mobile Phone",
-                measurements: {},
-                specifications: "Samsung S21 screen replacement, original parts",
-                advancePayment: 2000,
-                totalAmount: 8500,
-                items: [
-                    { id: 'i3', name: "Screen Replacement", quantity: 1, price: 7500, total: 7500 },
-                    { id: 'i4', name: "Service Charge", quantity: 1, price: 1000, total: 1000 }
-                ],
-                status: "pending",
-                targetDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-                deliveryAddress: "12 Lake View, Pune",
-            }];
-
-            orderData.forEach(data => {
-                const order = orderStorage.create({
-                    ...data,
-                    shopId: shop.id,
-                    orderNumber: generateOrderNumber(shop.id),
-                    remainingAmount: data.totalAmount - data.advancePayment,
-                    paymentStatus: data.advancePayment >= data.totalAmount ? 'paid' : 'partial',
-                    createdBy: owner.id,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                });
-                if (data.advancePayment > 0) {
-                    paymentStorage.create({
-                        orderId: order.id,
-                        amount: data.advancePayment,
-                        method: 'cash',
-                        receivedBy: cashier.id,
-                        createdAt: new Date().toISOString(),
-                    });
-                }
-                logActivity(shop.id, owner.id, "order_created",
-                    `Order ${order.orderNumber} created for ${createdCustomers.find(c => c.id === data.customerId)?.name}`);
-            });
-
-            appStateStorage.setState({ currentShopId: shop.id, currentUser: owner });
+        function t(key) {
+            const settings = settingsStorage.get();
+            const lang = settings.language || 'en';
+            return translations[lang]?.[key] || translations.en[key] || key;
         }
 
         // ============================================================
-        // 6. REACT-LIKE RENDER ENGINE (Mini Framework)
+        // 5. INDUSTRY CONFIGURATIONS
+        // ============================================================
+        const industryConfigs = {
+            tailor: {
+                label: 'Tailor Shop',
+                icon: 'fa-scissors',
+                color: 'blue',
+                badge: 'badge-tailor',
+                fields: ['fabricType', 'color', 'design', 'stitchingType', 'clothType'],
+                orderFields: ['measurements', 'fabricType', 'color', 'design', 'stitchingType', 'clothType'],
+                dashboardStats: ['totalOrders', 'totalCustomers', 'pendingOrders', 'totalRevenue'],
+                features: ['measurements', 'fabric', 'design', 'alterations'],
+            },
+            grocery: {
+                label: 'Grocery Store',
+                icon: 'fa-store',
+                color: 'green',
+                badge: 'badge-grocery',
+                fields: ['productName', 'weight', 'unitPrice', 'stock'],
+                orderFields: ['productName', 'weight', 'quantity', 'unitPrice'],
+                dashboardStats: ['totalOrders', 'totalCustomers', 'stockValue', 'totalRevenue'],
+                features: ['inventory', 'weightTracking', 'bulkOrders', 'stockManagement'],
+            },
+            business: {
+                label: 'General Business',
+                icon: 'fa-building',
+                color: 'yellow',
+                badge: 'badge-business',
+                fields: ['category', 'subCategory', 'specifications'],
+                orderFields: ['category', 'subCategory', 'specifications', 'items'],
+                dashboardStats: ['totalOrders', 'totalCustomers', 'pendingOrders', 'totalRevenue'],
+                features: ['generalOrders', 'customerManagement', 'paymentTracking'],
+            }
+        };
+
+        // ============================================================
+        // 6. REACT-LIKE RENDER ENGINE
         // ============================================================
         let appState = appStateStorage.getState();
         let appListeners = [];
@@ -339,48 +382,6 @@
             return () => { appListeners = appListeners.filter(fn => fn !== listener); };
         }
 
-        function render(component, container) {
-            container.innerHTML = '';
-            const el = component();
-            container.appendChild(el);
-            return el;
-        }
-
-        function h(tag, props = {}, ...children) {
-            const el = document.createElement(tag);
-            for (const [key, value] of Object.entries(props || {})) {
-                if (key === 'className') {
-                    el.className = value;
-                } else if (key === 'style' && typeof value === 'object') {
-                    Object.assign(el.style, value);
-                } else if (key.startsWith('on') && typeof value === 'function') {
-                    el.addEventListener(key.slice(2).toLowerCase(), value);
-                } else if (key === 'dangerouslySetInnerHTML') {
-                    el.innerHTML = value.__html;
-                } else if (key === 'value' || key === 'checked') {
-                    el[key] = value;
-                } else if (key === 'ref' && typeof value === 'function') {
-                    value(el);
-                } else {
-                    el.setAttribute(key, value);
-                }
-            }
-            for (const child of children) {
-                if (child === null || child === undefined) continue;
-                if (typeof child === 'string' || typeof child === 'number') {
-                    el.appendChild(document.createTextNode(String(child)));
-                } else if (Array.isArray(child)) {
-                    child.forEach(c => {
-                        if (c) el.appendChild(c);
-                    });
-                } else {
-                    el.appendChild(child);
-                }
-            }
-            return el;
-        }
-
-        // Simple router
         let currentRoute = '/login';
         const routerListeners = [];
 
@@ -400,6 +401,13 @@
             routerListeners.forEach(fn => fn());
         });
 
+        function rerender() {
+            clearTimeout(window._rerenderTimeout);
+            window._rerenderTimeout = setTimeout(() => {
+                renderRoute();
+            }, 10);
+        }
+
         // ============================================================
         // 7. COMPONENTS
         // ============================================================
@@ -408,65 +416,7 @@
         function ShopSwitcher() {
             const shops = shopStorage.getAll();
             const currentShop = shops.find(s => s.id === appState.currentShopId);
-
             let isOpen = false;
-            let showCreateModal = false;
-
-            function renderCreateModal() {
-                const overlay = document.createElement('div');
-                overlay.className = 'fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4';
-                overlay.innerHTML = `
-                    <div class="bg-white rounded-xl w-full max-w-md p-6">
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">Create New Shop</h2>
-                        <form id="createShopForm">
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Shop Name *</label>
-                                    <input type="text" id="shopName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter shop name">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Address *</label>
-                                    <textarea id="shopAddress" required rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter shop address"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                                    <input type="tel" id="shopPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter phone number">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                    <input type="email" id="shopEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter email address">
-                                </div>
-                                <div class="flex space-x-3 pt-4">
-                                    <button type="button" onclick="this.closest('.fixed').remove()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Cancel</button>
-                                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Create Shop</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-
-                document.getElementById('createShopForm').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const name = document.getElementById('shopName').value.trim();
-                    const address = document.getElementById('shopAddress').value.trim();
-                    const phone = document.getElementById('shopPhone').value.trim();
-                    const email = document.getElementById('shopEmail').value.trim();
-                    if (name && address && phone) {
-                        const shop = shopStorage.create({
-                            name,
-                            address,
-                            phone,
-                            email,
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                        });
-                        setAppState({ currentShopId: shop.id });
-                        overlay.remove();
-                        rerender();
-                    }
-                });
-            }
 
             const container = document.createElement('div');
             container.className = 'relative';
@@ -474,30 +424,33 @@
             const btn = document.createElement('button');
             btn.className =
                 'flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm';
+            const industry = currentShop?.industry || 'business';
+            const config = industryConfigs[industry] || industryConfigs.business;
             btn.innerHTML = `
-                <i class="fas fa-store text-gray-600"></i>
-                <span class="font-medium text-gray-700">${currentShop?.name || 'Select Shop'}</span>
+                <i class="fas ${config.icon} text-gray-600"></i>
+                <span class="font-medium text-gray-700">${currentShop?.name || t('selectShop')}</span>
                 <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
             `;
-            btn.onclick = () => {
-                isOpen = !isOpen;
-                rerender();
-            };
+            btn.onclick = () => { isOpen = !isOpen;
+                rerender(); };
             container.appendChild(btn);
 
             if (isOpen) {
                 const dropdown = document.createElement('div');
-                dropdown.className = 'absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20';
+                dropdown.className =
+                'absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20';
                 const list = document.createElement('div');
                 list.className = 'p-2';
 
                 shops.forEach(shop => {
+                    const config = industryConfigs[shop.industry] || industryConfigs.business;
                     const item = document.createElement('button');
                     item.className =
                         `w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${shop.id === appState.currentShopId ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-100 text-gray-700'}`;
                     item.innerHTML = `
-                        <i class="fas fa-building"></i>
+                        <i class="fas ${config.icon}"></i>
                         <span class="flex-1 text-left">${shop.name}</span>
+                        <span class="text-xs ${config.badge}">${config.label}</span>
                         ${shop.id === appState.currentShopId ? '<span class="text-xs text-indigo-600">Active</span>' : ''}
                     `;
                     item.onclick = () => {
@@ -508,24 +461,9 @@
                     list.appendChild(item);
                 });
 
-                const divider = document.createElement('div');
-                divider.className = 'border-t border-gray-200 mt-2 pt-2';
-                list.appendChild(divider);
-
-                const createBtn = document.createElement('button');
-                createBtn.className =
-                    'w-full flex items-center space-x-2 px-3 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm';
-                createBtn.innerHTML = `<i class="fas fa-plus"></i><span>Create New Shop</span>`;
-                createBtn.onclick = () => {
-                    isOpen = false;
-                    renderCreateModal();
-                    rerender();
-                };
-                list.appendChild(createBtn);
-
                 dropdown.appendChild(list);
+                container.appendChild(dropdown);
 
-                // Close on outside click
                 const closeHandler = (e) => {
                     if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
                         isOpen = false;
@@ -534,8 +472,6 @@
                     }
                 };
                 setTimeout(() => document.addEventListener('click', closeHandler), 0);
-
-                container.appendChild(dropdown);
             }
 
             return container;
@@ -544,14 +480,16 @@
         // ---- Layout ----
         function Layout({ children, title = 'Dashboard' }) {
             const currentUser = appState.currentUser;
-            const isMobileMenuOpen = false;
+            const currentShop = shopStorage.getById(appState.currentShopId);
+            const industry = currentShop?.industry || 'business';
+            const config = industryConfigs[industry] || industryConfigs.business;
 
             const navItems = [
-                { name: 'Dashboard', href: '/dashboard', icon: 'fa-gauge-high' },
-                { name: 'Customers', href: '/customers', icon: 'fa-users' },
-                { name: 'Orders', href: '/orders', icon: 'fa-box' },
-                { name: 'Payments', href: '/payments', icon: 'fa-credit-card' },
-                { name: 'Settings', href: '/settings', icon: 'fa-gear' },
+                { name: t('dashboard'), href: '/dashboard', icon: 'fa-gauge-high' },
+                { name: t('customers'), href: '/customers', icon: 'fa-users' },
+                { name: t('orders'), href: '/orders', icon: 'fa-box' },
+                { name: t('payments'), href: '/payments', icon: 'fa-credit-card' },
+                { name: t('settings'), href: '/settings', icon: 'fa-gear' },
             ];
 
             const restricted = {
@@ -574,7 +512,7 @@
             mobileHeader.className = 'lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between';
             mobileHeader.innerHTML = `
                 <button id="mobileMenuToggle" class="text-gray-600 hover:text-gray-900"><i class="fas fa-bars text-xl"></i></button>
-                <h1 class="text-lg font-semibold text-gray-900">SaaS Manager</h1>
+                <h1 class="text-lg font-semibold text-gray-900">${t('appName')}</h1>
                 <div class="flex items-center space-x-3">
                     <div id="mobileShopSwitcher"></div>
                     <i class="fas fa-user-circle text-2xl text-gray-600"></i>
@@ -582,7 +520,6 @@
             `;
             container.appendChild(mobileHeader);
 
-            // Main flex
             const flex = document.createElement('div');
             flex.className = 'flex';
 
@@ -595,8 +532,13 @@
             sidebar.innerHTML = `
                 <div class="flex flex-col h-full">
                     <div class="p-6 border-b border-gray-200">
-                        <h1 class="text-xl font-bold text-indigo-600">SaaS Manager</h1>
-                        <p class="text-xs text-gray-500 mt-1">Multi-Tenant Management</p>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas ${config.icon} text-2xl text-indigo-600"></i>
+                            <div>
+                                <h1 class="text-xl font-bold text-indigo-600">${t('appName')}</h1>
+                                <p class="text-xs text-gray-500">${config.label}</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-4 border-b border-gray-200">
                         <div class="flex items-center space-x-3">
@@ -621,39 +563,33 @@
                     <div class="p-4 border-t border-gray-200">
                         <button onclick="handleLogout()" class="flex items-center w-full px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                             <i class="fas fa-sign-out-alt w-5"></i>
-                            <span class="ml-3">Logout</span>
+                            <span class="ml-3">${t('logout')}</span>
                         </button>
                     </div>
                 </div>
             `;
             flex.appendChild(sidebar);
 
-            // Main content
             const main = document.createElement('main');
             main.className = 'flex-1 min-w-0 p-6';
             main.innerHTML = `
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold text-gray-900">${title}</h1>
+                    ${currentShop ? `<span class="badge ${config.badge}">${config.label}</span>` : ''}
                 </div>
                 <div id="pageContent"></div>
             `;
             flex.appendChild(main);
             container.appendChild(flex);
 
-            // Mount shop switchers
             setTimeout(() => {
                 const mobileSS = document.getElementById('mobileShopSwitcher');
                 const sidebarSS = document.getElementById('sidebarShopSwitcher');
-                if (mobileSS) {
-                    const ss = ShopSwitcher();
-                    mobileSS.appendChild(ss);
-                }
-                if (sidebarSS) {
-                    const ss = ShopSwitcher();
-                    sidebarSS.appendChild(ss);
-                }
+                if (mobileSS) { const ss = ShopSwitcher();
+                    mobileSS.appendChild(ss); }
+                if (sidebarSS) { const ss = ShopSwitcher();
+                    sidebarSS.appendChild(ss); }
 
-                // Mobile menu toggle
                 const toggle = document.getElementById('mobileMenuToggle');
                 if (toggle) {
                     toggle.onclick = () => {
@@ -663,7 +599,6 @@
                     };
                 }
 
-                // Close sidebar on nav click (mobile)
                 document.querySelectorAll('#sidebar nav a').forEach(a => {
                     a.addEventListener('click', () => {
                         if (window.innerWidth < 1024) {
@@ -675,10 +610,10 @@
                 });
             }, 0);
 
-            // Mount page content
             setTimeout(() => {
                 const content = document.getElementById('pageContent');
                 if (content && children) {
+                    content.innerHTML = '';
                     content.appendChild(children);
                 }
             }, 0);
@@ -689,42 +624,63 @@
         // ---- Login Page ----
         function LoginPage() {
             const container = document.createElement('div');
-            container.className = 'min-h-screen bg-gray-100 flex items-center justify-center p-4';
+            container.className = 'min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 flex items-center justify-center p-4';
 
             const card = document.createElement('div');
-            card.className = 'bg-white rounded-xl shadow-lg w-full max-w-md p-8';
-
-            let error = '';
+            card.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden';
 
             card.innerHTML = `
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-bold text-indigo-600">SaaS Manager</h1>
-                    <p class="text-sm text-gray-500 mt-1">Multi-Tenant Management System</p>
-                </div>
-                <form id="loginForm" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Shop</label>
-                        <select id="loginShop" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                            <option value="">Select Shop</option>
-                            ${shopStorage.getAll().map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
-                        </select>
+                <div class="grid md:grid-cols-2">
+                    <div class="p-8 md:p-10">
+                        <div class="text-center mb-8">
+                            <h1 class="text-2xl font-bold text-indigo-600">${t('appName')}</h1>
+                            <p class="text-sm text-gray-500 mt-1">Multi-Business Management System</p>
+                        </div>
+                        <form id="loginForm" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('selectShop')}</label>
+                                <select id="loginShop" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">${t('selectShop')}</option>
+                                    ${shopStorage.getAll().map(s => {
+                                        const config = industryConfigs[s.industry] || industryConfigs.business;
+                                        return `<option value="${s.id}">${s.name} (${config.label})</option>`;
+                                    }).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('email')}</label>
+                                <input type="email" id="loginEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('password')}</label>
+                                <input type="password" id="loginPassword" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="••••••••">
+                            </div>
+                            <div id="loginError" class="hidden bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm"></div>
+                            <button type="submit" class="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                                ${t('signIn')}
+                            </button>
+                        </form>
+                        <div class="mt-6 text-center">
+                            <p class="text-xs text-gray-400">${t('demoCreds')}</p>
+                            <button id="seedBtn" class="mt-2 text-sm text-indigo-600 hover:text-indigo-700">${t('seedData')}</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="loginEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com">
+                    <div class="hidden md:block bg-gradient-to-br from-indigo-600 to-blue-600 p-10 text-white">
+                        <h2 class="text-3xl font-bold mb-6">${t('selectIndustry')}</h2>
+                        <div class="space-y-4">
+                            ${Object.entries(industryConfigs).map(([key, config]) => `
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas ${config.icon} text-2xl"></i>
+                                        <div>
+                                            <h3 class="font-semibold">${t(key)}</h3>
+                                            <p class="text-xs text-white/80">${t(key + 'Desc')}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input type="password" id="loginPassword" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="••••••••">
-                    </div>
-                    <div id="loginError" class="hidden bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm"></div>
-                    <button type="submit" class="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-                        Sign In
-                    </button>
-                </form>
-                <div class="mt-6 text-center">
-                    <p class="text-xs text-gray-400">Demo: arjun@stardust.com / owner123</p>
-                    <button id="seedBtn" class="mt-2 text-sm text-indigo-600 hover:text-indigo-700">Seed Demo Data</button>
                 </div>
             `;
 
@@ -739,7 +695,7 @@
                     const errorEl = document.getElementById('loginError');
 
                     if (!shopId) {
-                        errorEl.textContent = 'Please select a shop';
+                        errorEl.textContent = 'Please select a business';
                         errorEl.classList.remove('hidden');
                         return;
                     }
@@ -754,7 +710,7 @@
                         navigate('/dashboard');
                         rerender();
                     } else {
-                        errorEl.textContent = 'Invalid credentials or shop selection';
+                        errorEl.textContent = 'Invalid credentials or business selection';
                         errorEl.classList.remove('hidden');
                     }
                 });
@@ -762,8 +718,11 @@
                 document.getElementById('seedBtn').addEventListener('click', function() {
                     seedMockData();
                     const select = document.getElementById('loginShop');
-                    select.innerHTML = `<option value="">Select Shop</option>${
-                        shopStorage.getAll().map(s => `<option value="${s.id}">${s.name}</option>`).join('')
+                    select.innerHTML = `<option value="">${t('selectShop')}</option>${
+                        shopStorage.getAll().map(s => {
+                            const config = industryConfigs[s.industry] || industryConfigs.business;
+                            return `<option value="${s.id}">${s.name} (${config.label})</option>`;
+                        }).join('')
                     }`;
                     alert('Demo data seeded! You can now login.');
                 });
@@ -772,18 +731,108 @@
             return container;
         }
 
-        // ---- Dashboard ----
+        // ---- Settings Page ----
+        function SettingsPage() {
+            const settings = settingsStorage.get();
+            const currentLang = settings.language || 'en';
+
+            const container = document.createElement('div');
+            container.className = 'bg-white rounded-xl border border-gray-200 p-6';
+
+            container.innerHTML = `
+                <h2 class="text-xl font-bold text-gray-900 mb-6">${t('settings')}</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">${t('language')}</label>
+                        <div class="flex space-x-4">
+                            <button id="langEn" class="px-6 py-2 rounded-lg border-2 ${currentLang === 'en' ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-gray-300 hover:border-gray-400'} transition-colors">
+                                <i class="fas fa-globe-americas mr-2"></i>${t('english')}
+                            </button>
+                            <button id="langHi" class="px-6 py-2 rounded-lg border-2 ${currentLang === 'hi' ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-gray-300 hover:border-gray-400'} transition-colors">
+                                <i class="fas fa-language mr-2"></i>${t('hindi')}
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">${currentLang === 'en' ? 'Current language: English' : 'वर्तमान भाषा: हिंदी'}</p>
+                    </div>
+                    <div class="pt-6 border-t border-gray-200">
+                        <h3 class="font-medium text-gray-900 mb-2">Business Information</h3>
+                        ${appState.currentShopId ? `
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p><strong>Name:</strong> ${shopStorage.getById(appState.currentShopId)?.name || 'N/A'}</p>
+                                <p><strong>Industry:</strong> ${shopStorage.getById(appState.currentShopId)?.industry || 'N/A'}</p>
+                                <p><strong>Address:</strong> ${shopStorage.getById(appState.currentShopId)?.address || 'N/A'}</p>
+                            </div>
+                        ` : '<p class="text-gray-500">No shop selected</p>'}
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                document.getElementById('langEn')?.addEventListener('click', function() {
+                    settingsStorage.set({ language: 'en' });
+                    this.className =
+                        'px-6 py-2 rounded-lg border-2 border-indigo-600 bg-indigo-50 text-indigo-600 transition-colors';
+                    document.getElementById('langHi').className =
+                        'px-6 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors';
+                    rerender();
+                });
+
+                document.getElementById('langHi')?.addEventListener('click', function() {
+                    settingsStorage.set({ language: 'hi' });
+                    this.className =
+                        'px-6 py-2 rounded-lg border-2 border-indigo-600 bg-indigo-50 text-indigo-600 transition-colors';
+                    document.getElementById('langEn').className =
+                        'px-6 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors';
+                    rerender();
+                });
+            }, 0);
+
+            return container;
+        }
+
+        // ---- Industry-Specific Dashboard ----
         function DashboardPage() {
             const shopId = appState.currentShopId;
+            const shop = shopStorage.getById(shopId);
+            const industry = shop?.industry || 'business';
+            const config = industryConfigs[industry] || industryConfigs.business;
+
             const customers = customerStorage.getByShopId(shopId);
             const orders = orderStorage.getByShopId(shopId);
             const payments = paymentStorage.getAll().filter(p => orders.some(o => o.id === p.orderId));
             const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
             const pendingOrders = orders.filter(o => o.status === 'pending').length;
-            const inProgressOrders = orders.filter(o => o.status === 'in-progress').length;
-            const completedOrders = orders.filter(o => o.status === 'delivered').length;
 
-            let showOrderForm = false;
+            // Industry-specific stats
+            let stats = [
+                { label: t('totalCustomers'), value: customers.length, icon: 'fa-users', color: 'bg-blue-500' },
+                { label: t('totalOrders'), value: orders.length, icon: 'fa-box', color: 'bg-purple-500' },
+                { label: t('pendingOrders'), value: pendingOrders, icon: 'fa-clock', color: 'bg-yellow-500' },
+                { label: t('totalRevenue'), value: `₹${totalRevenue.toLocaleString()}`, icon: 'fa-chart-line',
+                    color: 'bg-green-500' },
+            ];
+
+            // Grocery specific stats
+            if (industry === 'grocery') {
+                const totalStock = orders.reduce((sum, o) => {
+                    const items = o.items || [];
+                    return sum + items.reduce((s, item) => s + (item.quantity || 0), 0);
+                }, 0);
+                stats.push({ label: 'Total Stock', value: totalStock, icon: 'fa-cubes', color: 'bg-orange-500' });
+            }
+
+            // Tailor specific stats
+            if (industry === 'tailor') {
+                const inProgress = orders.filter(o => o.status === 'in-progress').length;
+                const ready = orders.filter(o => o.status === 'ready').length;
+                stats = [
+                    { label: t('totalCustomers'), value: customers.length, icon: 'fa-users', color: 'bg-blue-500' },
+                    { label: 'In Progress', value: inProgress, icon: 'fa-spinner', color: 'bg-purple-500' },
+                    { label: 'Ready', value: ready, icon: 'fa-check-circle', color: 'bg-green-500' },
+                    { label: t('totalRevenue'), value: `₹${totalRevenue.toLocaleString()}`, icon: 'fa-chart-line',
+                        color: 'bg-yellow-500' },
+                ];
+            }
 
             const statusColors = {
                 pending: 'status-pending',
@@ -793,49 +842,93 @@
                 cancelled: 'status-cancelled',
             };
 
-            function renderStats() {
-                const stats = [
-                    { label: 'Total Customers', value: customers.length, icon: 'fa-users', color: 'bg-blue-500' },
-                    { label: 'Total Orders', value: orders.length, icon: 'fa-box', color: 'bg-purple-500' },
-                    { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, icon: 'fa-chart-line',
-                        color: 'bg-green-500' },
-                    { label: 'Pending Orders', value: pendingOrders, icon: 'fa-clock', color: 'bg-yellow-500' },
-                ];
+            const container = document.createElement('div');
 
-                return stats.map(s => `
-                    <div class="bg-white rounded-xl border border-gray-200 p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">${s.label}</p>
-                                <p class="text-2xl font-bold text-gray-900 mt-1">${s.value}</p>
-                            </div>
-                            <div class="${s.color} p-3 rounded-lg text-white">
-                                <i class="fas ${s.icon}"></i>
-                            </div>
+            // Industry welcome banner
+            const banner = document.createElement('div');
+            banner.className =
+                `bg-gradient-to-r ${industry === 'tailor' ? 'from-blue-500 to-indigo-600' : industry === 'grocery' ? 'from-green-500 to-teal-600' : 'from-yellow-500 to-orange-600'} rounded-xl p-6 text-white mb-6`;
+            banner.innerHTML = `
+                <div class="flex items-center space-x-4">
+                    <i class="fas ${config.icon} text-4xl"></i>
+                    <div>
+                        <h2 class="text-2xl font-bold">${shop?.name || 'Welcome'}</h2>
+                        <p class="text-white/80">${config.label} • ${orders.length} orders processed</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(banner);
+
+            // Stats
+            const statsGrid = document.createElement('div');
+            statsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6';
+            statsGrid.innerHTML = stats.map(s => `
+                <div class="bg-white rounded-xl border border-gray-200 p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">${s.label}</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">${s.value}</p>
+                        </div>
+                        <div class="${s.color} p-3 rounded-lg text-white">
+                            <i class="fas ${s.icon}"></i>
                         </div>
                     </div>
-                `).join('');
-            }
+                </div>
+            `).join('');
+            container.appendChild(statsGrid);
 
-            function renderOrders() {
-                if (orders.length === 0) {
-                    return `
-                        <div class="text-center py-12">
-                            <i class="fas fa-box text-5xl text-gray-300"></i>
-                            <p class="mt-2 text-gray-500">No orders yet. Start by creating your first order!</p>
-                        </div>
-                    `;
-                }
+            // Quick Actions
+            const actions = document.createElement('div');
+            actions.className = 'bg-white rounded-xl border border-gray-200 p-5 mb-6';
+            actions.innerHTML = `
+                <h2 class="text-lg font-semibold text-gray-900 mb-3">${t('quickActions')}</h2>
+                <div class="flex flex-wrap gap-3">
+                    <button id="newOrderBtn" class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-plus"></i>
+                        <span>${t('newOrder')}</span>
+                    </button>
+                    <button onclick="navigate('/customers')" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-users"></i>
+                        <span>${t('manageCustomers')}</span>
+                    </button>
+                    ${industry === 'grocery' ? `
+                        <button class="flex items-center space-x-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors">
+                            <i class="fas fa-cubes"></i>
+                            <span>Manage Inventory</span>
+                        </button>
+                    ` : ''}
+                    ${industry === 'tailor' ? `
+                        <button class="flex items-center space-x-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-ruler"></i>
+                            <span>Measurements</span>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            container.appendChild(actions);
 
-                return `
+            // Recent Orders
+            const ordersSection = document.createElement('div');
+            ordersSection.className = 'bg-white rounded-xl border border-gray-200';
+
+            let ordersHtml = '';
+            if (orders.length === 0) {
+                ordersHtml = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-box text-5xl text-gray-300"></i>
+                        <p class="mt-2 text-gray-500">${t('noOrders')}</p>
+                    </div>
+                `;
+            } else {
+                ordersHtml = `
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order #</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('orderNumber')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('customer')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('amount')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('status')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('delivery')}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -848,7 +941,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${order.totalAmount.toLocaleString()}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="status-badge ${statusColors[order.status] || 'status-pending'}">
-                                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                            ${t(order.status) || order.status}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -861,282 +954,16 @@
                 `;
             }
 
-            function renderOrderForm() {
-                const overlay = document.createElement('div');
-                overlay.className = 'fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4';
-                overlay.id = 'orderFormModal';
-
-                const customers = customerStorage.getByShopId(appState.currentShopId);
-
-                let formState = {
-                    customerId: '',
-                    category: 'Tailoring',
-                    subCategory: '',
-                    measurements: {},
-                    specifications: '',
-                    advancePayment: 0,
-                    totalAmount: 0,
-                    targetDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    deliveryAddress: '',
-                    items: [],
-                };
-
-                let newItem = { name: '', quantity: 1, price: 0 };
-
-                function renderForm() {
-                    const html = `
-                        <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
-                                <h2 class="text-xl font-bold text-gray-900">Create New Order</h2>
-                                <button onclick="document.getElementById('orderFormModal').remove()" class="p-2 hover:bg-gray-100 rounded-lg">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <form id="orderForm" class="p-6 space-y-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
-                                    <select id="ofCustomer" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                                        <option value="">Select Customer</option>
-                                        ${customers.map(c => `<option value="${c.id}">${c.name} - ${c.mobile}</option>`).join('')}
-                                    </select>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                                        <select id="ofCategory" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                                            <option value="Tailoring">Tailoring</option>
-                                            <option value="Repair">Repair</option>
-                                            <option value="Alteration">Alteration</option>
-                                            <option value="Custom">Custom Order</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Sub-Category</label>
-                                        <input type="text" id="ofSubCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="e.g., Wedding Suit">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Measurements</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                        ${['chest','waist','length','sleeve','shoulder','other'].map(k => `
-                                            <input type="text" placeholder="${k.charAt(0).toUpperCase() + k.slice(1)}" 
-                                                class="measurement-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" 
-                                                data-key="${k}">
-                                        `).join('')}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Specifications</label>
-                                    <textarea id="ofSpecs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Enter additional details..."></textarea>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Items</label>
-                                    <div id="ofItemsList" class="flex flex-wrap gap-2 mb-2"></div>
-                                    <div class="flex flex-wrap gap-2">
-                                        <input type="text" id="ofItemName" placeholder="Item name" class="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                        <input type="number" id="ofItemQty" placeholder="Qty" value="1" class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                        <input type="number" id="ofItemPrice" placeholder="Price" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                        <button type="button" id="ofAddItem" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Advance Payment (₹)</label>
-                                        <input type="number" id="ofAdvance" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Total Amount (₹)</label>
-                                        <input type="number" id="ofTotal" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Target Delivery *</label>
-                                        <input type="date" id="ofDelivery" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
-                                        <input type="text" id="ofAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Delivery address">
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-3 pt-4 border-t border-gray-200">
-                                    <button type="button" onclick="document.getElementById('orderFormModal').remove()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
-                                        Create Order
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    `;
-
-                    overlay.innerHTML = html;
-
-                    // Populate delivery date
-                    const deliveryInput = document.getElementById('ofDelivery');
-                    if (deliveryInput) {
-                        deliveryInput.value = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    }
-
-                    // Customer select - auto-fill address
-                    document.getElementById('ofCustomer')?.addEventListener('change', function() {
-                        const customer = customers.find(c => c.id === this.value);
-                        if (customer && customer.address) {
-                            document.getElementById('ofAddress').value = customer.address;
-                        }
-                    });
-
-                    // Add item
-                    document.getElementById('ofAddItem')?.addEventListener('click', function() {
-                        const name = document.getElementById('ofItemName').value.trim();
-                        const qty = parseInt(document.getElementById('ofItemQty').value) || 1;
-                        const price = parseFloat(document.getElementById('ofItemPrice').value) || 0;
-                        if (name && qty > 0 && price > 0) {
-                            const item = { id: Date.now().toString(), name, quantity: qty, price, total: qty * price };
-                            formState.items.push(item);
-                            formState.totalAmount += item.total;
-                            updateItemsUI();
-                            document.getElementById('ofItemName').value = '';
-                            document.getElementById('ofItemPrice').value = '';
-                            document.getElementById('ofTotal').value = formState.totalAmount;
-                        }
-                    });
-
-                    function updateItemsUI() {
-                        const list = document.getElementById('ofItemsList');
-                        if (!list) return;
-                        list.innerHTML = formState.items.map(item => `
-                            <div class="bg-gray-100 rounded-lg px-3 py-1.5 flex items-center space-x-2 text-sm">
-                                <span>${item.name} × ${item.quantity} = ₹${item.total}</span>
-                                <button type="button" onclick="removeItem('${item.id}')" class="text-red-500 hover:text-red-700">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        `).join('');
-                    }
-
-                    window.removeItem = function(id) {
-                        const item = formState.items.find(i => i.id === id);
-                        if (item) {
-                            formState.totalAmount -= item.total;
-                            formState.items = formState.items.filter(i => i.id !== id);
-                            updateItemsUI();
-                            document.getElementById('ofTotal').value = formState.totalAmount;
-                        }
-                    };
-
-                    // Form submit
-                    document.getElementById('orderForm')?.addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const customerId = document.getElementById('ofCustomer').value;
-                        const category = document.getElementById('ofCategory').value;
-                        const subCategory = document.getElementById('ofSubCategory').value;
-                        const specs = document.getElementById('ofSpecs').value;
-                        const advance = parseFloat(document.getElementById('ofAdvance').value) || 0;
-                        const total = parseFloat(document.getElementById('ofTotal').value) || 0;
-                        const delivery = document.getElementById('ofDelivery').value;
-                        const address = document.getElementById('ofAddress').value;
-
-                        if (!customerId || !delivery || formState.items.length === 0) {
-                            alert('Please fill in all required fields and add at least one item');
-                            return;
-                        }
-
-                        const measurements = {};
-                        document.querySelectorAll('.measurement-input').forEach(inp => {
-                            if (inp.value.trim()) {
-                                measurements[inp.dataset.key] = inp.value.trim();
-                            }
-                        });
-
-                        const orderData = {
-                            customerId,
-                            shopId: appState.currentShopId,
-                            category,
-                            subCategory,
-                            measurements,
-                            specifications: specs,
-                            advancePayment: advance,
-                            totalAmount: total,
-                            items: formState.items,
-                            status: 'pending',
-                            targetDeliveryDate: delivery,
-                            deliveryAddress: address || 'N/A',
-                            createdBy: appState.currentUser?.id || '',
-                            remainingAmount: total - advance,
-                            paymentStatus: advance >= total ? 'paid' : 'pending',
-                            orderNumber: generateOrderNumber(appState.currentShopId),
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                        };
-
-                        const order = orderStorage.create(orderData);
-
-                        if (advance > 0) {
-                            paymentStorage.create({
-                                orderId: order.id,
-                                amount: advance,
-                                method: 'cash',
-                                receivedBy: appState.currentUser?.id || '',
-                                createdAt: new Date().toISOString(),
-                            });
-                        }
-
-                        logActivity(appState.currentShopId, appState.currentUser?.id || '', 'order_created',
-                            `Order ${order.orderNumber} created`);
-
-                        document.getElementById('orderFormModal').remove();
-                        rerender();
-                    });
-                }
-
-                renderForm();
-                document.body.appendChild(overlay);
-                return overlay;
-            }
-
-            const container = document.createElement('div');
-            container.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    ${renderStats()}
+            ordersSection.innerHTML = `
+                <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">${t('recentOrders')}</h2>
+                    <button onclick="navigate('/orders')" class="text-sm text-indigo-600 hover:text-indigo-700">${t('viewAll')}</button>
                 </div>
-
-                <div class="bg-white rounded-xl border border-gray-200 p-5 mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h2>
-                    <div class="flex flex-wrap gap-3">
-                        <button id="newOrderBtn" class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                            <i class="fas fa-plus"></i>
-                            <span>New Order</span>
-                        </button>
-                        <button onclick="navigate('/customers')" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                            <i class="fas fa-users"></i>
-                            <span>Manage Customers</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl border border-gray-200">
-                    <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
-                        <button onclick="navigate('/orders')" class="text-sm text-indigo-600 hover:text-indigo-700">View All</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        ${renderOrders()}
-                    </div>
-                </div>
+                <div class="overflow-x-auto">${ordersHtml}</div>
             `;
+            container.appendChild(ordersSection);
 
+            // Order Form Modal
             setTimeout(() => {
                 document.getElementById('newOrderBtn')?.addEventListener('click', function() {
                     renderOrderForm();
@@ -1146,27 +973,309 @@
             return container;
         }
 
+        // ---- Order Form ----
+        function renderOrderForm() {
+            const shopId = appState.currentShopId;
+            const shop = shopStorage.getById(shopId);
+            const industry = shop?.industry || 'business';
+            const customers = customerStorage.getByShopId(shopId);
+
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4';
+            overlay.id = 'orderFormModal';
+
+            let formState = {
+                customerId: '',
+                category: industry === 'tailor' ? 'Tailoring' : industry === 'grocery' ? 'Grocery' : 'General',
+                subCategory: '',
+                measurements: {},
+                specifications: '',
+                advancePayment: 0,
+                totalAmount: 0,
+                targetDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                deliveryAddress: '',
+                items: [],
+            };
+
+            let newItem = { name: '', quantity: 1, price: 0 };
+
+            function renderForm() {
+                // Industry-specific form fields
+                let extraFields = '';
+                if (industry === 'tailor') {
+                    extraFields = `
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('fabricType')}</label>
+                                <input type="text" id="ofFabric" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Cotton, Silk...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('color')}</label>
+                                <input type="text" id="ofColor" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Black, Blue...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('design')}</label>
+                                <input type="text" id="ofDesign" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Design details...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('stitchingType')}</label>
+                                <input type="text" id="ofStitching" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Type...">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">${t('measurements')}</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                ${['chest','waist','length','sleeve','shoulder','other'].map(k => `
+                                    <input type="text" placeholder="${k.charAt(0).toUpperCase() + k.slice(1)}" 
+                                        class="measurement-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" 
+                                        data-key="${k}">
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else if (industry === 'grocery') {
+                    extraFields = `
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('productName')}</label>
+                                <input type="text" id="ofProduct" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Product name...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('weight')}</label>
+                                <input type="number" id="ofWeight" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="0.5">
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const html = `
+                    <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+                            <h2 class="text-xl font-bold text-gray-900">${t('createOrder')}</h2>
+                            <button onclick="document.getElementById('orderFormModal').remove()" class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="orderForm" class="p-6 space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('selectCustomer')} *</label>
+                                <select id="ofCustomer" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">${t('selectCustomer')}</option>
+                                    ${customers.map(c => `<option value="${c.id}">${c.name} - ${c.mobile}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            ${extraFields}
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('specifications')}</label>
+                                <textarea id="ofSpecs" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="${t('specifications')}..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">${t('items')}</label>
+                                <div id="ofItemsList" class="flex flex-wrap gap-2 mb-2"></div>
+                                <div class="flex flex-wrap gap-2">
+                                    <input type="text" id="ofItemName" placeholder="${t('itemName')}" class="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <input type="number" id="ofItemQty" placeholder="${t('quantity')}" value="1" class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <input type="number" id="ofItemPrice" placeholder="${t('price')}" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <button type="button" id="ofAddItem" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">${t('advancePayment')} (₹)</label>
+                                    <input type="number" id="ofAdvance" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">${t('totalAmount')} (₹)</label>
+                                    <input type="number" id="ofTotal" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">${t('targetDelivery')} *</label>
+                                    <input type="date" id="ofDelivery" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">${t('deliveryAddress')}</label>
+                                    <input type="text" id="ofAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="${t('deliveryAddress')}">
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-3 pt-4 border-t border-gray-200">
+                                <button type="button" onclick="document.getElementById('orderFormModal').remove()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">
+                                    ${t('cancel')}
+                                </button>
+                                <button type="submit" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+                                    ${t('createOrder')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+
+                overlay.innerHTML = html;
+
+                // Set default delivery date
+                const deliveryInput = document.getElementById('ofDelivery');
+                if (deliveryInput) {
+                    deliveryInput.value = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                }
+
+                // Auto-fill address from customer
+                document.getElementById('ofCustomer')?.addEventListener('change', function() {
+                    const customer = customers.find(c => c.id === this.value);
+                    if (customer && customer.address) {
+                        document.getElementById('ofAddress').value = customer.address;
+                    }
+                });
+
+                // Add item
+                document.getElementById('ofAddItem')?.addEventListener('click', function() {
+                    const name = document.getElementById('ofItemName').value.trim();
+                    const qty = parseInt(document.getElementById('ofItemQty').value) || 1;
+                    const price = parseFloat(document.getElementById('ofItemPrice').value) || 0;
+                    if (name && qty > 0 && price > 0) {
+                        const item = { id: Date.now().toString(), name, quantity: qty, price, total: qty * price };
+                        formState.items.push(item);
+                        formState.totalAmount += item.total;
+                        updateItemsUI();
+                        document.getElementById('ofItemName').value = '';
+                        document.getElementById('ofItemPrice').value = '';
+                        document.getElementById('ofTotal').value = formState.totalAmount;
+                    }
+                });
+
+                function updateItemsUI() {
+                    const list = document.getElementById('ofItemsList');
+                    if (!list) return;
+                    list.innerHTML = formState.items.map(item => `
+                        <div class="bg-gray-100 rounded-lg px-3 py-1.5 flex items-center space-x-2 text-sm">
+                            <span>${item.name} × ${item.quantity} = ₹${item.total}</span>
+                            <button type="button" onclick="removeOrderItem('${item.id}')" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+
+                window.removeOrderItem = function(id) {
+                    const item = formState.items.find(i => i.id === id);
+                    if (item) {
+                        formState.totalAmount -= item.total;
+                        formState.items = formState.items.filter(i => i.id !== id);
+                        updateItemsUI();
+                        document.getElementById('ofTotal').value = formState.totalAmount;
+                    }
+                };
+
+                // Form submit
+                document.getElementById('orderForm')?.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const customerId = document.getElementById('ofCustomer').value;
+                    const specs = document.getElementById('ofSpecs').value;
+                    const advance = parseFloat(document.getElementById('ofAdvance').value) || 0;
+                    const total = parseFloat(document.getElementById('ofTotal').value) || 0;
+                    const delivery = document.getElementById('ofDelivery').value;
+                    const address = document.getElementById('ofAddress').value;
+
+                    if (!customerId || !delivery || formState.items.length === 0) {
+                        alert('Please fill in all required fields and add at least one item');
+                        return;
+                    }
+
+                    // Collect measurements for tailor
+                    const measurements = {};
+                    document.querySelectorAll('.measurement-input').forEach(inp => {
+                        if (inp.value.trim()) {
+                            measurements[inp.dataset.key] = inp.value.trim();
+                        }
+                    });
+
+                    // Collect extra fields
+                    let extraData = {};
+                    if (industry === 'tailor') {
+                        extraData = {
+                            fabricType: document.getElementById('ofFabric')?.value || '',
+                            color: document.getElementById('ofColor')?.value || '',
+                            design: document.getElementById('ofDesign')?.value || '',
+                            stitchingType: document.getElementById('ofStitching')?.value || '',
+                        };
+                    } else if (industry === 'grocery') {
+                        extraData = {
+                            productName: document.getElementById('ofProduct')?.value || '',
+                            weight: parseFloat(document.getElementById('ofWeight')?.value) || 0,
+                        };
+                    }
+
+                    const orderData = {
+                        customerId,
+                        shopId: appState.currentShopId,
+                        industry: industry,
+                        category: industry === 'tailor' ? 'Tailoring' : industry === 'grocery' ? 'Grocery' : 'General',
+                        measurements,
+                        specifications: specs,
+                        advancePayment: advance,
+                        totalAmount: total,
+                        items: formState.items,
+                        status: 'pending',
+                        targetDeliveryDate: delivery,
+                        deliveryAddress: address || 'N/A',
+                        createdBy: appState.currentUser?.id || '',
+                        remainingAmount: total - advance,
+                        paymentStatus: advance >= total ? 'paid' : 'pending',
+                        orderNumber: generateOrderNumber(appState.currentShopId),
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        ...extraData,
+                    };
+
+                    const order = orderStorage.create(orderData);
+
+                    if (advance > 0) {
+                        paymentStorage.create({
+                            orderId: order.id,
+                            amount: advance,
+                            method: 'cash',
+                            receivedBy: appState.currentUser?.id || '',
+                            createdAt: new Date().toISOString(),
+                        });
+                    }
+
+                    logActivity(appState.currentShopId, appState.currentUser?.id || '', 'order_created',
+                        `Order ${order.orderNumber} created`);
+
+                    document.getElementById('orderFormModal').remove();
+                    rerender();
+                });
+            }
+
+            renderForm();
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
         // ---- Customers Page ----
         function CustomersPage() {
             const shopId = appState.currentShopId;
             let customers = customerStorage.getByShopId(shopId);
             let searchQuery = '';
-            let showForm = false;
-            let editingCustomer = null;
 
             function renderCustomers() {
-                const filtered = searchQuery ?
-                    searchCustomers(searchQuery, shopId) :
-                    customers;
+                const filtered = searchQuery ? searchCustomers(searchQuery, shopId) : customers;
 
                 if (filtered.length === 0) {
                     return `
                         <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
                             <i class="fas fa-user text-5xl text-gray-300"></i>
-                            <h3 class="mt-4 text-lg font-medium text-gray-900">No customers found</h3>
-                            <p class="mt-1 text-sm text-gray-500">
-                                ${searchQuery ? 'Try adjusting your search' : 'Start by adding your first customer'}
-                            </p>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">${t('noCustomers')}</h3>
+                            <p class="mt-1 text-sm text-gray-500">${t('addFirstCustomer')}</p>
                         </div>
                     `;
                 }
@@ -1209,7 +1318,7 @@
                 `;
             }
 
-            function renderForm() {
+            function renderForm(editingCustomer = null) {
                 const overlay = document.createElement('div');
                 overlay.className = 'fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4';
                 overlay.id = 'customerFormModal';
@@ -1220,52 +1329,52 @@
                 overlay.innerHTML = `
                     <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
-                            <h2 class="text-xl font-bold text-gray-900">${isEdit ? 'Edit Customer' : 'Add New Customer'}</h2>
+                            <h2 class="text-xl font-bold text-gray-900">${isEdit ? t('editCustomer') : t('addCustomer')}</h2>
                             <button onclick="document.getElementById('customerFormModal').remove()" class="p-2 hover:bg-gray-100 rounded-lg">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                         <form id="customerForm" class="p-6 space-y-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">${t('photo')}</label>
                                 <div class="flex items-center space-x-4">
                                     <div class="relative w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-300">
                                         ${c.photo ? `<img src="${c.photo}" alt="Preview" class="w-full h-full object-cover">` : 
                                             `<div class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-camera text-2xl"></i></div>`}
                                     </div>
                                     <label class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
-                                        <span>Upload Photo</span>
+                                        <span>${t('uploadPhoto')}</span>
                                         <input type="file" id="photoInput" accept="image/*" class="hidden">
                                     </label>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('name')} *</label>
                                 <input type="text" id="cfName" required value="${c.name || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('mobile')} *</label>
                                 <input type="tel" id="cfMobile" required value="${c.mobile || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="+91 98765 43210">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('address')}</label>
                                 <textarea id="cfAddress" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">${c.address || ''}</textarea>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('emailAddress')}</label>
                                 <input type="email" id="cfEmail" value="${c.email || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="customer@example.com">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('gstNumber')}</label>
                                 <input type="text" id="cfGst" value="${c.gstNumber || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="GSTIN22AABCG1234P1Z">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Internal Notes</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">${t('notes')}</label>
                                 <textarea id="cfNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">${c.notes || ''}</textarea>
                             </div>
                             <div class="flex space-x-3 pt-4 border-t border-gray-200">
-                                <button type="button" onclick="document.getElementById('customerFormModal').remove()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">Cancel</button>
-                                <button type="submit" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">${isEdit ? 'Update Customer' : 'Add Customer'}</button>
+                                <button type="button" onclick="document.getElementById('customerFormModal').remove()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">${t('cancel')}</button>
+                                <button type="submit" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">${isEdit ? t('update') : t('save')}</button>
                             </div>
                         </form>
                     </div>
@@ -1285,10 +1394,10 @@
                             } else {
                                 const container = document.querySelector('#customerFormModal .w-20.h-20');
                                 if (container) {
-                                    container.innerHTML = `<img src="${reader.result}" alt="Preview" class="w-full h-full object-cover">`;
+                                    container.innerHTML =
+                                        `<img src="${reader.result}" alt="Preview" class="w-full h-full object-cover">`;
                                 }
                             }
-                            // Store for form submission
                             window._photoData = reader.result;
                         };
                         reader.readAsDataURL(file);
@@ -1312,7 +1421,6 @@
                         return;
                     }
 
-                    // Check duplicate mobile
                     const existing = getCustomerByMobile(mobile, shopId);
                     if (existing && existing.id !== c.id) {
                         alert('A customer with this mobile number already exists');
@@ -1337,15 +1445,13 @@
                 });
             }
 
-            // Global functions for inline actions
             window.editCustomer = function(id) {
-                editingCustomer = customerStorage.getById(id);
-                showForm = true;
-                renderForm();
+                const customer = customerStorage.getById(id);
+                renderForm(customer);
             };
 
             window.deleteCustomer = function(id) {
-                if (confirm('Are you sure you want to delete this customer?')) {
+                if (confirm(`Are you sure you want to delete this customer?`)) {
                     customerStorage.delete(id);
                     rerender();
                 }
@@ -1354,17 +1460,17 @@
             const container = document.createElement('div');
             container.innerHTML = `
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-                    <h1 class="text-2xl font-bold text-gray-900">Customers</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">${t('customers')}</h1>
                     <button id="addCustomerBtn" class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                         <i class="fas fa-plus"></i>
-                        <span>Add Customer</span>
+                        <span>${t('addCustomer')}</span>
                     </button>
                 </div>
 
                 <div class="mb-6">
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchInput" value="${searchQuery}" placeholder="Search customers by name, phone, or email..." 
+                        <input type="text" id="searchInput" placeholder="${t('search')}" 
                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
@@ -1376,20 +1482,13 @@
 
             setTimeout(() => {
                 document.getElementById('addCustomerBtn')?.addEventListener('click', function() {
-                    editingCustomer = null;
-                    showForm = true;
-                    window._photoData = null;
-                    renderForm();
+                    renderForm(null);
                 });
 
                 document.getElementById('searchInput')?.addEventListener('input', function() {
                     searchQuery = this.value;
                     const grid = document.getElementById('customersGrid');
                     if (grid) {
-                        const filtered = searchQuery ?
-                            searchCustomers(searchQuery, shopId) :
-                            customerStorage.getByShopId(shopId);
-                        // Re-render just the grid
                         const container2 = document.createElement('div');
                         container2.innerHTML = renderCustomers();
                         grid.innerHTML = container2.innerHTML;
@@ -1400,48 +1499,262 @@
             return container;
         }
 
-        // ---- Orders Page (placeholder) ----
+        // ---- Orders Page ----
         function OrdersPage() {
+            const shopId = appState.currentShopId;
+            const orders = orderStorage.getByShopId(shopId);
+            const customers = customerStorage.getByShopId(shopId);
+
+            const statusColors = {
+                pending: 'status-pending',
+                'in-progress': 'status-in-progress',
+                ready: 'status-ready',
+                delivered: 'status-delivered',
+                cancelled: 'status-cancelled',
+            };
+
             const container = document.createElement('div');
-            container.className = 'bg-white rounded-xl border border-gray-200 p-8 text-center';
-            container.innerHTML = `
-                <i class="fas fa-box text-5xl text-gray-300 mb-4"></i>
-                <h2 class="text-xl font-semibold text-gray-900">Orders Management</h2>
-                <p class="text-gray-500 mt-2">Full order management with filtering, status updates, and invoice generation coming soon.</p>
-                <button onclick="navigate('/dashboard')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                    Go to Dashboard
-                </button>
+            container.className = 'bg-white rounded-xl border border-gray-200';
+
+            let html = `
+                <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">${t('orders')}</h2>
+                    <button id="newOrderBtn2" class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-plus"></i>
+                        <span>${t('newOrder')}</span>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
             `;
+
+            if (orders.length === 0) {
+                html += `
+                    <div class="text-center py-12">
+                        <i class="fas fa-box text-5xl text-gray-300"></i>
+                        <p class="mt-2 text-gray-500">${t('noOrders')}</p>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('orderNumber')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('customer')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('amount')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('status')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${t('delivery')}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${orders.map(order => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.orderNumber}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        ${customers.find(c => c.id === order.customerId)?.name || 'Unknown'}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${order.totalAmount.toLocaleString()}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-badge ${statusColors[order.status] || 'status-pending'}">
+                                            ${t(order.status) || order.status}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        ${new Date(order.targetDeliveryDate).toLocaleDateString()}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button onclick="printInvoice('${order.id}')" class="text-indigo-600 hover:text-indigo-800 mr-2">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                        <button onclick="updateOrderStatus('${order.id}')" class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+
+            setTimeout(() => {
+                document.getElementById('newOrderBtn2')?.addEventListener('click', function() {
+                    renderOrderForm();
+                });
+            }, 0);
+
+            // Global functions for orders
+            window.updateOrderStatus = function(orderId) {
+                const order = orderStorage.getById(orderId);
+                if (!order) return;
+
+                const statuses = ['pending', 'in-progress', 'ready', 'delivered', 'cancelled'];
+                const currentIndex = statuses.indexOf(order.status);
+                const nextIndex = (currentIndex + 1) % statuses.length;
+
+                const newStatus = statuses[nextIndex];
+                if (confirm(`Change status from ${order.status} to ${newStatus}?`)) {
+                    orderStorage.update(orderId, { status: newStatus });
+                    logActivity(appState.currentShopId, appState.currentUser?.id || '', 'order_status_updated',
+                        `Order ${order.orderNumber} status updated to ${newStatus}`);
+                    rerender();
+                }
+            };
+
+            window.printInvoice = function(orderId) {
+                const order = orderStorage.getById(orderId);
+                if (!order) { alert('Order not found'); return; }
+
+                const customer = customerStorage.getById(order.customerId);
+                const payments = paymentStorage.getAll().filter(p => p.orderId === orderId);
+                const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
+
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                if (!printWindow) { alert('Please allow popups to print invoices'); return; }
+
+                const shop = shopStorage.getById(order.shopId);
+
+                printWindow.document.write(`
+                    <html>
+                    <head><title>Invoice ${order.orderNumber}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+                        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; }
+                        .header h1 { margin: 0; color: #4f46e5; }
+                        .details { display: flex; justify-content: space-between; margin: 20px 0; padding: 10px 0; }
+                        .items { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        .items th, .items td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+                        .items th { background: #f3f4f6; }
+                        .totals { text-align: right; margin-top: 20px; }
+                        .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+                        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+                    </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>INVOICE</h1>
+                            <p>${shop?.name || 'Business'}</p>
+                            <p>Order #: ${order.orderNumber}</p>
+                        </div>
+                        <div class="details">
+                            <div>
+                                <strong>Customer:</strong> ${customer?.name || 'Unknown'}<br>
+                                <strong>Mobile:</strong> ${customer?.mobile || 'N/A'}<br>
+                                <strong>Address:</strong> ${customer?.address || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
+                                <strong>Delivery Date:</strong> ${new Date(order.targetDeliveryDate).toLocaleDateString()}<br>
+                                <strong>Status:</strong> <span class="badge">${order.status}</span>
+                            </div>
+                        </div>
+                        <h3>Order Items</h3>
+                        <table class="items">
+                            <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+                            <tbody>
+                                ${(order.items || []).map(item => `
+                                    <tr><td>${item.name}</td><td>${item.quantity}</td><td>₹${item.price}</td><td>₹${item.total}</td></tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="totals">
+                            <p><strong>Total Amount:</strong> ₹${order.totalAmount.toLocaleString()}</p>
+                            <p><strong>Advance Paid:</strong> ₹${order.advancePayment.toLocaleString()}</p>
+                            <p><strong>Remaining:</strong> ₹${(order.totalAmount - totalPaid).toLocaleString()}</p>
+                        </div>
+                        ${order.specifications ? `<p><strong>Specifications:</strong> ${order.specifications}</p>` : ''}
+                        ${order.measurements && Object.keys(order.measurements).length > 0 ? 
+                            `<p><strong>Measurements:</strong> ${Object.entries(order.measurements).map(([k,v]) => `${k}: ${v}`).join(', ')}</p>` : ''}
+                        <div class="footer">
+                            <p>Thank you for your business!</p>
+                            <p>${new Date().toLocaleString()}</p>
+                        </div>
+                        <script>
+                            window.print();
+                            window.close();
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            };
+
             return container;
         }
 
-        // ---- Payments Page (placeholder) ----
+        // ---- Payments Page ----
         function PaymentsPage() {
-            const container = document.createElement('div');
-            container.className = 'bg-white rounded-xl border border-gray-200 p-8 text-center';
-            container.innerHTML = `
-                <i class="fas fa-credit-card text-5xl text-gray-300 mb-4"></i>
-                <h2 class="text-xl font-semibold text-gray-900">Payments Management</h2>
-                <p class="text-gray-500 mt-2">Payment tracking, receipt generation, and financial reports coming soon.</p>
-                <button onclick="navigate('/dashboard')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                    Go to Dashboard
-                </button>
-            `;
-            return container;
-        }
+            const shopId = appState.currentShopId;
+            const payments = paymentStorage.getAll();
+            const orders = orderStorage.getByShopId(shopId);
+            const shopPayments = payments.filter(p => orders.some(o => o.id === p.orderId));
+            const customers = customerStorage.getByShopId(shopId);
 
-        // ---- Settings Page (placeholder) ----
-        function SettingsPage() {
             const container = document.createElement('div');
-            container.className = 'bg-white rounded-xl border border-gray-200 p-8 text-center';
+            container.className = 'bg-white rounded-xl border border-gray-200 p-6';
+
+            const totalAmount = shopPayments.reduce((s, p) => s + p.amount, 0);
+
             container.innerHTML = `
-                <i class="fas fa-gear text-5xl text-gray-300 mb-4"></i>
-                <h2 class="text-xl font-semibold text-gray-900">Settings</h2>
-                <p class="text-gray-500 mt-2">Shop settings, user management, and system preferences coming soon.</p>
-                <button onclick="navigate('/dashboard')" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                    Go to Dashboard
-                </button>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">${t('payments')}</h2>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Total Received</p>
+                        <p class="text-2xl font-bold text-green-600">₹${totalAmount.toLocaleString()}</p>
+                    </div>
+                </div>
+
+                ${shopPayments.length === 0 ? `
+                    <div class="text-center py-12">
+                        <i class="fas fa-credit-card text-5xl text-gray-300"></i>
+                        <p class="mt-2 text-gray-500">No payments recorded yet</p>
+                    </div>
+                ` : `
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${shopPayments.map(payment => {
+                                    const order = orders.find(o => o.id === payment.orderId);
+                                    const customer = order ? customers.find(c => c.id === order.customerId) : null;
+                                    return `
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                ${order?.orderNumber || 'N/A'}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                ${customer?.name || 'Unknown'}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                                ₹${payment.amount.toLocaleString()}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <span class="capitalize">${payment.method}</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                ${new Date(payment.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `}
             `;
+
             return container;
         }
 
@@ -1462,7 +1775,233 @@
         }
 
         // ============================================================
-        // 8. ROUTER
+        // 8. SEED DATA
+        // ============================================================
+        function seedMockData() {
+            if (shopStorage.getAll().length > 0) {
+                if (!confirm('This will add more demo data. Continue?')) return;
+            }
+
+            // Create shops for each industry
+            const shopConfigs = [
+                { name: "Stardust Tailors", industry: "tailor", address: "45 Fashion Street, Mumbai",
+                    phone: "+91 98765 12345" },
+                { name: "FreshMart Grocery", industry: "grocery", address: "12 Market Road, Delhi",
+                    phone: "+91 87654 32109" },
+                { name: "Business Solutions Hub", industry: "business", address: "78 Corporate Park, Bangalore",
+                    phone: "+91 76543 21098" },
+            ];
+
+            const createdShops = shopConfigs.map(config =>
+                shopStorage.create({
+                    ...config,
+                    email: `info@${config.name.toLowerCase().replace(/\s/g, '')}.com`,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                })
+            );
+
+            // Create users for each shop
+            const users = [
+                { name: "Arjun Kumar", email: "arjun@stardust.com", password: "owner123", role: "owner",
+                shopId: createdShops[0].id },
+                { name: "Priya Sharma", email: "priya@stardust.com", password: "manager123", role: "manager",
+                    shopId: createdShops[0].id },
+                { name: "Rahul Verma", email: "rahul@stardust.com", password: "cashier123", role: "cashier",
+                    shopId: createdShops[0].id },
+                { name: "Sneha Patel", email: "sneha@grocery.com", password: "owner123", role: "owner",
+                    shopId: createdShops[1].id },
+                { name: "Vikram Singh", email: "vikram@business.com", password: "owner123", role: "owner",
+                    shopId: createdShops[2].id },
+            ];
+
+            users.forEach(u => {
+                userStorage.create({ ...u, createdAt: new Date().toISOString() });
+            });
+
+            // Create customers for each shop
+            const customerData = [
+                // Tailor customers
+                { name: "Rajesh Gupta", mobile: "+91 98765 12345", address: "45 Park Avenue, Mumbai",
+                    email: "rajesh@gmail.com", gstNumber: "GSTIN27AABCG1234K1Z", notes: "Regular customer" },
+                { name: "Neha Singh", mobile: "+91 87654 32109", address: "12 Lake View, Pune", email: "neha@yahoo.com",
+                    notes: "Bridal collection" },
+                // Grocery customers
+                { name: "Manoj Kumar", mobile: "+91 76543 21098", address: "78 Royal Palace, Delhi",
+                    email: "manoj@outlook.com", notes: "Weekly bulk order" },
+                { name: "Sunita Reddy", mobile: "+91 65432 10987", address: "34 Green Valley, Hyderabad",
+                    email: "sunita@gmail.com", notes: "Organic products" },
+                // Business customers
+                { name: "Amit Shah", mobile: "+91 54321 09876", address: "56 Business Park, Mumbai",
+                    email: "amit@company.com", gstNumber: "GSTIN07BCCDV1234P1Z", notes: "Corporate client" },
+                { name: "Deepa Nair", mobile: "+91 43210 98765", address: "89 Tech Hub, Bangalore", email: "deepa@tech.com",
+                    notes: "IT services" },
+            ];
+
+            // Assign customers to shops
+            const tailorCustomers = customerData.slice(0, 2).map(c =>
+                customerStorage.create({ ...c, shopId: createdShops[0].id, photo: "", createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString() })
+            );
+            const groceryCustomers = customerData.slice(2, 4).map(c =>
+                customerStorage.create({ ...c, shopId: createdShops[1].id, photo: "", createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString() })
+            );
+            const businessCustomers = customerData.slice(4).map(c =>
+                customerStorage.create({ ...c, shopId: createdShops[2].id, photo: "", createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString() })
+            );
+
+            // Create orders for each shop
+            const orderData = [
+                // Tailor orders
+                {
+                    shopId: createdShops[0].id,
+                    customerId: tailorCustomers[0].id,
+                    category: "Tailoring",
+                    subCategory: "Wedding Suit",
+                    measurements: { chest: "42", waist: "34", length: "68", sleeve: "25", shoulder: "18" },
+                    specifications: "Double-breasted, black silk",
+                    fabricType: "Silk",
+                    color: "Black",
+                    design: "Double-breasted",
+                    stitchingType: "Premium",
+                    advancePayment: 5000,
+                    totalAmount: 15000,
+                    items: [
+                        { id: 'i1', name: "Blazer", quantity: 1, price: 10000, total: 10000 },
+                        { id: 'i2', name: "Trousers", quantity: 1, price: 5000, total: 5000 }
+                    ],
+                    status: "in-progress",
+                    targetDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    deliveryAddress: "45 Park Avenue, Mumbai",
+                },
+                {
+                    shopId: createdShops[0].id,
+                    customerId: tailorCustomers[1].id,
+                    category: "Tailoring",
+                    subCategory: "Bridal Lehenga",
+                    measurements: { chest: "36", waist: "28", length: "42" },
+                    specifications: "Red silk with gold embroidery",
+                    fabricType: "Silk",
+                    color: "Red",
+                    design: "Embroidered",
+                    stitchingType: "Traditional",
+                    advancePayment: 10000,
+                    totalAmount: 35000,
+                    items: [
+                        { id: 'i3', name: "Lehenga", quantity: 1, price: 25000, total: 25000 },
+                        { id: 'i4', name: "Blouse", quantity: 1, price: 5000, total: 5000 },
+                        { id: 'i5', name: "Dupatta", quantity: 1, price: 5000, total: 5000 }
+                    ],
+                    status: "pending",
+                    targetDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+                    deliveryAddress: "12 Lake View, Pune",
+                },
+                // Grocery orders
+                {
+                    shopId: createdShops[1].id,
+                    customerId: groceryCustomers[0].id,
+                    category: "Grocery",
+                    subCategory: "Bulk Order",
+                    productName: "Rice",
+                    weight: 5,
+                    advancePayment: 0,
+                    totalAmount: 2450,
+                    items: [
+                        { id: 'i6', name: "Basmati Rice (5kg)", quantity: 2, price: 450, total: 900 },
+                        { id: 'i7', name: "Wheat Flour (5kg)", quantity: 2, price: 300, total: 600 },
+                        { id: 'i8', name: "Sugar (5kg)", quantity: 1, price: 250, total: 250 },
+                        { id: 'i9', name: "Cooking Oil (5L)", quantity: 1, price: 700, total: 700 }
+                    ],
+                    status: "delivered",
+                    targetDeliveryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    deliveryAddress: "78 Royal Palace, Delhi",
+                },
+                {
+                    shopId: createdShops[1].id,
+                    customerId: groceryCustomers[1].id,
+                    category: "Grocery",
+                    subCategory: "Organic",
+                    productName: "Organic Vegetables",
+                    weight: 3,
+                    advancePayment: 500,
+                    totalAmount: 1850,
+                    items: [
+                        { id: 'i10', name: "Organic Vegetables Box", quantity: 1, price: 850, total: 850 },
+                        { id: 'i11', name: "Organic Fruits Box", quantity: 1, price: 1000, total: 1000 }
+                    ],
+                    status: "pending",
+                    targetDeliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+                    deliveryAddress: "34 Green Valley, Hyderabad",
+                },
+                // Business orders
+                {
+                    shopId: createdShops[2].id,
+                    customerId: businessCustomers[0].id,
+                    category: "Consulting",
+                    subCategory: "Business Strategy",
+                    specifications: "Market analysis and growth strategy",
+                    advancePayment: 25000,
+                    totalAmount: 100000,
+                    items: [
+                        { id: 'i12', name: "Strategy Consulting", quantity: 1, price: 75000, total: 75000 },
+                        { id: 'i13', name: "Market Research Report", quantity: 1, price: 25000, total: 25000 }
+                    ],
+                    status: "in-progress",
+                    targetDeliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    deliveryAddress: "56 Business Park, Mumbai",
+                },
+                {
+                    shopId: createdShops[2].id,
+                    customerId: businessCustomers[1].id,
+                    category: "IT Services",
+                    subCategory: "Software Development",
+                    specifications: "Custom CRM development",
+                    advancePayment: 50000,
+                    totalAmount: 250000,
+                    items: [
+                        { id: 'i14', name: "CRM Development", quantity: 1, price: 200000, total: 200000 },
+                        { id: 'i15', name: "Deployment & Training", quantity: 1, price: 50000, total: 50000 }
+                    ],
+                    status: "pending",
+                    targetDeliveryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    deliveryAddress: "89 Tech Hub, Bangalore",
+                }
+            ];
+
+            orderData.forEach(data => {
+                const order = orderStorage.create({
+                    ...data,
+                    orderNumber: generateOrderNumber(data.shopId),
+                    remainingAmount: data.totalAmount - data.advancePayment,
+                    paymentStatus: data.advancePayment >= data.totalAmount ? 'paid' : 'partial',
+                    createdBy: users.find(u => u.shopId === data.shopId)?.id || '',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                });
+
+                if (data.advancePayment > 0) {
+                    paymentStorage.create({
+                        orderId: order.id,
+                        amount: data.advancePayment,
+                        method: 'cash',
+                        receivedBy: users.find(u => u.shopId === data.shopId && u.role === 'cashier')?.id || users.find(u => u
+                            .shopId === data.shopId)?.id || '',
+                        createdAt: new Date().toISOString(),
+                    });
+                }
+            });
+
+            // Set first shop as default
+            appStateStorage.setState({ currentShopId: createdShops[0].id, currentUser: users[0] });
+            appState = appStateStorage.getState();
+
+            alert(`✅ Demo data seeded successfully!\n\nCreated ${createdShops.length} businesses with customers and orders.\n\nYou can now login with any demo account.`);
+        }
+
+        // ============================================================
+        // 9. ROUTER
         // ============================================================
         function getCurrentRoute() {
             const path = window.location.pathname;
@@ -1473,13 +2012,12 @@
         function renderRoute() {
             const route = getCurrentRoute();
 
-            // Check auth
             const isLoggedIn = appState.currentUser && appState.currentShopId;
             const publicRoutes = ['/login'];
 
             if (!isLoggedIn && !publicRoutes.includes(route)) {
                 navigate('/login');
-                return render(LoginPage, document.getElementById('app'));
+                return renderPage(LoginPage);
             }
 
             if (isLoggedIn && route === '/login') {
@@ -1513,21 +2051,29 @@
 
             if (isLoggedIn && route !== '/login') {
                 const titles = {
-                    '/dashboard': 'Dashboard',
-                    '/customers': 'Customers',
-                    '/orders': 'Orders',
-                    '/payments': 'Payments',
-                    '/settings': 'Settings',
+                    '/dashboard': t('dashboard'),
+                    '/customers': t('customers'),
+                    '/orders': t('orders'),
+                    '/payments': t('payments'),
+                    '/settings': t('settings'),
                 };
                 const layout = Layout({ children: page, title: titles[route] || 'Page' });
-                return render(() => layout, document.getElementById('app'));
+                return renderPage(() => layout);
             }
 
-            return render(() => page, document.getElementById('app'));
+            return renderPage(() => page);
+        }
+
+        function renderPage(component) {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+            const el = component();
+            app.appendChild(el);
+            return el;
         }
 
         // ============================================================
-        // 9. GLOBAL FUNCTIONS
+        // 10. GLOBAL FUNCTIONS
         // ============================================================
         window.handleLogout = function() {
             appStateStorage.clear();
@@ -1539,34 +2085,17 @@
         window.navigate = navigate;
 
         // ============================================================
-        // 10. RERENDER & INIT
+        // 11. INIT
         // ============================================================
-        let rerenderTimeout;
-
-        function rerender() {
-            clearTimeout(rerenderTimeout);
-            rerenderTimeout = setTimeout(() => {
-                renderRoute();
-            }, 10);
-        }
-
-        // Subscribe to app state changes
-        subscribe(() => {
-            rerender();
-        });
+        // Subscribe to state changes
+        subscribe(() => { rerender(); });
 
         // Route changes
-        onRouteChange(() => {
-            rerender();
-        });
+        onRouteChange(() => { rerender(); });
 
-        // Handle initial route from URL
+        // Initial route
         const initialPath = window.location.pathname;
-        if (initialPath && initialPath !== '/') {
-            currentRoute = initialPath;
-        } else {
-            currentRoute = '/login';
-        }
+        currentRoute = initialPath && initialPath !== '/' ? initialPath : '/login';
 
         // Check if user is already logged in
         const savedState = appStateStorage.getState();
@@ -1580,28 +2109,26 @@
         // Initialize app
         renderRoute();
 
-        console.log('🚀 Multi-Tenant SaaS Management App loaded successfully!');
+        console.log('🚀 Multi-Business Management System loaded!');
         console.log('📦 Data stored in localStorage');
         console.log('👤 Demo: arjun@stardust.com / owner123');
+        console.log('🏪 Businesses: Tailor, Grocery, General Business');
+        console.log('🌐 Language switcher available in Settings');
 
         // ============================================================
-        // 11. PRINT INVOICE HELPER (for future use)
+        // 12. PRINT INVOICE (global)
         // ============================================================
         window.printInvoice = function(orderId) {
             const order = orderStorage.getById(orderId);
-            if (!order) {
-                alert('Order not found');
-                return;
-            }
+            if (!order) { alert('Order not found'); return; }
+
             const customer = customerStorage.getById(order.customerId);
             const payments = paymentStorage.getAll().filter(p => p.orderId === orderId);
             const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
+            const shop = shopStorage.getById(order.shopId);
 
             const printWindow = window.open('', '_blank', 'width=800,height=600');
-            if (!printWindow) {
-                alert('Please allow popups to print invoices');
-                return;
-            }
+            if (!printWindow) { alert('Please allow popups to print invoices'); return; }
 
             printWindow.document.write(`
                 <html>
@@ -1616,12 +2143,15 @@
                     .items th { background: #f3f4f6; }
                     .totals { text-align: right; margin-top: 20px; }
                     .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+                    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; background: #e5e7eb; }
+                    .print-only { display: block; }
                 </style>
                 </head>
                 <body>
                     <div class="header">
                         <h1>INVOICE</h1>
-                        <p>${appState.currentShopId ? shopStorage.getById(appState.currentShopId)?.name || 'SaaS Shop' : 'SaaS Shop'}</p>
+                        <p><strong>${shop?.name || 'Business'}</strong></p>
+                        <p>${shop?.address || ''}</p>
                         <p>Order #: ${order.orderNumber}</p>
                     </div>
                     <div class="details">
@@ -1629,11 +2159,12 @@
                             <strong>Customer:</strong> ${customer?.name || 'Unknown'}<br>
                             <strong>Mobile:</strong> ${customer?.mobile || 'N/A'}<br>
                             <strong>Address:</strong> ${customer?.address || 'N/A'}
+                            ${customer?.gstNumber ? `<br><strong>GST:</strong> ${customer.gstNumber}` : ''}
                         </div>
                         <div>
                             <strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
                             <strong>Delivery Date:</strong> ${new Date(order.targetDeliveryDate).toLocaleDateString()}<br>
-                            <strong>Status:</strong> ${order.status.toUpperCase()}
+                            <strong>Status:</strong> <span class="badge">${order.status.toUpperCase()}</span>
                         </div>
                     </div>
                     <h3>Order Items</h3>
@@ -1651,6 +2182,12 @@
                         <p><strong>Remaining:</strong> ₹${(order.totalAmount - totalPaid).toLocaleString()}</p>
                     </div>
                     ${order.specifications ? `<p><strong>Specifications:</strong> ${order.specifications}</p>` : ''}
+                    ${order.measurements && Object.keys(order.measurements).length > 0 ? 
+                        `<p><strong>Measurements:</strong> ${Object.entries(order.measurements).map(([k,v]) => `${k}: ${v}`).join(', ')}</p>` : ''}
+                    ${order.fabricType ? `<p><strong>Fabric:</strong> ${order.fabricType}</p>` : ''}
+                    ${order.color ? `<p><strong>Color:</strong> ${order.color}</p>` : ''}
+                    ${order.design ? `<p><strong>Design:</strong> ${order.design}</p>` : ''}
+                    ${order.weight ? `<p><strong>Weight:</strong> ${order.weight} kg</p>` : ''}
                     <div class="footer">
                         <p>Thank you for your business!</p>
                         <p>${new Date().toLocaleString()}</p>
@@ -1664,6 +2201,18 @@
             `);
             printWindow.document.close();
         };
+
+        // ============================================================
+        // 13. AUTO-SEED ON FIRST RUN
+        // ============================================================
+        if (shopStorage.getAll().length === 0) {
+            setTimeout(() => {
+                if (confirm('No data found. Would you like to seed demo data?')) {
+                    seedMockData();
+                    rerender();
+                }
+            }, 500);
+        }
 
         console.log('✅ App ready!');
     </script>
