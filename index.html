@@ -76,6 +76,7 @@
       flex-direction: column;
       padding-bottom: calc(var(--nav-height) + 20px);
       transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
     }
 
     button {
@@ -138,19 +139,30 @@
     .stat-bar {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.6rem;
     }
 
     .stat-badge {
       display: flex;
       align-items: center;
-      gap: 0.2rem;
+      gap: 0.3rem;
       font-weight: 700;
       font-size: 0.8rem;
       padding: 0.25rem 0.5rem;
       border-radius: var(--radius-full);
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .stat-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .stat-badge .stat-value {
+      color: var(--text-primary);
     }
 
     /* Modal Dropdown for Languages */
@@ -328,6 +340,21 @@
       width: 100%;
     }
 
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--accent-purple);
+      font-weight: 700;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-highlight);
+      font-size: 1rem;
+      width: 100%;
+    }
+
     /* ==========================================================================
        5. PROGRESS & GROWTH TAB
        ========================================================================== */
@@ -359,7 +386,7 @@
     }
 
     /* ==========================================================================
-       6. LESSON EXERCISE MODAL
+       6. LESSON EXERCISE MODAL - FULL SCREEN
        ========================================================================== */
     .modal-overlay {
       position: fixed;
@@ -369,8 +396,9 @@
       z-index: 1000;
       display: none;
       flex-direction: column;
-      justify-content: space-between;
-      padding: 1.25rem;
+      padding: 1rem;
+      height: 100vh;
+      width: 100vw;
     }
 
     .modal-overlay.active { display: flex; }
@@ -382,11 +410,13 @@
       max-width: 600px;
       width: 100%;
       margin: 0 auto;
+      flex-shrink: 0;
     }
 
     .lesson-header button {
       color: var(--modal-text);
-      font-size: 1.2rem;
+      font-size: 1.5rem;
+      padding: 0.5rem;
     }
 
     .progress-bar-bg {
@@ -413,13 +443,15 @@
       flex-direction: column;
       justify-content: center;
       gap: 1.5rem;
+      padding: 1rem 0;
     }
 
     .lesson-body .question-text {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 800;
       margin-bottom: 0.5rem;
       color: var(--modal-text);
+      line-height: 1.4;
     }
 
     .lesson-body .question-meta {
@@ -435,15 +467,16 @@
     }
 
     .option-btn {
-      padding: 1rem;
+      padding: 1rem 1.2rem;
       border-radius: var(--radius-md);
       background: rgba(255, 255, 255, 0.05);
       border: 2px solid rgba(255, 255, 255, 0.1);
       color: var(--modal-text);
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 600;
       text-align: left;
       transition: var(--transition);
+      position: relative;
     }
 
     .option-btn.selected {
@@ -461,23 +494,25 @@
       background: rgba(244, 63, 94, 0.25);
     }
 
-    .option-btn .pronounce-btn {
+    .option-btn .pronounce-indicator {
       float: right;
-      padding: 0.2rem 0.6rem;
-      border-radius: var(--radius-full);
-      background: rgba(139, 92, 246, 0.3);
-      color: var(--accent-purple);
+      color: rgba(255,255,255,0.4);
       font-size: 0.7rem;
-      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .option-btn.selected .pronounce-indicator {
+      color: var(--accent-purple);
     }
 
     .modal-overlay .btn-primary {
       background: var(--grad-stardust);
       color: #fff;
+      flex-shrink: 0;
     }
 
     /* ==========================================================================
-       7. CODING SECTION
+       7. CODING SECTION - FULL SCREEN
        ========================================================================== */
     .coding-card {
       display: flex;
@@ -504,21 +539,6 @@
       color: var(--text-secondary);
     }
 
-    .recording-indicator {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      background: #f43f5e;
-      border-radius: 50%;
-      animation: pulse 1s infinite;
-      margin-right: 8px;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
     .coding-lesson-modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -527,10 +547,40 @@
       z-index: 1000;
       display: none;
       flex-direction: column;
-      padding: 1.25rem;
+      padding: 1rem;
+      height: 100vh;
+      width: 100vw;
     }
 
     .coding-lesson-modal.active { display: flex; }
+
+    .coding-lesson-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 650px;
+      width: 100%;
+      margin: 0 auto;
+      flex-shrink: 0;
+    }
+
+    .coding-lesson-header button {
+      color: var(--modal-text);
+      font-size: 1.5rem;
+      padding: 0.5rem;
+    }
+
+    .coding-lesson-body {
+      max-width: 650px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      overflow-y: auto;
+    }
 
     .code-editor {
       background: rgba(0, 0, 0, 0.4);
@@ -540,11 +590,12 @@
       font-family: var(--font-mono);
       font-size: 0.9rem;
       color: var(--modal-text);
-      min-height: 150px;
+      min-height: 180px;
       resize: vertical;
       width: 100%;
       outline: none;
       line-height: 1.6;
+      flex-shrink: 0;
     }
 
     .code-editor:focus {
@@ -554,8 +605,8 @@
     .feedback-box {
       padding: 0.75rem 1rem;
       border-radius: var(--radius-sm);
-      margin-top: 0.5rem;
       font-weight: 600;
+      flex-shrink: 0;
     }
 
     .feedback-box.correct {
@@ -577,24 +628,51 @@
     }
 
     .code-hint {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-sm);
-      padding: 0.75rem;
+      padding: 0.75rem 1rem;
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: var(--text-secondary);
+      color: rgba(255, 255, 255, 0.7);
       white-space: pre-wrap;
+      flex-shrink: 0;
     }
 
-    .coding-lesson-modal .btn-primary {
-      background: var(--grad-stardust);
-      color: #fff;
+    .code-hint strong {
+      color: var(--accent-purple);
     }
 
-    .coding-lesson-modal .btn-primary.secondary {
+    .coding-btn-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .coding-btn-group .btn-primary {
+      flex: 1;
+    }
+
+    .coding-btn-group .btn-primary.secondary {
       background: rgba(255, 255, 255, 0.1);
       box-shadow: none;
+    }
+
+    .coding-lesson-body .coding-instruction {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--modal-text);
+      flex-shrink: 0;
+      background: rgba(139, 92, 246, 0.1);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--accent-purple);
+    }
+
+    .coding-lesson-body .coding-progress-text {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      flex-shrink: 0;
     }
 
     /* ==========================================================================
@@ -670,6 +748,33 @@
       background: rgba(139, 92, 246, 0.2);
       color: var(--accent-purple);
     }
+
+    /* Settings Buttons */
+    .settings-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .settings-btn-group .btn-secondary {
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-purple);
+      border-radius: var(--radius-full);
+    }
   </style>
 </head>
 <body>
@@ -684,9 +789,18 @@
       </button>
     </div>
     <div class="stat-bar">
-      <div class="stat-badge" style="color:var(--accent-amber)">🔥 <span id="stat-streak">1</span></div>
-      <div class="stat-badge" style="color:var(--accent-cyan)">💎 <span id="stat-gems">100</span></div>
-      <div class="stat-badge" style="color:var(--accent-rose)">❤️ <span id="stat-hearts">5</span></div>
+      <div class="stat-badge" style="color:var(--accent-amber)">
+        <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        <span class="stat-value" id="stat-streak">1</span>
+      </div>
+      <div class="stat-badge" style="color:var(--accent-cyan)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+        <span class="stat-value" id="stat-gems">100</span>
+      </div>
+      <div class="stat-badge" style="color:var(--accent-rose)">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <span class="stat-value" id="stat-hearts">5</span>
+      </div>
     </div>
   </header>
 
@@ -771,6 +885,20 @@
           </label>
         </div>
         <hr style="border:0; border-top:1px solid var(--border-color);">
+        
+        <div class="settings-btn-group">
+          <button class="btn-secondary" onclick="window.open('https://stardustofficial.github.io/Stardustofficial/', '_blank')">
+            🔒 Privacy Policy
+          </button>
+          <button class="btn-secondary" onclick="window.open('https://stardustofficial.github.io/Stardustofficial/#timeline', '_blank')">
+            📋 Terms of Service
+          </button>
+          <button class="btn-secondary" onclick="window.location.href='mailto:support.stardustofficial@gmail.com'">
+            💬 Customer Support
+          </button>
+        </div>
+        
+        <hr style="border:0; border-top:1px solid var(--border-color);">
         <div>
           <div style="font-weight:700; margin-bottom:0.25rem; color:var(--text-primary);">Storage</div>
           <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">Your progress is stored 100% locally on your device.</p>
@@ -781,7 +909,7 @@
 
   </main>
 
-  <!-- INTERACTIVE LESSON MODAL -->
+  <!-- INTERACTIVE LESSON MODAL - FULL SCREEN -->
   <div class="modal-overlay" id="modal-lesson">
     <div class="lesson-header">
       <button onclick="App.closeLesson()">✕</button>
@@ -793,15 +921,15 @@
 
     <div class="lesson-body" id="lesson-content"></div>
 
-    <div style="max-width:600px; width:100%; margin:0 auto;">
+    <div style="max-width:600px; width:100%; margin:0 auto; flex-shrink:0;">
       <button class="btn-primary" id="lesson-confirm-btn" onclick="App.confirmAnswer()">Confirm Answer</button>
     </div>
   </div>
 
-  <!-- CODING LESSON MODAL -->
+  <!-- CODING LESSON MODAL - FULL SCREEN -->
   <div class="coding-lesson-modal" id="modal-coding-lesson">
-    <div style="display:flex; align-items:center; gap:1rem; max-width:650px; width:100%; margin:0 auto;">
-      <button style="color:var(--modal-text); font-size:1.2rem;" onclick="App.closeCodingLesson()">✕</button>
+    <div class="coding-lesson-header">
+      <button onclick="App.closeCodingLesson()">✕</button>
       <div style="flex:1;">
         <div style="font-weight:700; font-size:1rem; color:var(--modal-text);" id="coding-lesson-title">HTML Basics</div>
         <div style="font-size:0.8rem; color:rgba(255,255,255,0.6);" id="coding-lesson-progress">Lesson 1 of 100</div>
@@ -811,18 +939,19 @@
       </div>
     </div>
 
-    <div style="max-width:650px; width:100%; margin:0.5rem auto; flex:1; display:flex; flex-direction:column; gap:0.75rem;">
-      <div style="font-size:0.95rem; font-weight:600; color:rgba(255,255,255,0.7);" id="coding-instruction">Write the code to complete this task</div>
+    <div class="coding-lesson-body">
+      <div class="coding-progress-text" id="coding-progress-text">Level 1</div>
+      <div class="coding-instruction" id="coding-instruction">Write the code to complete this task</div>
       
-      <div class="code-hint" id="code-hint">Example: &lt;h1&gt;Hello World&lt;/h1&gt;</div>
+      <div class="code-hint" id="code-hint">💡 <strong>Hint:</strong> Example: &lt;h1&gt;Hello World&lt;/h1&gt;</div>
       
       <textarea class="code-editor" id="code-editor-input" placeholder="Write your code here..." rows="6"></textarea>
       
-      <div id="coding-feedback" class="feedback-box info">Write your code and click "Check Code"</div>
+      <div id="coding-feedback" class="feedback-box info">✏️ Write your code and click "Check Code"</div>
       
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-        <button class="btn-primary" style="flex:1;" onclick="App.checkCode()">Check Code</button>
-        <button class="btn-primary secondary" style="flex:1;" onclick="App.nextCodingLesson()">Next Lesson</button>
+      <div class="coding-btn-group">
+        <button class="btn-primary" onclick="App.checkCode()">✅ Check Code</button>
+        <button class="btn-primary secondary" onclick="App.nextCodingLesson()">➡️ Next</button>
       </div>
     </div>
   </div>
@@ -920,11 +1049,13 @@
       // Text to speech for pronunciation
       speak(text, lang) {
         if (window.speechSynthesis) {
+          // Cancel any ongoing speech
+          window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = lang || 'en-US';
-          utterance.rate = 0.9;
+          utterance.rate = 0.85;
           utterance.pitch = 1;
-          speechSynthesis.speak(utterance);
+          window.speechSynthesis.speak(utterance);
         }
       }
     };
@@ -946,10 +1077,9 @@
     ];
 
     /* ==========================================================================
-       TRANSLATION ENGINE - Questions in English, Options in Target Language
+       TRANSLATION ENGINE
        ========================================================================== */
     const TranslationEngine = {
-      // Words translated to each language
       words: {
         hi: {
           'Apple': 'सेब', 'Banana': 'केला', 'Cat': 'बिल्ली', 'Dog': 'कुत्ता', 'Fish': 'मछली',
@@ -1045,7 +1175,6 @@
         }
       },
       
-      // Simple sentences translated
       sentences: {
         hi: {
           'I am happy': 'मैं खुश हूँ',
@@ -1137,11 +1266,13 @@
     };
 
     /* ==========================================================================
-       QUESTION GENERATOR - English questions, Hindi for English learning
+       QUESTION GENERATOR - UNIQUE QUESTIONS PER LEVEL
        ========================================================================== */
     function generateLevelQuestions(lang, level) {
       const questions = [];
-      const difficulty = Math.min(10, Math.ceil(level / 10));
+      
+      // Use level as seed for deterministic but unique questions
+      const seed = level * 137;
       
       // Word pools based on difficulty
       const wordPools = {
@@ -1153,7 +1284,6 @@
                'Sustainability', 'Responsibility', 'Understanding', 'Knowledgeable', 'Collaboration']
       };
 
-      // Sentence pools
       const sentencePools = {
         easy: ['I am happy', 'She is kind', 'We are here', 'It is hot', 'You are strong'],
         medium: ['Good morning', 'How are you', 'Thank you', 'I love you', 'They are friends'],
@@ -1174,18 +1304,29 @@
         sentencePool = [...sentencePools.medium, ...sentencePools.hard];
       }
 
-      // Shuffle pools
-      const shuffledWords = wordPool.sort(() => Math.random() - 0.5);
-      const shuffledSentences = sentencePool.sort(() => Math.random() - 0.5);
+      // Use seed-based shuffling for consistent but unique questions per level
+      const shuffledWords = [...wordPool];
+      const shuffledSentences = [...sentencePool];
+      
+      // Custom shuffle with seed
+      for (let i = shuffledWords.length - 1; i > 0; i--) {
+        const j = Math.abs((seed + i * 31) % (i + 1));
+        [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+      }
+      for (let i = shuffledSentences.length - 1; i > 0; i--) {
+        const j = Math.abs((seed + i * 17 + 7) % (i + 1));
+        [shuffledSentences[i], shuffledSentences[j]] = [shuffledSentences[j], shuffledSentences[i]];
+      }
 
-      // Generate 15 questions
+      // Generate 15 unique questions per level
       for (let i = 0; i < 15; i++) {
         let question;
-        if (i < 10) {
-          // Word-based questions
-          const word = shuffledWords[i % shuffledWords.length];
+        const useWord = i < 10;
+        
+        if (useWord) {
+          const wordIndex = (i + level * 3) % shuffledWords.length;
+          const word = shuffledWords[wordIndex];
           
-          // For English learning, show Hindi and ask for English
           let questionText, options, correctIndex;
           if (lang === 'en') {
             const hindiWord = TranslationEngine.getTranslation(word, 'hi');
@@ -1219,8 +1360,8 @@
             lang: lang
           };
         } else {
-          // Sentence-based questions
-          const sentence = shuffledSentences[i % shuffledSentences.length];
+          const sentenceIndex = (i + level * 5 + 3) % shuffledSentences.length;
+          const sentence = shuffledSentences[sentenceIndex];
           
           let questionText, options, correctIndex;
           if (lang === 'en') {
@@ -1481,7 +1622,7 @@
           gems: 100,
           hearts: 5,
           solvedCount: 0,
-          theme: 'light', // Default to light mode
+          theme: 'light',
           langProgress: langProgress,
           codingProgress: codingProgress
         };
@@ -1516,7 +1657,6 @@
         this.renderLangPickerOptions();
         this.updateGrowthView();
 
-        // Register global tap event to unlock AudioContext
         window.addEventListener('click', () => SoundFX.init(), { once: true });
         window.addEventListener('touchstart', () => SoundFX.init(), { once: true });
       },
@@ -1532,7 +1672,6 @@
         document.documentElement.setAttribute('data-theme', theme);
         const toggle = document.getElementById('theme-toggle');
         if (toggle) toggle.checked = (theme === 'dark');
-        // Update meta theme color
         document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0b0c10' : '#f4f5f9';
       },
 
@@ -1686,17 +1825,18 @@
         modal.classList.add('active');
         
         document.getElementById('coding-lesson-title').textContent = `${courseName} Learning`;
-        document.getElementById('coding-lesson-progress').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
+        document.getElementById('coding-lesson-progress').textContent = `Lesson ${this.currentCodingLesson + 1} of ${lessons.length}`;
         document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
+        document.getElementById('coding-progress-text').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
         
         const lesson = lessons[this.currentCodingLesson];
         document.getElementById('coding-instruction').textContent = lesson.instruction;
-        document.getElementById('code-hint').textContent = `💡 Hint: ${lesson.hint}`;
+        document.getElementById('code-hint').innerHTML = `💡 <strong>Hint:</strong> ${lesson.hint}`;
         document.getElementById('code-editor-input').value = '';
         
         const feedback = document.getElementById('coding-feedback');
         feedback.className = 'feedback-box info';
-        feedback.textContent = 'Write your code and click "Check Code"';
+        feedback.textContent = '✏️ Write your code and click "Check Code"';
       },
 
       closeCodingLesson() {
@@ -1709,7 +1849,7 @@
         
         if (!code) {
           feedback.className = 'feedback-box wrong';
-          feedback.textContent = 'Please write some code first!';
+          feedback.textContent = '❌ Please write some code first!';
           SoundFX.playWrong();
           return;
         }
@@ -1725,7 +1865,6 @@
           feedback.textContent = '✅ Excellent! Your code is correct!';
           SoundFX.playCorrect();
 
-          // Update progress
           const progress = this.state.codingProgress[this.currentCodingCourse] || { level: 0 };
           if (this.currentCodingLesson >= progress.level) {
             progress.level = Math.min(this.currentCodingLesson + 1, lessons.length);
@@ -1752,14 +1891,15 @@
         if (this.currentCodingLesson + 1 < lessons.length && this.currentCodingLesson + 1 <= progress.level) {
           this.currentCodingLesson++;
           const lesson = lessons[this.currentCodingLesson];
-          document.getElementById('coding-lesson-progress').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
+          document.getElementById('coding-lesson-progress').textContent = `Lesson ${this.currentCodingLesson + 1} of ${lessons.length}`;
           document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
+          document.getElementById('coding-progress-text').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
           document.getElementById('coding-instruction').textContent = lesson.instruction;
-          document.getElementById('code-hint').textContent = `💡 Hint: ${lesson.hint}`;
+          document.getElementById('code-hint').innerHTML = `💡 <strong>Hint:</strong> ${lesson.hint}`;
           document.getElementById('code-editor-input').value = '';
           const feedback = document.getElementById('coding-feedback');
           feedback.className = 'feedback-box info';
-          feedback.textContent = 'Write your code and click "Check Code"';
+          feedback.textContent = '✏️ Write your code and click "Check Code"';
         } else if (this.currentCodingLesson + 1 >= lessons.length) {
           SoundFX.playLevelComplete();
           alert('🎉 Congratulations! You completed all levels in this course!');
@@ -1784,6 +1924,8 @@
 
       closeLesson() {
         document.getElementById('modal-lesson').classList.remove('active');
+        // Cancel any ongoing speech
+        window.speechSynthesis && window.speechSynthesis.cancel();
       },
 
       renderExercise() {
@@ -1798,32 +1940,30 @@
         document.getElementById('lesson-progress-bar').style.width = `${pct}%`;
         document.getElementById('question-counter').innerText = `${current}/${total}`;
 
-        const langObj = LanguagesData.find(l => l.id === this.state.currentLang);
-        const ttsLang = langObj ? langObj.ttsLang : 'en-US';
-
         container.innerHTML = `
           <div class="question-text">${ex.q}</div>
           <div class="question-meta">Level ${ex.difficulty} • ${ex.type === 'word' ? 'Word' : 'Sentence'}</div>
           <div class="options-grid">
             ${ex.opts.map((opt, i) => `
-              <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i})">
+              <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i}, '${opt.replace(/'/g, "\\'")}')">
                 ${opt}
-                <span class="pronounce-btn" onclick="event.stopPropagation(); App.pronounceOption('${opt.replace(/'/g, "\\'")}', '${ttsLang}')">🔊</span>
+                <span class="pronounce-indicator">🔊</span>
               </button>
             `).join('')}
           </div>
         `;
       },
 
-      pronounceOption(text, lang) {
-        SoundFX.speak(text, lang);
-      },
-
-      selectOption(idx) {
+      selectOption(idx, text) {
         SoundFX.init();
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
         this.selectedOption = idx;
         document.getElementById(`opt-${idx}`).classList.add('selected');
+        
+        // Auto-pronounce the selected option
+        const langObj = LanguagesData.find(l => l.id === this.state.currentLang);
+        const ttsLang = langObj ? langObj.ttsLang : 'en-US';
+        SoundFX.speak(text, ttsLang);
       },
 
       confirmAnswer() {
@@ -1844,7 +1984,6 @@
             if (this.activeExerciseIdx < this.currentQuestions.length) {
               this.renderExercise();
             } else {
-              // Level Completed
               const prog = this.state.langProgress[this.state.currentLang];
               prog.unlockedLevel = Math.max(prog.unlockedLevel, this.currentLevelNum + 1);
               this.state.gems += 25;
