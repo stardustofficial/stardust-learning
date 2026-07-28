@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Stardust Learn | Master Languages & Code</title>
-  <meta name="theme-color" content="#0d0e15">
+  <meta name="theme-color" content="#f4f5f9">
   
   <style>
     /* ==========================================================================
@@ -14,15 +14,15 @@
       --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       --font-mono: 'Fira Code', Consolas, Monaco, monospace;
       
-      --bg-primary: #0b0c10;
-      --bg-secondary: #12141d;
-      --bg-card: rgba(26, 29, 45, 0.75);
-      --border-color: rgba(255, 255, 255, 0.08);
+      --bg-primary: #f4f5f9;
+      --bg-secondary: #ffffff;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --border-color: rgba(0, 0, 0, 0.08);
       --border-highlight: rgba(139, 92, 246, 0.4);
       
-      --text-primary: #f3f4f6;
-      --text-secondary: #9ca3af;
-      --text-muted: #6b7280;
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --text-muted: #9ca3af;
       
       --accent-purple: #8b5cf6;
       --accent-cyan: #06b6d4;
@@ -43,16 +43,20 @@
       --nav-height: 70px;
       --header-height: 64px;
       --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --modal-bg: rgba(0, 0, 0, 0.85);
+      --modal-text: #fff;
     }
 
-    [data-theme="light"] {
-      --bg-primary: #f4f5f9;
-      --bg-secondary: #ffffff;
-      --bg-card: rgba(255, 255, 255, 0.9);
-      --border-color: rgba(0, 0, 0, 0.08);
-      --text-primary: #111827;
-      --text-secondary: #4b5563;
-      --text-muted: #9ca3af;
+    [data-theme="dark"] {
+      --bg-primary: #0b0c10;
+      --bg-secondary: #12141d;
+      --bg-card: rgba(26, 29, 45, 0.75);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --modal-bg: rgba(0, 0, 0, 0.88);
+      --modal-text: #fff;
     }
 
     * {
@@ -107,6 +111,9 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .header-left {
@@ -121,7 +128,7 @@
       gap: 0.5rem;
       padding: 0.4rem 0.8rem;
       border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(139, 92, 246, 0.1);
       border: 1px solid var(--border-highlight);
       color: var(--text-primary);
       font-weight: 700;
@@ -169,6 +176,8 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
     }
 
     .lang-option-list {
@@ -190,6 +199,7 @@
       cursor: pointer;
       font-weight: 600;
       font-size: 0.9rem;
+      color: var(--text-primary);
     }
 
     .lang-option-item.selected {
@@ -252,6 +262,7 @@
     .level-title {
       font-size: 1rem;
       font-weight: 800;
+      color: var(--text-primary);
     }
 
     .level-desc {
@@ -353,7 +364,7 @@
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.88);
+      background: var(--modal-bg);
       backdrop-filter: blur(12px);
       z-index: 1000;
       display: none;
@@ -371,6 +382,11 @@
       max-width: 600px;
       width: 100%;
       margin: 0 auto;
+    }
+
+    .lesson-header button {
+      color: var(--modal-text);
+      font-size: 1.2rem;
     }
 
     .progress-bar-bg {
@@ -399,6 +415,19 @@
       gap: 1.5rem;
     }
 
+    .lesson-body .question-text {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--modal-text);
+    }
+
+    .lesson-body .question-meta {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.5rem;
+    }
+
     .options-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -409,8 +438,8 @@
       padding: 1rem;
       border-radius: var(--radius-md);
       background: rgba(255, 255, 255, 0.05);
-      border: 2px solid var(--border-color);
-      color: var(--text-primary);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      color: var(--modal-text);
       font-size: 0.95rem;
       font-weight: 600;
       text-align: left;
@@ -430,6 +459,21 @@
     .option-btn.wrong {
       border-color: var(--accent-rose);
       background: rgba(244, 63, 94, 0.25);
+    }
+
+    .option-btn .pronounce-btn {
+      float: right;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      background: rgba(139, 92, 246, 0.3);
+      color: var(--accent-purple);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .modal-overlay .btn-primary {
+      background: var(--grad-stardust);
+      color: #fff;
     }
 
     /* ==========================================================================
@@ -478,7 +522,7 @@
     .coding-lesson-modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.92);
+      background: var(--modal-bg);
       backdrop-filter: blur(12px);
       z-index: 1000;
       display: none;
@@ -495,7 +539,7 @@
       padding: 1rem;
       font-family: var(--font-mono);
       font-size: 0.9rem;
-      color: var(--text-primary);
+      color: var(--modal-text);
       min-height: 150px;
       resize: vertical;
       width: 100%;
@@ -543,6 +587,16 @@
       white-space: pre-wrap;
     }
 
+    .coding-lesson-modal .btn-primary {
+      background: var(--grad-stardust);
+      color: #fff;
+    }
+
+    .coding-lesson-modal .btn-primary.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+    }
+
     /* ==========================================================================
        8. BOTTOM NAVIGATION (4 TABS)
        ========================================================================== */
@@ -556,6 +610,9 @@
       justify-content: space-around;
       border-top: 1px solid var(--border-color);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .nav-item {
@@ -650,12 +707,12 @@
       <div class="glass glass-card" style="display:flex; justify-content:space-between; align-items:center;">
         <div>
           <div style="font-size:0.75rem; color:var(--text-secondary);">CURRENT LANGUAGE</div>
-          <div style="font-size:1.2rem; font-weight:800;" id="home-current-lang">Hindi Path</div>
+          <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);" id="home-current-lang">Hindi Path</div>
         </div>
         <div style="font-size:2rem;" id="home-current-flag">🇮🇳</div>
       </div>
 
-      <div style="font-size:1.1rem; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-size:1.1rem; font-weight:800; display:flex; justify-content:space-between; align-items:center; color:var(--text-primary);">
         <span>Learning Levels (1 to 100)</span>
         <span style="font-size:0.8rem; color:var(--accent-purple);" id="current-unlocked-tag">Level 1 Unlocked</span>
       </div>
@@ -665,7 +722,7 @@
 
     <!-- 2. CODING SECTION -->
     <section id="view-coding" class="view-section">
-      <div style="font-size:1.2rem; font-weight:800;">Programming Paths</div>
+      <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);">Programming Paths</div>
       <p style="font-size:0.85rem; color:var(--text-secondary);">Click any course to start learning with interactive coding</p>
 
       <div style="display:grid; grid-template-columns:1fr; gap:1rem;" id="coding-list"></div>
@@ -673,7 +730,7 @@
 
     <!-- 3. PROGRESS / GROWTH SECTION -->
     <section id="view-growth" class="view-section">
-      <div style="font-size:1.2rem; font-weight:800;">Your Growth & Progress</div>
+      <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);">Your Growth & Progress</div>
       <div class="progress-card-grid">
         <div class="glass glass-card growth-box">
           <div class="growth-value" id="growth-level">1</div>
@@ -694,18 +751,18 @@
       </div>
       
       <div class="glass glass-card" style="margin-top:0.5rem;">
-        <div style="font-weight:700; margin-bottom:0.5rem;">Learning Growth Curve</div>
+        <div style="font-weight:700; margin-bottom:0.5rem; color:var(--text-primary);">Learning Growth Curve</div>
         <p style="font-size:0.8rem; color:var(--text-secondary);">Keep practicing every day to complete all 100 levels from basic words to fluent conversations!</p>
       </div>
     </section>
 
     <!-- 4. SETTINGS & LIGHT MODE SWITCH -->
     <section id="view-settings" class="view-section">
-      <div style="font-size:1.2rem; font-weight:800;">Settings & Data</div>
+      <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);">Settings & Data</div>
       <div class="glass glass-card" style="display:flex; flex-direction:column; gap:1rem;">
         <div class="theme-toggle-row">
           <div>
-            <div style="font-weight:700;">Light Mode</div>
+            <div style="font-weight:700; color:var(--text-primary);">Dark Mode</div>
             <div style="font-size:0.8rem; color:var(--text-secondary);">Switch between light and dark themes</div>
           </div>
           <label class="switch">
@@ -715,7 +772,7 @@
         </div>
         <hr style="border:0; border-top:1px solid var(--border-color);">
         <div>
-          <div style="font-weight:700; margin-bottom:0.25rem;">Storage</div>
+          <div style="font-weight:700; margin-bottom:0.25rem; color:var(--text-primary);">Storage</div>
           <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">Your progress is stored 100% locally on your device.</p>
           <button class="btn-primary" onclick="App.resetProgress()">Reset All Data</button>
         </div>
@@ -727,11 +784,11 @@
   <!-- INTERACTIVE LESSON MODAL -->
   <div class="modal-overlay" id="modal-lesson">
     <div class="lesson-header">
-      <button style="color:#fff; font-size:1.2rem;" onclick="App.closeLesson()">✕</button>
+      <button onclick="App.closeLesson()">✕</button>
       <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="lesson-progress-bar"></div>
       </div>
-      <div style="font-size:0.85rem; color:#fff; font-weight:700;" id="question-counter">1/15</div>
+      <div style="font-size:0.85rem; color:var(--modal-text); font-weight:700;" id="question-counter">1/15</div>
     </div>
 
     <div class="lesson-body" id="lesson-content"></div>
@@ -744,10 +801,10 @@
   <!-- CODING LESSON MODAL -->
   <div class="coding-lesson-modal" id="modal-coding-lesson">
     <div style="display:flex; align-items:center; gap:1rem; max-width:650px; width:100%; margin:0 auto;">
-      <button style="color:#fff; font-size:1.2rem;" onclick="App.closeCodingLesson()">✕</button>
+      <button style="color:var(--modal-text); font-size:1.2rem;" onclick="App.closeCodingLesson()">✕</button>
       <div style="flex:1;">
-        <div style="font-weight:700; font-size:1rem;" id="coding-lesson-title">HTML Basics</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary);" id="coding-lesson-progress">Lesson 1 of 100</div>
+        <div style="font-weight:700; font-size:1rem; color:var(--modal-text);" id="coding-lesson-title">HTML Basics</div>
+        <div style="font-size:0.8rem; color:rgba(255,255,255,0.6);" id="coding-lesson-progress">Lesson 1 of 100</div>
       </div>
       <div>
         <span class="level-badge" id="coding-level-badge">Level 1</span>
@@ -755,7 +812,7 @@
     </div>
 
     <div style="max-width:650px; width:100%; margin:0.5rem auto; flex:1; display:flex; flex-direction:column; gap:0.75rem;">
-      <div style="font-size:0.95rem; font-weight:600; color:var(--text-secondary);" id="coding-instruction">Write the code to complete this task</div>
+      <div style="font-size:0.95rem; font-weight:600; color:rgba(255,255,255,0.7);" id="coding-instruction">Write the code to complete this task</div>
       
       <div class="code-hint" id="code-hint">Example: &lt;h1&gt;Hello World&lt;/h1&gt;</div>
       
@@ -765,7 +822,7 @@
       
       <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
         <button class="btn-primary" style="flex:1;" onclick="App.checkCode()">Check Code</button>
-        <button class="btn-primary" style="flex:1; background:rgba(255,255,255,0.1); box-shadow:none;" onclick="App.nextCodingLesson()">Next Lesson</button>
+        <button class="btn-primary secondary" style="flex:1;" onclick="App.nextCodingLesson()">Next Lesson</button>
       </div>
     </div>
   </div>
@@ -859,6 +916,16 @@
             osc.stop(this.ctx.currentTime + i * 0.1 + 0.2);
           });
         } catch(e){}
+      },
+      // Text to speech for pronunciation
+      speak(text, lang) {
+        if (window.speechSynthesis) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = lang || 'en-US';
+          utterance.rate = 0.9;
+          utterance.pitch = 1;
+          speechSynthesis.speak(utterance);
+        }
       }
     };
 
@@ -866,20 +933,20 @@
        LANGUAGES DATA - 10 LANGUAGES
        ========================================================================== */
     const LanguagesData = [
-      { id: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिन्दी' },
-      { id: 'es', name: 'Spanish', flag: '🇪🇸', nativeName: 'Español' },
-      { id: 'en', name: 'English', flag: '🇬🇧', nativeName: 'English' },
-      { id: 'ja', name: 'Japanese', flag: '🇯🇵', nativeName: '日本語' },
-      { id: 'ko', name: 'Korean', flag: '🇰🇷', nativeName: '한국어' },
-      { id: 'zh', name: 'Chinese', flag: '🇨🇳', nativeName: '中文' },
-      { id: 'vi', name: 'Vietnamese', flag: '🇻🇳', nativeName: 'Tiếng Việt' },
-      { id: 'it', name: 'Italian', flag: '🇮🇹', nativeName: 'Italiano' },
-      { id: 'ro', name: 'Romanian', flag: '🇷🇴', nativeName: 'Română' },
-      { id: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية' }
+      { id: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिन्दी', ttsLang: 'hi-IN' },
+      { id: 'es', name: 'Spanish', flag: '🇪🇸', nativeName: 'Español', ttsLang: 'es-ES' },
+      { id: 'en', name: 'English', flag: '🇬🇧', nativeName: 'English', ttsLang: 'en-US' },
+      { id: 'ja', name: 'Japanese', flag: '🇯🇵', nativeName: '日本語', ttsLang: 'ja-JP' },
+      { id: 'ko', name: 'Korean', flag: '🇰🇷', nativeName: '한국어', ttsLang: 'ko-KR' },
+      { id: 'zh', name: 'Chinese', flag: '🇨🇳', nativeName: '中文', ttsLang: 'zh-CN' },
+      { id: 'vi', name: 'Vietnamese', flag: '🇻🇳', nativeName: 'Tiếng Việt', ttsLang: 'vi-VN' },
+      { id: 'it', name: 'Italian', flag: '🇮🇹', nativeName: 'Italiano', ttsLang: 'it-IT' },
+      { id: 'ro', name: 'Romanian', flag: '🇷🇴', nativeName: 'Română', ttsLang: 'ro-RO' },
+      { id: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية', ttsLang: 'ar-SA' }
     ];
 
     /* ==========================================================================
-       TRANSLATION ENGINE - All questions in English with target language translations
+       TRANSLATION ENGINE - Questions in English, Options in Target Language
        ========================================================================== */
     const TranslationEngine = {
       // Words translated to each language
@@ -893,7 +960,7 @@
           'Food': 'खाना', 'Drink': 'पेय', 'Sleep': 'नींद', 'Work': 'काम', 'Play': 'खेल',
           'Beautiful': 'सुंदर', 'Wonderful': 'अद्भुत', 'Important': 'महत्वपूर्ण', 'Different': 'अलग',
           'Amazing': 'अद्भुत', 'Helpful': 'सहायक', 'Thoughtful': 'विचारशील', 'Kind': 'दयालु',
-          'Strong': 'मजबूत', 'Brave': 'बहादुर', 'Smart': 'बुद्धिमान', 'Happy': 'खुश'
+          'Strong': 'मजबूत', 'Brave': 'बहादुर', 'Smart': 'बुद्धिमान'
         },
         es: {
           'Apple': 'Manzana', 'Banana': 'Plátano', 'Cat': 'Gato', 'Dog': 'Perro', 'Fish': 'Pez',
@@ -1070,7 +1137,7 @@
     };
 
     /* ==========================================================================
-       QUESTION GENERATOR - Questions in English, Options in Target Language
+       QUESTION GENERATOR - English questions, Hindi for English learning
        ========================================================================== */
     function generateLevelQuestions(lang, level) {
       const questions = [];
@@ -1117,45 +1184,75 @@
         if (i < 10) {
           // Word-based questions
           const word = shuffledWords[i % shuffledWords.length];
-          const translatedWord = TranslationEngine.getTranslation(word, lang);
           
-          // Generate wrong options in target language
-          const wrongOptions = shuffledWords
-            .filter(w => w !== word)
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3)
-            .map(w => TranslationEngine.getTranslation(w, lang));
-          
-          const options = [translatedWord, ...wrongOptions].sort(() => Math.random() - 0.5);
-          const correctIndex = options.indexOf(translatedWord);
+          // For English learning, show Hindi and ask for English
+          let questionText, options, correctIndex;
+          if (lang === 'en') {
+            const hindiWord = TranslationEngine.getTranslation(word, 'hi');
+            const wrongWords = shuffledWords
+              .filter(w => w !== word)
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 3);
+            const optionsList = [word, ...wrongWords].sort(() => Math.random() - 0.5);
+            correctIndex = optionsList.indexOf(word);
+            questionText = `"${hindiWord}" का अंग्रेजी में क्या अर्थ है?`;
+            options = optionsList;
+          } else {
+            const translatedWord = TranslationEngine.getTranslation(word, lang);
+            const wrongOptions = shuffledWords
+              .filter(w => w !== word)
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 3)
+              .map(w => TranslationEngine.getTranslation(w, lang));
+            const optionsList = [translatedWord, ...wrongOptions].sort(() => Math.random() - 0.5);
+            correctIndex = optionsList.indexOf(translatedWord);
+            questionText = `What is the meaning of "${word}" in ${LanguagesData.find(l => l.id === lang).name}?`;
+            options = optionsList;
+          }
           
           question = {
-            q: `What is the meaning of "${word}" in ${LanguagesData.find(l => l.id === lang).name}?`,
+            q: questionText,
             opts: options,
             ans: correctIndex,
             difficulty: level,
-            type: 'word'
+            type: 'word',
+            lang: lang
           };
         } else {
           // Sentence-based questions
           const sentence = shuffledSentences[i % shuffledSentences.length];
-          const translatedSentence = TranslationEngine.getSentenceTranslation(sentence, lang);
           
-          const wrongOptions = shuffledSentences
-            .filter(s => s !== sentence)
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3)
-            .map(s => TranslationEngine.getSentenceTranslation(s, lang));
-          
-          const options = [translatedSentence, ...wrongOptions].sort(() => Math.random() - 0.5);
-          const correctIndex = options.indexOf(translatedSentence);
+          let questionText, options, correctIndex;
+          if (lang === 'en') {
+            const hindiSentence = TranslationEngine.getSentenceTranslation(sentence, 'hi');
+            const wrongSentences = shuffledSentences
+              .filter(s => s !== sentence)
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 3);
+            const optionsList = [sentence, ...wrongSentences].sort(() => Math.random() - 0.5);
+            correctIndex = optionsList.indexOf(sentence);
+            questionText = `"${hindiSentence}" का अंग्रेजी अनुवाद क्या है?`;
+            options = optionsList;
+          } else {
+            const translatedSentence = TranslationEngine.getSentenceTranslation(sentence, lang);
+            const wrongOptions = shuffledSentences
+              .filter(s => s !== sentence)
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 3)
+              .map(s => TranslationEngine.getSentenceTranslation(s, lang));
+            const optionsList = [translatedSentence, ...wrongOptions].sort(() => Math.random() - 0.5);
+            correctIndex = optionsList.indexOf(translatedSentence);
+            questionText = `Translate this to ${LanguagesData.find(l => l.id === lang).name}: "${sentence}"`;
+            options = optionsList;
+          }
           
           question = {
-            q: `Translate this to ${LanguagesData.find(l => l.id === lang).name}: "${sentence}"`,
+            q: questionText,
             opts: options,
             ans: correctIndex,
             difficulty: level,
-            type: 'sentence'
+            type: 'sentence',
+            lang: lang
           };
         }
         questions.push(question);
@@ -1384,7 +1481,7 @@
           gems: 100,
           hearts: 5,
           solvedCount: 0,
-          theme: 'dark',
+          theme: 'light', // Default to light mode
           langProgress: langProgress,
           codingProgress: codingProgress
         };
@@ -1434,11 +1531,13 @@
       applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         const toggle = document.getElementById('theme-toggle');
-        if (toggle) toggle.checked = (theme === 'light');
+        if (toggle) toggle.checked = (theme === 'dark');
+        // Update meta theme color
+        document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0b0c10' : '#f4f5f9';
       },
 
       toggleTheme(checkbox) {
-        this.state.theme = checkbox.checked ? 'light' : 'dark';
+        this.state.theme = checkbox.checked ? 'dark' : 'light';
         this.applyTheme(this.state.theme);
         this.save();
       },
@@ -1554,7 +1653,7 @@
             <div class="glass glass-card coding-card" onclick="App.openCodingLesson('${name}')">
               <div class="coding-icon">${course.icon}</div>
               <div>
-                <div style="font-weight:700; font-size:1rem;">${course.name}</div>
+                <div style="font-weight:700; font-size:1rem; color:var(--text-primary);">${course.name}</div>
                 <div style="font-size:0.8rem; color:var(--text-secondary);">${total} levels</div>
               </div>
               <div class="coding-progress">
@@ -1699,15 +1798,25 @@
         document.getElementById('lesson-progress-bar').style.width = `${pct}%`;
         document.getElementById('question-counter').innerText = `${current}/${total}`;
 
+        const langObj = LanguagesData.find(l => l.id === this.state.currentLang);
+        const ttsLang = langObj ? langObj.ttsLang : 'en-US';
+
         container.innerHTML = `
-          <div style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">${ex.q}</div>
-          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">Level ${ex.difficulty} • ${ex.type === 'word' ? 'Word' : 'Sentence'}</div>
+          <div class="question-text">${ex.q}</div>
+          <div class="question-meta">Level ${ex.difficulty} • ${ex.type === 'word' ? 'Word' : 'Sentence'}</div>
           <div class="options-grid">
             ${ex.opts.map((opt, i) => `
-              <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i})">${opt}</button>
+              <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i})">
+                ${opt}
+                <span class="pronounce-btn" onclick="event.stopPropagation(); App.pronounceOption('${opt.replace(/'/g, "\\'")}', '${ttsLang}')">🔊</span>
+              </button>
             `).join('')}
           </div>
         `;
+      },
+
+      pronounceOption(text, lang) {
+        SoundFX.speak(text, lang);
       },
 
       selectOption(idx) {
