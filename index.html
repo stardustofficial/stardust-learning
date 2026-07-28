@@ -29,6 +29,8 @@
       --accent-emerald: #10b981;
       --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
+      --accent-pink: #ec4899;
+      --accent-indigo: #6366f1;
       
       --grad-stardust: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
       --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.25);
@@ -161,7 +163,7 @@
 
     .lang-modal-content {
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       border-radius: var(--radius-lg);
       padding: 1.5rem;
       display: flex;
@@ -170,10 +172,10 @@
     }
 
     .lang-option-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      max-height: 350px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      max-height: 400px;
       overflow-y: auto;
     }
 
@@ -181,11 +183,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 0.75rem;
       border-radius: var(--radius-md);
       background: rgba(255, 255, 255, 0.05);
       border: 2px solid var(--border-color);
       cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
     }
 
     .lang-option-item.selected {
@@ -410,6 +414,7 @@
       font-size: 0.95rem;
       font-weight: 600;
       text-align: left;
+      transition: var(--transition);
     }
 
     .option-btn.selected {
@@ -438,7 +443,7 @@
     }
 
     .coding-icon {
-      font-size: 2rem;
+      font-size: 1.8rem;
       padding: 0.5rem;
       background: rgba(255,255,255,0.05);
       border-radius: 12px;
@@ -495,6 +500,7 @@
       resize: vertical;
       width: 100%;
       outline: none;
+      line-height: 1.6;
     }
 
     .code-editor:focus {
@@ -518,6 +524,23 @@
       background: rgba(244, 63, 94, 0.2);
       border: 1px solid var(--accent-rose);
       color: var(--accent-rose);
+    }
+
+    .feedback-box.info {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid var(--accent-purple);
+      color: var(--accent-purple);
+    }
+
+    .code-hint {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
     }
 
     /* ==========================================================================
@@ -643,12 +666,12 @@
     <!-- 2. CODING SECTION -->
     <section id="view-coding" class="view-section">
       <div style="font-size:1.2rem; font-weight:800;">Programming Paths</div>
-      <p style="font-size:0.85rem; color:var(--text-secondary);">Click any course to start learning with recording</p>
+      <p style="font-size:0.85rem; color:var(--text-secondary);">Click any course to start learning with interactive coding</p>
 
       <div style="display:grid; grid-template-columns:1fr; gap:1rem;" id="coding-list"></div>
     </section>
 
-    <!-- 3. PROGRESS / GROWTH SECTION (4TH NAV ITEM) -->
+    <!-- 3. PROGRESS / GROWTH SECTION -->
     <section id="view-growth" class="view-section">
       <div style="font-size:1.2rem; font-weight:800;">Your Growth & Progress</div>
       <div class="progress-card-grid">
@@ -672,7 +695,7 @@
       
       <div class="glass glass-card" style="margin-top:0.5rem;">
         <div style="font-weight:700; margin-bottom:0.5rem;">Learning Growth Curve</div>
-        <p style="font-size:0.8rem; color:var(--text-secondary);">Keep practicing every day to complete all 100 levels from basic A-to-Z words to fluent conversations!</p>
+        <p style="font-size:0.8rem; color:var(--text-secondary);">Keep practicing every day to complete all 100 levels from basic words to fluent conversations!</p>
       </div>
     </section>
 
@@ -724,7 +747,7 @@
       <button style="color:#fff; font-size:1.2rem;" onclick="App.closeCodingLesson()">✕</button>
       <div style="flex:1;">
         <div style="font-weight:700; font-size:1rem;" id="coding-lesson-title">HTML Basics</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary);" id="coding-lesson-progress">Lesson 1 of 10</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary);" id="coding-lesson-progress">Lesson 1 of 100</div>
       </div>
       <div>
         <span class="level-badge" id="coding-level-badge">Level 1</span>
@@ -732,11 +755,13 @@
     </div>
 
     <div style="max-width:650px; width:100%; margin:0.5rem auto; flex:1; display:flex; flex-direction:column; gap:0.75rem;">
-      <div style="font-size:0.95rem; font-weight:600; color:var(--text-secondary);" id="coding-instruction">Write the HTML code to create a heading</div>
+      <div style="font-size:0.95rem; font-weight:600; color:var(--text-secondary);" id="coding-instruction">Write the code to complete this task</div>
+      
+      <div class="code-hint" id="code-hint">Example: &lt;h1&gt;Hello World&lt;/h1&gt;</div>
       
       <textarea class="code-editor" id="code-editor-input" placeholder="Write your code here..." rows="6"></textarea>
       
-      <div id="coding-feedback" class="feedback-box"></div>
+      <div id="coding-feedback" class="feedback-box info">Write your code and click "Check Code"</div>
       
       <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
         <button class="btn-primary" style="flex:1;" onclick="App.checkCode()">Check Code</button>
@@ -789,13 +814,13 @@
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.12);
-            gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.12);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.12 + 0.15);
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.1);
+            gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.1 + 0.15);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            osc.start(this.ctx.currentTime + i * 0.12);
-            osc.stop(this.ctx.currentTime + i * 0.12 + 0.15);
+            osc.start(this.ctx.currentTime + i * 0.1);
+            osc.stop(this.ctx.currentTime + i * 0.1 + 0.15);
           });
         } catch(e){}
       },
@@ -838,105 +863,299 @@
     };
 
     /* ==========================================================================
-       QUESTION GENERATOR WITH PROGRESSIVE DIFFICULTY
+       LANGUAGES DATA - 10 LANGUAGES
+       ========================================================================== */
+    const LanguagesData = [
+      { id: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिन्दी' },
+      { id: 'es', name: 'Spanish', flag: '🇪🇸', nativeName: 'Español' },
+      { id: 'en', name: 'English', flag: '🇬🇧', nativeName: 'English' },
+      { id: 'ja', name: 'Japanese', flag: '🇯🇵', nativeName: '日本語' },
+      { id: 'ko', name: 'Korean', flag: '🇰🇷', nativeName: '한국어' },
+      { id: 'zh', name: 'Chinese', flag: '🇨🇳', nativeName: '中文' },
+      { id: 'vi', name: 'Vietnamese', flag: '🇻🇳', nativeName: 'Tiếng Việt' },
+      { id: 'it', name: 'Italian', flag: '🇮🇹', nativeName: 'Italiano' },
+      { id: 'ro', name: 'Romanian', flag: '🇷🇴', nativeName: 'Română' },
+      { id: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية' }
+    ];
+
+    /* ==========================================================================
+       TRANSLATION ENGINE - All questions in English with target language translations
+       ========================================================================== */
+    const TranslationEngine = {
+      // Words translated to each language
+      words: {
+        hi: {
+          'Apple': 'सेब', 'Banana': 'केला', 'Cat': 'बिल्ली', 'Dog': 'कुत्ता', 'Fish': 'मछली',
+          'Good': 'अच्छा', 'Happy': 'खुश', 'House': 'घर', 'Love': 'प्यार', 'Mother': 'माँ',
+          'Father': 'पिता', 'Brother': 'भाई', 'Sister': 'बहन', 'Friend': 'दोस्त', 'Teacher': 'शिक्षक',
+          'Student': 'छात्र', 'School': 'स्कूल', 'Book': 'किताब', 'Water': 'पानी', 'Sun': 'सूरज',
+          'Moon': 'चाँद', 'Star': 'तारा', 'Flower': 'फूल', 'Tree': 'पेड़', 'Road': 'सड़क',
+          'Food': 'खाना', 'Drink': 'पेय', 'Sleep': 'नींद', 'Work': 'काम', 'Play': 'खेल',
+          'Beautiful': 'सुंदर', 'Wonderful': 'अद्भुत', 'Important': 'महत्वपूर्ण', 'Different': 'अलग',
+          'Amazing': 'अद्भुत', 'Helpful': 'सहायक', 'Thoughtful': 'विचारशील', 'Kind': 'दयालु',
+          'Strong': 'मजबूत', 'Brave': 'बहादुर', 'Smart': 'बुद्धिमान', 'Happy': 'खुश'
+        },
+        es: {
+          'Apple': 'Manzana', 'Banana': 'Plátano', 'Cat': 'Gato', 'Dog': 'Perro', 'Fish': 'Pez',
+          'Good': 'Bueno', 'Happy': 'Feliz', 'House': 'Casa', 'Love': 'Amor', 'Mother': 'Madre',
+          'Father': 'Padre', 'Brother': 'Hermano', 'Sister': 'Hermana', 'Friend': 'Amigo',
+          'Teacher': 'Maestro', 'Student': 'Estudiante', 'School': 'Escuela', 'Book': 'Libro',
+          'Water': 'Agua', 'Sun': 'Sol', 'Moon': 'Luna', 'Star': 'Estrella', 'Flower': 'Flor',
+          'Tree': 'Árbol', 'Road': 'Camino', 'Food': 'Comida', 'Drink': 'Bebida', 'Sleep': 'Dormir',
+          'Work': 'Trabajo', 'Play': 'Jugar', 'Beautiful': 'Hermoso', 'Wonderful': 'Maravilloso',
+          'Important': 'Importante', 'Different': 'Diferente', 'Amazing': 'Increíble',
+          'Helpful': 'Útil', 'Thoughtful': 'Atento', 'Kind': 'Amable', 'Strong': 'Fuerte',
+          'Brave': 'Valiente', 'Smart': 'Inteligente'
+        },
+        en: {
+          'Apple': 'Apple', 'Banana': 'Banana', 'Cat': 'Cat', 'Dog': 'Dog', 'Fish': 'Fish',
+          'Good': 'Good', 'Happy': 'Happy', 'House': 'House', 'Love': 'Love', 'Mother': 'Mother',
+          'Father': 'Father', 'Brother': 'Brother', 'Sister': 'Sister', 'Friend': 'Friend',
+          'Teacher': 'Teacher', 'Student': 'Student', 'School': 'School', 'Book': 'Book',
+          'Water': 'Water', 'Sun': 'Sun', 'Moon': 'Moon', 'Star': 'Star', 'Flower': 'Flower',
+          'Tree': 'Tree', 'Road': 'Road', 'Food': 'Food', 'Drink': 'Drink', 'Sleep': 'Sleep',
+          'Work': 'Work', 'Play': 'Play', 'Beautiful': 'Beautiful', 'Wonderful': 'Wonderful',
+          'Important': 'Important', 'Different': 'Different', 'Amazing': 'Amazing',
+          'Helpful': 'Helpful', 'Thoughtful': 'Thoughtful', 'Kind': 'Kind', 'Strong': 'Strong',
+          'Brave': 'Brave', 'Smart': 'Smart'
+        },
+        ja: {
+          'Apple': 'りんご', 'Banana': 'バナナ', 'Cat': '猫', 'Dog': '犬', 'Fish': '魚',
+          'Good': '良い', 'Happy': '幸せ', 'House': '家', 'Love': '愛', 'Mother': '母',
+          'Father': '父', 'Brother': '兄', 'Sister': '妹', 'Friend': '友達', 'Teacher': '先生',
+          'Student': '学生', 'School': '学校', 'Book': '本', 'Water': '水', 'Sun': '太陽',
+          'Moon': '月', 'Star': '星', 'Flower': '花', 'Tree': '木', 'Road': '道',
+          'Food': '食べ物', 'Drink': '飲み物', 'Sleep': '睡眠', 'Work': '仕事', 'Play': '遊び',
+          'Beautiful': '美しい', 'Wonderful': '素晴らしい', 'Important': '重要', 'Different': '違う',
+          'Amazing': '素晴らしい', 'Helpful': '役に立つ', 'Thoughtful': '思いやりのある',
+          'Kind': '親切', 'Strong': '強い', 'Brave': '勇敢', 'Smart': '賢い'
+        },
+        ko: {
+          'Apple': '사과', 'Banana': '바나나', 'Cat': '고양이', 'Dog': '개', 'Fish': '물고기',
+          'Good': '좋은', 'Happy': '행복한', 'House': '집', 'Love': '사랑', 'Mother': '어머니',
+          'Father': '아버지', 'Brother': '형제', 'Sister': '자매', 'Friend': '친구', 'Teacher': '선생님',
+          'Student': '학생', 'School': '학교', 'Book': '책', 'Water': '물', 'Sun': '태양',
+          'Moon': '달', 'Star': '별', 'Flower': '꽃', 'Tree': '나무', 'Road': '길',
+          'Food': '음식', 'Drink': '음료', 'Sleep': '잠', 'Work': '일', 'Play': '놀이',
+          'Beautiful': '아름다운', 'Wonderful': '멋진', 'Important': '중요한', 'Different': '다른',
+          'Amazing': '놀라운', 'Helpful': '도움이 되는', 'Thoughtful': '사려 깊은'
+        },
+        zh: {
+          'Apple': '苹果', 'Banana': '香蕉', 'Cat': '猫', 'Dog': '狗', 'Fish': '鱼',
+          'Good': '好', 'Happy': '快乐', 'House': '房子', 'Love': '爱', 'Mother': '母亲',
+          'Father': '父亲', 'Brother': '兄弟', 'Sister': '姐妹', 'Friend': '朋友', 'Teacher': '老师',
+          'Student': '学生', 'School': '学校', 'Book': '书', 'Water': '水', 'Sun': '太阳',
+          'Moon': '月亮', 'Star': '星星', 'Flower': '花', 'Tree': '树', 'Road': '路',
+          'Food': '食物', 'Drink': '饮料', 'Sleep': '睡眠', 'Work': '工作', 'Play': '玩'
+        },
+        vi: {
+          'Apple': 'Táo', 'Banana': 'Chuối', 'Cat': 'Mèo', 'Dog': 'Chó', 'Fish': 'Cá',
+          'Good': 'Tốt', 'Happy': 'Vui', 'House': 'Nhà', 'Love': 'Yêu', 'Mother': 'Mẹ',
+          'Father': 'Cha', 'Brother': 'Anh', 'Sister': 'Chị', 'Friend': 'Bạn', 'Teacher': 'Giáo viên',
+          'Student': 'Học sinh', 'School': 'Trường học', 'Book': 'Sách', 'Water': 'Nước',
+          'Sun': 'Mặt trời', 'Moon': 'Mặt trăng', 'Star': 'Sao', 'Flower': 'Hoa'
+        },
+        it: {
+          'Apple': 'Mela', 'Banana': 'Banana', 'Cat': 'Gatto', 'Dog': 'Cane', 'Fish': 'Pesce',
+          'Good': 'Buono', 'Happy': 'Felice', 'House': 'Casa', 'Love': 'Amore', 'Mother': 'Madre',
+          'Father': 'Padre', 'Brother': 'Fratello', 'Sister': 'Sorella', 'Friend': 'Amico',
+          'Teacher': 'Insegnante', 'Student': 'Studente', 'School': 'Scuola', 'Book': 'Libro',
+          'Water': 'Acqua', 'Sun': 'Sole', 'Moon': 'Luna', 'Star': 'Stella', 'Flower': 'Fiore'
+        },
+        ro: {
+          'Apple': 'Măr', 'Banana': 'Banana', 'Cat': 'Pisică', 'Dog': 'Câine', 'Fish': 'Pește',
+          'Good': 'Bun', 'Happy': 'Fericit', 'House': 'Casă', 'Love': 'Dragoste', 'Mother': 'Mamă',
+          'Father': 'Tată', 'Brother': 'Frate', 'Sister': 'Soră', 'Friend': 'Prieten',
+          'Teacher': 'Profesor', 'Student': 'Student', 'School': 'Școală', 'Book': 'Carte',
+          'Water': 'Apă', 'Sun': 'Soare', 'Moon': 'Lună', 'Star': 'Stea', 'Flower': 'Floare'
+        },
+        ar: {
+          'Apple': 'تفاح', 'Banana': 'موز', 'Cat': 'قطة', 'Dog': 'كلب', 'Fish': 'سمك',
+          'Good': 'جيد', 'Happy': 'سعيد', 'House': 'بيت', 'Love': 'حب', 'Mother': 'أم',
+          'Father': 'أب', 'Brother': 'أخ', 'Sister': 'أخت', 'Friend': 'صديق', 'Teacher': 'معلم',
+          'Student': 'طالب', 'School': 'مدرسة', 'Book': 'كتاب', 'Water': 'ماء',
+          'Sun': 'شمس', 'Moon': 'قمر', 'Star': 'نجمة', 'Flower': 'زهرة', 'Tree': 'شجرة'
+        }
+      },
+      
+      // Simple sentences translated
+      sentences: {
+        hi: {
+          'I am happy': 'मैं खुश हूँ',
+          'She is kind': 'वह दयालु है',
+          'We are here': 'हम यहाँ हैं',
+          'It is hot': 'यह गर्म है',
+          'You are strong': 'तुम मजबूत हो',
+          'They are friends': 'वे दोस्त हैं',
+          'I love you': 'मैं तुमसे प्यार करता हूँ',
+          'Good morning': 'सुप्रभात',
+          'How are you': 'आप कैसे हैं',
+          'Thank you': 'धन्यवाद'
+        },
+        es: {
+          'I am happy': 'Estoy feliz',
+          'She is kind': 'Ella es amable',
+          'We are here': 'Estamos aquí',
+          'It is hot': 'Hace calor',
+          'You are strong': 'Eres fuerte',
+          'They are friends': 'Ellos son amigos',
+          'I love you': 'Te quiero',
+          'Good morning': 'Buenos días',
+          'How are you': '¿Cómo estás?',
+          'Thank you': 'Gracias'
+        },
+        en: {
+          'I am happy': 'I am happy',
+          'She is kind': 'She is kind',
+          'We are here': 'We are here',
+          'It is hot': 'It is hot',
+          'You are strong': 'You are strong',
+          'They are friends': 'They are friends',
+          'I love you': 'I love you',
+          'Good morning': 'Good morning',
+          'How are you': 'How are you',
+          'Thank you': 'Thank you'
+        },
+        ja: {
+          'I am happy': '私は幸せです',
+          'She is kind': '彼女は親切です',
+          'We are here': '私たちはここにいます',
+          'It is hot': '暑いです',
+          'You are strong': 'あなたは強いです',
+          'They are friends': '彼らは友達です',
+          'I love you': '愛しています',
+          'Good morning': 'おはようございます',
+          'How are you': 'お元気ですか',
+          'Thank you': 'ありがとうございます'
+        },
+        ko: {
+          'I am happy': '나는 행복하다',
+          'She is kind': '그녀는 친절하다',
+          'We are here': '우리는 여기에 있다',
+          'It is hot': '덥다',
+          'You are strong': '너는 강하다',
+          'They are friends': '그들은 친구다',
+          'I love you': '사랑해요',
+          'Good morning': '좋은 아침',
+          'How are you': '어떻게 지내세요',
+          'Thank you': '감사합니다'
+        },
+        zh: {
+          'I am happy': '我很开心',
+          'She is kind': '她很善良',
+          'We are here': '我们在这里',
+          'It is hot': '天气很热',
+          'You are strong': '你很坚强',
+          'They are friends': '他们是朋友',
+          'I love you': '我爱你',
+          'Good morning': '早上好',
+          'How are you': '你好吗',
+          'Thank you': '谢谢'
+        }
+      },
+
+      getTranslation(word, lang) {
+        if (this.words[lang] && this.words[lang][word]) {
+          return this.words[lang][word];
+        }
+        return word;
+      },
+
+      getSentenceTranslation(sentence, lang) {
+        if (this.sentences[lang] && this.sentences[lang][sentence]) {
+          return this.sentences[lang][sentence];
+        }
+        return sentence;
+      }
+    };
+
+    /* ==========================================================================
+       QUESTION GENERATOR - Questions in English, Options in Target Language
        ========================================================================== */
     function generateLevelQuestions(lang, level) {
       const questions = [];
       const difficulty = Math.min(10, Math.ceil(level / 10));
       
-      // Word banks by difficulty
-      const wordBanks = {
-        easy: {
-          words: [
-            ['Apple', 'Banana', 'Cat', 'Dog', 'Fish', 'Good', 'Happy', 'House', 'Love', 'Mother'],
-            ['Water', 'Sun', 'Moon', 'Star', 'Book', 'Tree', 'Flower', 'Friend', 'Teacher', 'School'],
-            ['Morning', 'Night', 'Day', 'Week', 'Month', 'Year', 'Rain', 'Snow', 'Wind', 'Cloud']
-          ],
-          sentences: [
-            ['I am happy', 'She is kind', 'We are here', 'It is hot', 'You are strong'],
-            ['I like apples', 'She reads books', 'We play games', 'They sing songs', 'He writes stories']
-          ]
-        },
-        medium: {
-          words: [
-            ['Beautiful', 'Wonderful', 'Important', 'Different', 'Amazing', 'Careful', 'Helpful', 'Thoughtful'],
-            ['Celebration', 'Adventure', 'Discovery', 'Inspiration', 'Determination', 'Imagination'],
-            ['Yesterday', 'Tomorrow', 'Together', 'Everywhere', 'Something', 'Anything']
-          ],
-          sentences: [
-            ['The beautiful flowers bloom in spring', 'She always helps others with kindness'],
-            ['Every day is a new opportunity to learn', 'Together we can achieve great things'],
-            ['The adventure of a lifetime awaits you', 'Determination leads to success']
-          ]
-        },
-        hard: {
-          words: [
-            ['Extraordinary', 'Unbelievable', 'Transformation', 'Accomplishment', 'Innovation'],
-            ['Sustainability', 'Responsibility', 'Understanding', 'Knowledgeable'],
-            ['Collaboration', 'Empowerment', 'Perseverance']
-          ],
-          sentences: [
-            ['The extraordinary discovery changed everything we knew', 'Sustainable practices are essential for our future'],
-            ['Knowledgeable individuals contribute to society in meaningful ways', 'Collaboration leads to innovation'],
-            ['Perseverance is the key to overcoming any obstacle', 'Empowerment comes from within']
-          ]
-        }
+      // Word pools based on difficulty
+      const wordPools = {
+        easy: ['Apple', 'Banana', 'Cat', 'Dog', 'Fish', 'Good', 'Happy', 'House', 'Love', 'Mother',
+               'Father', 'Brother', 'Sister', 'Friend', 'Teacher', 'Student', 'School', 'Book'],
+        medium: ['Beautiful', 'Wonderful', 'Important', 'Different', 'Amazing', 'Helpful', 'Thoughtful',
+                 'Kind', 'Strong', 'Brave', 'Smart', 'Water', 'Sun', 'Moon', 'Star', 'Flower', 'Tree'],
+        hard: ['Extraordinary', 'Unbelievable', 'Transformation', 'Accomplishment', 'Innovation',
+               'Sustainability', 'Responsibility', 'Understanding', 'Knowledgeable', 'Collaboration']
       };
 
-      // Select difficulty based on level
-      let selectedBank;
-      if (level <= 25) selectedBank = wordBanks.easy;
-      else if (level <= 50) selectedBank = wordBanks.medium;
-      else if (level <= 75) selectedBank = { ...wordBanks.medium, ...wordBanks.hard };
-      else selectedBank = wordBanks.hard;
+      // Sentence pools
+      const sentencePools = {
+        easy: ['I am happy', 'She is kind', 'We are here', 'It is hot', 'You are strong'],
+        medium: ['Good morning', 'How are you', 'Thank you', 'I love you', 'They are friends'],
+        hard: ['The beautiful flowers bloom in spring', 'Every day is a new opportunity to learn',
+               'Determination leads to success', 'Knowledge is power', 'Together we can achieve great things']
+      };
 
-      // Shuffle and pick words
-      const allWords = selectedBank.words.flat();
-      const shuffledWords = allWords.sort(() => Math.random() - 0.5);
-      const allSentences = selectedBank.sentences.flat();
-      const shuffledSentences = allSentences.sort(() => Math.random() - 0.5);
+      // Select pools based on level
+      let wordPool, sentencePool;
+      if (level <= 33) {
+        wordPool = wordPools.easy;
+        sentencePool = sentencePools.easy;
+      } else if (level <= 66) {
+        wordPool = [...wordPools.easy, ...wordPools.medium];
+        sentencePool = [...sentencePools.easy, ...sentencePools.medium];
+      } else {
+        wordPool = [...wordPools.medium, ...wordPools.hard];
+        sentencePool = [...sentencePools.medium, ...sentencePools.hard];
+      }
 
-      // Generate 15 questions with mix of word and sentence based questions
+      // Shuffle pools
+      const shuffledWords = wordPool.sort(() => Math.random() - 0.5);
+      const shuffledSentences = sentencePool.sort(() => Math.random() - 0.5);
+
+      // Generate 15 questions
       for (let i = 0; i < 15; i++) {
         let question;
-        if (i < 8) {
+        if (i < 10) {
           // Word-based questions
           const word = shuffledWords[i % shuffledWords.length];
+          const translatedWord = TranslationEngine.getTranslation(word, lang);
+          
+          // Generate wrong options in target language
           const wrongOptions = shuffledWords
             .filter(w => w !== word)
             .sort(() => Math.random() - 0.5)
-            .slice(0, 3);
+            .slice(0, 3)
+            .map(w => TranslationEngine.getTranslation(w, lang));
           
-          const options = [word, ...wrongOptions].sort(() => Math.random() - 0.5);
-          const correctIndex = options.indexOf(word);
-          
-          // Translate word for the target language
-          const translations = getTranslation(word, lang);
+          const options = [translatedWord, ...wrongOptions].sort(() => Math.random() - 0.5);
+          const correctIndex = options.indexOf(translatedWord);
           
           question = {
-            q: `What is the meaning of "${translations.target}"?`,
-            opts: translations.options,
+            q: `What is the meaning of "${word}" in ${LanguagesData.find(l => l.id === lang).name}?`,
+            opts: options,
             ans: correctIndex,
-            difficulty: level
+            difficulty: level,
+            type: 'word'
           };
         } else {
           // Sentence-based questions
           const sentence = shuffledSentences[i % shuffledSentences.length];
-          const wrongSentences = shuffledSentences
+          const translatedSentence = TranslationEngine.getSentenceTranslation(sentence, lang);
+          
+          const wrongOptions = shuffledSentences
             .filter(s => s !== sentence)
             .sort(() => Math.random() - 0.5)
-            .slice(0, 3);
+            .slice(0, 3)
+            .map(s => TranslationEngine.getSentenceTranslation(s, lang));
           
-          const options = [sentence, ...wrongSentences].sort(() => Math.random() - 0.5);
-          const correctIndex = options.indexOf(sentence);
-          
-          const translations = getSentenceTranslation(sentence, lang);
+          const options = [translatedSentence, ...wrongOptions].sort(() => Math.random() - 0.5);
+          const correctIndex = options.indexOf(translatedSentence);
           
           question = {
-            q: `Choose the correct translation for: "${translations.target}"`,
-            opts: translations.options,
+            q: `Translate this to ${LanguagesData.find(l => l.id === lang).name}: "${sentence}"`,
+            opts: options,
             ans: correctIndex,
-            difficulty: level
+            difficulty: level,
+            type: 'sentence'
           };
         }
         questions.push(question);
@@ -945,124 +1164,220 @@
       return questions;
     }
 
-    function getTranslation(word, lang) {
-      const translations = {
-        hi: {
-          'Apple': { target: 'सेब', options: ['सेब', 'केला', 'अंगूर', 'संतरा'] },
-          'Banana': { target: 'केला', options: ['केला', 'सेब', 'नारंगी', 'अनार'] },
-          'Cat': { target: 'बिल्ली', options: ['बिल्ली', 'कुत्ता', 'चूहा', 'पक्षी'] },
-          'Dog': { target: 'कुत्ता', options: ['कुत्ता', 'बिल्ली', 'घोड़ा', 'गाय'] },
-          'Fish': { target: 'मछली', options: ['मछली', 'पक्षी', 'सांप', 'कछुआ'] },
-          'Good': { target: 'अच्छा', options: ['अच्छा', 'बुरा', 'छोटा', 'बड़ा'] },
-          'Happy': { target: 'खुश', options: ['खुश', 'उदास', 'गुस्सा', 'डरा'] },
-          'House': { target: 'घर', options: ['घर', 'दुकान', 'स्कूल', 'अस्पताल'] },
-          'Love': { target: 'प्यार', options: ['प्यार', 'नफरत', 'खुशी', 'दुख'] },
-          'Mother': { target: 'माँ', options: ['माँ', 'पिता', 'भाई', 'बहन'] },
-          'Beautiful': { target: 'सुंदर', options: ['सुंदर', 'बदसूरत', 'लंबा', 'छोटा'] },
-          'Wonderful': { target: 'अद्भुत', options: ['अद्भुत', 'सामान्य', 'अजीब', 'बुरा'] },
-          'Important': { target: 'महत्वपूर्ण', options: ['महत्वपूर्ण', 'सामान्य', 'अनावश्यक', 'छोटा'] },
-          'Morning': { target: 'सुबह', options: ['सुबह', 'शाम', 'रात', 'दोपहर'] },
-          'Night': { target: 'रात', options: ['रात', 'दिन', 'सुबह', 'शाम'] }
-        },
-        es: {
-          'Apple': { target: 'Manzana', options: ['Manzana', 'Plátano', 'Naranja', 'Pera'] },
-          'Banana': { target: 'Plátano', options: ['Plátano', 'Manzana', 'Naranja', 'Fresa'] },
-          'Cat': { target: 'Gato', options: ['Gato', 'Perro', 'Ratón', 'Pájaro'] },
-          'Dog': { target: 'Perro', options: ['Perro', 'Gato', 'Caballo', 'Vaca'] },
-          'Good': { target: 'Bueno', options: ['Bueno', 'Malo', 'Pequeño', 'Grande'] },
-          'Happy': { target: 'Feliz', options: ['Feliz', 'Triste', 'Enojado', 'Asustado'] },
-          'House': { target: 'Casa', options: ['Casa', 'Tienda', 'Escuela', 'Hospital'] },
-          'Love': { target: 'Amor', options: ['Amor', 'Odio', 'Felicidad', 'Tristeza'] },
-          'Beautiful': { target: 'Hermoso', options: ['Hermoso', 'Feo', 'Alto', 'Bajo'] }
-        },
-        en: {
-          'Apple': { target: 'Apple', options: ['Apple', 'Orange', 'Banana', 'Grapes'] },
-          'Banana': { target: 'Banana', options: ['Banana', 'Apple', 'Orange', 'Mango'] }
-        },
-        ja: {
-          'Apple': { target: 'りんご', options: ['りんご', 'バナナ', 'みかん', 'ぶどう'] },
-          'Banana': { target: 'バナナ', options: ['バナナ', 'りんご', 'オレンジ', 'いちご'] },
-          'Cat': { target: '猫', options: ['猫', '犬', 'ネズミ', '鳥'] },
-          'Dog': { target: '犬', options: ['犬', '猫', '馬', '牛'] },
-          'Good': { target: '良い', options: ['良い', '悪い', '小さい', '大きい'] },
-          'Happy': { target: '幸せ', options: ['幸せ', '悲しい', '怒り', '怖い'] },
-          'House': { target: '家', options: ['家', '店', '学校', '病院'] }
-        }
-      };
-
-      const defaultTranslation = { target: word, options: [word, word + '1', word + '2', word + '3'] };
-      return (translations[lang] && translations[lang][word]) || defaultTranslation;
-    }
-
-    function getSentenceTranslation(sentence, lang) {
-      // Simplified sentence translation for demo
-      const translations = {
-        hi: {
-          'I am happy': { target: 'मैं खुश हूँ', options: ['मैं खुश हूँ', 'मैं दुखी हूँ', 'तुम खुश हो', 'वह खुश है'] },
-          'She is kind': { target: 'वह दयालु है', options: ['वह दयालु है', 'वह बुरा है', 'मैं दयालु हूँ', 'तुम दयालु हो'] },
-          'We are here': { target: 'हम यहाँ हैं', options: ['हम यहाँ हैं', 'हम वहाँ हैं', 'तुम यहाँ हो', 'वह यहाँ है'] },
-          'It is hot': { target: 'यह गर्म है', options: ['यह गर्म है', 'यह ठंडा है', 'यह बड़ा है', 'यह छोटा है'] },
-          'The beautiful flowers bloom in spring': { target: 'वसंत में सुंदर फूल खिलते हैं', options: ['वसंत में सुंदर फूल खिलते हैं', 'सुंदर फूल मुरझा जाते हैं', 'फूल बगीचे में हैं', 'वसंत ऋतु है'] }
-        },
-        es: {
-          'I am happy': { target: 'Estoy feliz', options: ['Estoy feliz', 'Estoy triste', 'Tú estás feliz', 'Él está feliz'] },
-          'She is kind': { target: 'Ella es amable', options: ['Ella es amable', 'Ella es mala', 'Yo soy amable', 'Tú eres amable'] }
-        },
-        en: {
-          'I am happy': { target: 'I am happy', options: ['I am happy', 'I am sad', 'You are happy', 'She is happy'] }
-        },
-        ja: {
-          'I am happy': { target: '私は幸せです', options: ['私は幸せです', '私は悲しいです', 'あなたは幸せです', '彼女は幸せです'] },
-          'She is kind': { target: '彼女は親切です', options: ['彼女は親切です', '彼女は悪いです', '私は親切です', 'あなたは親切です'] }
-        }
-      };
-
-      const defaultTranslation = { target: sentence, options: [sentence, sentence + ' (incorrect)', sentence + ' (wrong)', sentence + ' (false)'] };
-      return (translations[lang] && translations[lang][sentence]) || defaultTranslation;
-    }
-
     /* ==========================================================================
-       CODING LESSONS DATA
+       CODING LESSONS - 100 Levels per language
        ========================================================================== */
-    const CodingLessons = [
-      {
-        course: 'HTML',
-        lessons: [
-          { instruction: 'Write HTML code to create a heading that says "Hello World"', solution: '<h1>Hello World</h1>', check: (code) => code.includes('<h1>') && code.includes('Hello World') && code.includes('</h1>') },
-          { instruction: 'Create a paragraph with the text "This is my first paragraph"', solution: '<p>This is my first paragraph</p>', check: (code) => code.includes('<p>') && code.includes('This is my first paragraph') && code.includes('</p>') },
-          { instruction: 'Create an anchor tag linking to "https://example.com" with text "Click Here"', solution: '<a href="https://example.com">Click Here</a>', check: (code) => code.includes('<a') && code.includes('href') && code.includes('Click Here') && code.includes('</a>') },
-          { instruction: 'Create a div with class "container" containing a heading', solution: '<div class="container"><h1>Heading</h1></div>', check: (code) => code.includes('div') && code.includes('class="container"') && code.includes('h1') && code.includes('</div>') }
-        ]
+    const CodingLessons = {
+      'HTML': {
+        name: 'HTML',
+        icon: '🌐',
+        generateLessons: function() {
+          const lessons = [];
+          const topics = [
+            { instruction: 'Create a heading with the text "Hello World"', solution: '<h1>Hello World</h1>', hint: '<h1>Hello World</h1>' },
+            { instruction: 'Create a paragraph with the text "This is my first paragraph"', solution: '<p>This is my first paragraph</p>', hint: '<p>text</p>' },
+            { instruction: 'Create an anchor link to "https://example.com" with text "Click Here"', solution: '<a href="https://example.com">Click Here</a>', hint: '<a href="url">text</a>' },
+            { instruction: 'Create a div with class "container" containing a heading', solution: '<div class="container"><h1>Heading</h1></div>', hint: '<div class="name">...</div>' },
+            { instruction: 'Create an unordered list with items: Apple, Banana, Orange', solution: '<ul><li>Apple</li><li>Banana</li><li>Orange</li></ul>', hint: '<ul><li>item1</li><li>item2</li></ul>' },
+            { instruction: 'Create a button with text "Click Me"', solution: '<button>Click Me</button>', hint: '<button>text</button>' },
+            { instruction: 'Create an image tag with src "image.jpg" and alt "Image"', solution: '<img src="image.jpg" alt="Image">', hint: '<img src="file" alt="description">' },
+            { instruction: 'Create a form with an input field', solution: '<form><input type="text"></form>', hint: '<form><input type="text"></form>' },
+            { instruction: 'Create a table with 2 rows and 2 columns', solution: '<table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table>', hint: '<table><tr><td>data</td></tr></table>' },
+            { instruction: 'Create a span with class "highlight" containing text', solution: '<span class="highlight">Text</span>', hint: '<span class="name">text</span>' }
+          ];
+          for (let i = 0; i < 100; i++) {
+            const topic = topics[i % topics.length];
+            const level = i + 1;
+            lessons.push({
+              instruction: `Level ${level}: ${topic.instruction}`,
+              solution: topic.solution,
+              hint: topic.hint,
+              check: function(code) {
+                const clean = code.replace(/\s/g, '');
+                const solutionClean = this.solution.replace(/\s/g, '');
+                return clean.includes(solutionClean) || code.includes(this.solution);
+              }
+            });
+          }
+          return lessons;
+        }
       },
-      {
-        course: 'CSS',
-        lessons: [
-          { instruction: 'Write CSS to make all h1 elements red color', solution: 'h1 { color: red; }', check: (code) => code.includes('h1') && code.includes('color: red') },
-          { instruction: 'Write CSS to set background color of body to blue', solution: 'body { background-color: blue; }', check: (code) => code.includes('body') && code.includes('background-color: blue') }
-        ]
+      'CSS': {
+        name: 'CSS',
+        icon: '🎨',
+        generateLessons: function() {
+          const lessons = [];
+          const topics = [
+            { instruction: 'Make all h1 elements red', solution: 'h1 { color: red; }', hint: 'selector { property: value; }' },
+            { instruction: 'Set background color of body to blue', solution: 'body { background-color: blue; }', hint: 'body { background-color: color; }' },
+            { instruction: 'Make all paragraphs bold', solution: 'p { font-weight: bold; }', hint: 'p { font-weight: bold; }' },
+            { instruction: 'Set font size of h1 to 24px', solution: 'h1 { font-size: 24px; }', hint: 'h1 { font-size: size; }' },
+            { instruction: 'Center align all headings', solution: 'h1, h2, h3 { text-align: center; }', hint: 'selector { text-align: center; }' },
+            { instruction: 'Add 10px padding to all divs', solution: 'div { padding: 10px; }', hint: 'div { padding: value; }' },
+            { instruction: 'Set margin of all paragraphs to 20px', solution: 'p { margin: 20px; }', hint: 'p { margin: value; }' },
+            { instruction: 'Make all links blue with underline', solution: 'a { color: blue; text-decoration: underline; }', hint: 'a { property: value; }' },
+            { instruction: 'Set width of all images to 100%', solution: 'img { width: 100%; }', hint: 'img { width: value; }' },
+            { instruction: 'Create a hover effect on buttons', solution: 'button:hover { background-color: gray; }', hint: 'selector:hover { property: value; }' }
+          ];
+          for (let i = 0; i < 100; i++) {
+            const topic = topics[i % topics.length];
+            const level = i + 1;
+            lessons.push({
+              instruction: `Level ${level}: ${topic.instruction}`,
+              solution: topic.solution,
+              hint: topic.hint,
+              check: function(code) {
+                const clean = code.replace(/\s/g, '');
+                const solutionClean = this.solution.replace(/\s/g, '');
+                return clean.includes(solutionClean) || code.includes(this.solution);
+              }
+            });
+          }
+          return lessons;
+        }
       },
-      {
-        course: 'JavaScript',
-        lessons: [
-          { instruction: 'Write JavaScript to declare a variable called "name" and assign it "John"', solution: 'let name = "John";', check: (code) => code.includes('let name') && code.includes('"John"') || code.includes("'John'") },
-          { instruction: 'Write a function called "greet" that returns "Hello"', solution: 'function greet() { return "Hello"; }', check: (code) => code.includes('function greet') && code.includes('return "Hello"') }
-        ]
+      'JavaScript': {
+        name: 'JavaScript',
+        icon: '⚡',
+        generateLessons: function() {
+          const lessons = [];
+          const topics = [
+            { instruction: 'Declare a variable "name" and assign it "John"', solution: 'let name = "John";', hint: 'let variable = value;' },
+            { instruction: 'Create a function "greet" that returns "Hello"', solution: 'function greet() { return "Hello"; }', hint: 'function name() { return value; }' },
+            { instruction: 'Create an array of fruits: Apple, Banana, Orange', solution: 'const fruits = ["Apple", "Banana", "Orange"];', hint: 'const array = [item1, item2, item3];' },
+            { instruction: 'Create a for loop from 0 to 5', solution: 'for (let i = 0; i < 5; i++) { console.log(i); }', hint: 'for (let i = 0; i < count; i++) { }' },
+            { instruction: 'Create an if statement checking if x > 10', solution: 'if (x > 10) { console.log("Greater"); }', hint: 'if (condition) { }' },
+            { instruction: 'Create an object with name and age properties', solution: 'const person = { name: "John", age: 25 };', hint: 'const obj = { key: value };' },
+            { instruction: 'Create an arrow function that adds two numbers', solution: 'const add = (a, b) => a + b;', hint: 'const func = (params) => expression;' },
+            { instruction: 'Use map to double all numbers in an array', solution: 'const doubled = numbers.map(n => n * 2);', hint: 'array.map(element => expression);' },
+            { instruction: 'Create a class "Car" with a constructor', solution: 'class Car { constructor(brand) { this.brand = brand; } }', hint: 'class Name { constructor() { } }' },
+            { instruction: 'Use fetch to get data from an API', solution: 'fetch("https://api.example.com/data").then(res => res.json());', hint: 'fetch(url).then(response => response.json());' }
+          ];
+          for (let i = 0; i < 100; i++) {
+            const topic = topics[i % topics.length];
+            const level = i + 1;
+            lessons.push({
+              instruction: `Level ${level}: ${topic.instruction}`,
+              solution: topic.solution,
+              hint: topic.hint,
+              check: function(code) {
+                const clean = code.replace(/\s/g, '');
+                const solutionClean = this.solution.replace(/\s/g, '');
+                return clean.includes(solutionClean) || code.includes(this.solution);
+              }
+            });
+          }
+          return lessons;
+        }
       },
-      {
-        course: 'Python',
-        lessons: [
-          { instruction: 'Write Python code to print "Hello World"', solution: 'print("Hello World")', check: (code) => code.includes('print') && code.includes('"Hello World"') },
-          { instruction: 'Create a variable called "x" and assign it the value 5', solution: 'x = 5', check: (code) => code.includes('x = 5') }
-        ]
+      'Python': {
+        name: 'Python',
+        icon: '🐍',
+        generateLessons: function() {
+          const lessons = [];
+          const topics = [
+            { instruction: 'Print "Hello World" to the console', solution: 'print("Hello World")', hint: 'print("text")' },
+            { instruction: 'Create a variable "x" and assign it 5', solution: 'x = 5', hint: 'variable = value' },
+            { instruction: 'Create a list of numbers: 1, 2, 3', solution: 'numbers = [1, 2, 3]', hint: 'list = [item1, item2, item3]' },
+            { instruction: 'Create a for loop that prints numbers 0 to 4', solution: 'for i in range(5): print(i)', hint: 'for variable in range(count):' },
+            { instruction: 'Create an if statement checking if x > 10', solution: 'if x > 10: print("Greater")', hint: 'if condition:' },
+            { instruction: 'Create a function "greet" that returns "Hello"', solution: 'def greet(): return "Hello"', hint: 'def name(): return value' },
+            { instruction: 'Create a dictionary with name and age', solution: 'person = {"name": "John", "age": 25}', hint: 'dict = {"key": "value"}' },
+            { instruction: 'Use list comprehension to square numbers', solution: 'squares = [x**2 for x in range(5)]', hint: 'new_list = [expression for item in iterable]' },
+            { instruction: 'Create a class "Car" with __init__ method', solution: 'class Car: def __init__(self, brand): self.brand = brand', hint: 'class Name: def __init__(self, params):' },
+            { instruction: 'Use try/except to handle division by zero', solution: 'try: result = x / 0 except ZeroDivisionError: print("Error")', hint: 'try: code except ErrorType: handler' }
+          ];
+          for (let i = 0; i < 100; i++) {
+            const topic = topics[i % topics.length];
+            const level = i + 1;
+            lessons.push({
+              instruction: `Level ${level}: ${topic.instruction}`,
+              solution: topic.solution,
+              hint: topic.hint,
+              check: function(code) {
+                const clean = code.replace(/\s/g, '');
+                const solutionClean = this.solution.replace(/\s/g, '');
+                return clean.includes(solutionClean) || code.includes(this.solution);
+              }
+            });
+          }
+          return lessons;
+        }
+      },
+      'C++': {
+        name: 'C++',
+        icon: '⚙️',
+        generateLessons: function() {
+          const lessons = [];
+          const topics = [
+            { instruction: 'Print "Hello World" using cout', solution: 'cout << "Hello World";', hint: 'cout << "text";' },
+            { instruction: 'Declare an integer variable x = 5', solution: 'int x = 5;', hint: 'datatype variable = value;' },
+            { instruction: 'Create a for loop from 0 to 4', solution: 'for (int i = 0; i < 5; i++) { cout << i; }', hint: 'for (int i = 0; i < count; i++) { }' },
+            { instruction: 'Create an if statement checking if x > 10', solution: 'if (x > 10) { cout << "Greater"; }', hint: 'if (condition) { }' }
+          ];
+          for (let i = 0; i < 100; i++) {
+            const topic = topics[i % topics.length];
+            const level = i + 1;
+            lessons.push({
+              instruction: `Level ${level}: ${topic.instruction}`,
+              solution: topic.solution,
+              hint: topic.hint,
+              check: function(code) {
+                const clean = code.replace(/\s/g, '');
+                const solutionClean = this.solution.replace(/\s/g, '');
+                return clean.includes(solutionClean) || code.includes(this.solution);
+              }
+            });
+          }
+          return lessons;
+        }
+      },
+      'Java': {
+        name: 'Java',
+        icon: '☕',
+        generateLessons: function() {
+          const lessons = [];
+          const topics = [
+            { instruction: 'Print "Hello World" using System.out.println', solution: 'System.out.println("Hello World");', hint: 'System.out.println("text");' },
+            { instruction: 'Declare an integer variable x = 5', solution: 'int x = 5;', hint: 'datatype variable = value;' },
+            { instruction: 'Create a for loop from 0 to 4', solution: 'for (int i = 0; i < 5; i++) { System.out.println(i); }', hint: 'for (int i = 0; i < count; i++) { }' },
+            { instruction: 'Create an if statement checking if x > 10', solution: 'if (x > 10) { System.out.println("Greater"); }', hint: 'if (condition) { }' }
+          ];
+          for (let i = 0; i < 100; i++) {
+            const topic = topics[i % topics.length];
+            const level = i + 1;
+            lessons.push({
+              instruction: `Level ${level}: ${topic.instruction}`,
+              solution: topic.solution,
+              hint: topic.hint,
+              check: function(code) {
+                const clean = code.replace(/\s/g, '');
+                const solutionClean = this.solution.replace(/\s/g, '');
+                return clean.includes(solutionClean) || code.includes(this.solution);
+              }
+            });
+          }
+          return lessons;
+        }
       }
-    ];
+    };
 
     /* ==========================================================================
        STORAGE ENGINE
        ========================================================================== */
     const Storage = {
-      KEY: 'stardust_v4_user_data',
+      KEY: 'stardust_v5_user_data',
       getDefaults() {
+        const codingProgress = {};
+        Object.keys(CodingLessons).forEach(name => {
+          codingProgress[name] = { level: 0, completed: false };
+        });
+        
+        const langProgress = {};
+        LanguagesData.forEach(lang => {
+          langProgress[lang.id] = { unlockedLevel: 1 };
+        });
+
         return {
           currentLang: 'hi',
           streak: 1,
@@ -1070,18 +1385,8 @@
           hearts: 5,
           solvedCount: 0,
           theme: 'dark',
-          langProgress: {
-            hi: { unlockedLevel: 1 },
-            es: { unlockedLevel: 1 },
-            en: { unlockedLevel: 1 },
-            ja: { unlockedLevel: 1 }
-          },
-          codingProgress: {
-            HTML: { level: 0, completed: false },
-            CSS: { level: 0, completed: false },
-            JavaScript: { level: 0, completed: false },
-            Python: { level: 0, completed: false }
-          }
+          langProgress: langProgress,
+          codingProgress: codingProgress
         };
       },
       load() {
@@ -1104,6 +1409,7 @@
       currentLevelNum: 1,
       currentCodingCourse: null,
       currentCodingLesson: 0,
+      codingLessonsCache: {},
 
       init() {
         this.applyTheme(this.state.theme);
@@ -1171,8 +1477,10 @@
         const list = document.getElementById('lang-picker-list');
         list.innerHTML = LanguagesData.map(l => `
           <div class="lang-option-item ${l.id === this.state.currentLang ? 'selected' : ''}" onclick="App.selectLanguage('${l.id}')">
-            <div style="display:flex; align-items:center; gap:0.75rem; font-weight:700;">
-              <span style="font-size:1.5rem;">${l.flag}</span> ${l.name}
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.2rem;">${l.flag}</span> 
+              <span>${l.name}</span>
+              <span style="font-size:0.7rem; color:var(--text-muted);">${l.nativeName}</span>
             </div>
             ${l.id === this.state.currentLang ? '✓' : ''}
           </div>
@@ -1199,8 +1507,8 @@
           const isUnlocked = lvl <= prog.unlockedLevel;
           const isCompleted = lvl < prog.unlockedLevel;
           
-          let levelType = 'Basic Vocabulary';
-          if (lvl > 70) levelType = 'Advanced Conversations';
+          let levelType = 'Basic Words';
+          if (lvl > 70) levelType = 'Advanced Sentences';
           else if (lvl > 40) levelType = 'Intermediate Phrases';
           else if (lvl > 15) levelType = 'Essential Vocabulary';
 
@@ -1209,7 +1517,7 @@
               <div class="level-header">
                 <div>
                   <div class="level-title">Level ${lvl} ${isCompleted ? '✓' : ''}</div>
-                  <div class="level-desc">${levelType} (${lvl > 50 ? 'Sentences & Complex' : lvl > 20 ? 'Words & Phrases' : 'Basic Words'})</div>
+                  <div class="level-desc">${levelType} (${lvl > 50 ? 'Complex Sentences' : lvl > 25 ? 'Words & Phrases' : 'Basic Words'})</div>
                 </div>
                 ${isUnlocked && lvl === prog.unlockedLevel ? `<button class="btn-skip" onclick="App.skipLevel(${lvl})">Skip ⏭</button>` : ''}
               </div>
@@ -1237,50 +1545,59 @@
       /* CODING SECTION */
       renderCodingCourses() {
         const grid = document.getElementById('coding-list');
-        grid.innerHTML = CodingLessons.map(c => {
-          const progress = this.state.codingProgress[c.course] || { level: 0 };
+        grid.innerHTML = Object.keys(CodingLessons).map(name => {
+          const course = CodingLessons[name];
+          const progress = this.state.codingProgress[name] || { level: 0, completed: false };
           const completed = progress.completed || false;
+          const total = course.generateLessons().length;
           return `
-            <div class="glass glass-card coding-card" onclick="App.openCodingLesson('${c.course}')">
-              <div class="coding-icon">${this.getCourseIcon(c.course)}</div>
+            <div class="glass glass-card coding-card" onclick="App.openCodingLesson('${name}')">
+              <div class="coding-icon">${course.icon}</div>
               <div>
-                <div style="font-weight:700; font-size:1rem;">${c.course}</div>
-                <div style="font-size:0.8rem; color:var(--text-secondary);">${c.lessons.length} lessons</div>
+                <div style="font-weight:700; font-size:1rem;">${course.name}</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">${total} levels</div>
               </div>
               <div class="coding-progress">
-                ${completed ? '✅ Completed' : `Lesson ${progress.level + 1}/${c.lessons.length}`}
+                ${completed ? '✅ Completed' : `Level ${Math.min(progress.level + 1, total)}/${total}`}
               </div>
             </div>
           `;
         }).join('');
       },
 
-      getCourseIcon(course) {
-        const icons = {
-          'HTML': '🌐',
-          'CSS': '🎨',
-          'JavaScript': '⚡',
-          'Python': '🐍'
-        };
-        return icons[course] || '💻';
+      getCodingLessons(courseName) {
+        if (!this.codingLessonsCache[courseName]) {
+          const course = CodingLessons[courseName];
+          if (course && course.generateLessons) {
+            this.codingLessonsCache[courseName] = course.generateLessons();
+          }
+        }
+        return this.codingLessonsCache[courseName] || [];
       },
 
-      openCodingLesson(course) {
-        const courseData = CodingLessons.find(c => c.course === course);
-        if (!courseData) return;
+      openCodingLesson(courseName) {
+        const lessons = this.getCodingLessons(courseName);
+        if (!lessons || lessons.length === 0) return;
 
-        this.currentCodingCourse = course;
-        const progress = this.state.codingProgress[course] || { level: 0 };
-        this.currentCodingLesson = Math.min(progress.level, courseData.lessons.length - 1);
+        this.currentCodingCourse = courseName;
+        const progress = this.state.codingProgress[courseName] || { level: 0 };
+        this.currentCodingLesson = Math.min(progress.level, lessons.length - 1);
 
-        document.getElementById('modal-coding-lesson').classList.add('active');
-        document.getElementById('coding-lesson-title').textContent = `${course} Learning`;
-        document.getElementById('coding-lesson-progress').textContent = `Lesson ${this.currentCodingLesson + 1} of ${courseData.lessons.length}`;
+        const modal = document.getElementById('modal-coding-lesson');
+        modal.classList.add('active');
+        
+        document.getElementById('coding-lesson-title').textContent = `${courseName} Learning`;
+        document.getElementById('coding-lesson-progress').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
         document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
-        document.getElementById('coding-instruction').textContent = courseData.lessons[this.currentCodingLesson].instruction;
+        
+        const lesson = lessons[this.currentCodingLesson];
+        document.getElementById('coding-instruction').textContent = lesson.instruction;
+        document.getElementById('code-hint').textContent = `💡 Hint: ${lesson.hint}`;
         document.getElementById('code-editor-input').value = '';
-        document.getElementById('coding-feedback').className = 'feedback-box';
-        document.getElementById('coding-feedback').textContent = 'Write your code and click "Check Code"';
+        
+        const feedback = document.getElementById('coding-feedback');
+        feedback.className = 'feedback-box info';
+        feedback.textContent = 'Write your code and click "Check Code"';
       },
 
       closeCodingLesson() {
@@ -1298,22 +1615,22 @@
           return;
         }
 
-        const courseData = CodingLessons.find(c => c.course === this.currentCodingCourse);
-        if (!courseData) return;
+        const lessons = this.getCodingLessons(this.currentCodingCourse);
+        if (!lessons || this.currentCodingLesson >= lessons.length) return;
 
-        const lesson = courseData.lessons[this.currentCodingLesson];
+        const lesson = lessons[this.currentCodingLesson];
         const isCorrect = lesson.check(code);
 
         if (isCorrect) {
           feedback.className = 'feedback-box correct';
-          feedback.textContent = '✅ Correct! Great work!';
+          feedback.textContent = '✅ Excellent! Your code is correct!';
           SoundFX.playCorrect();
 
           // Update progress
           const progress = this.state.codingProgress[this.currentCodingCourse] || { level: 0 };
           if (this.currentCodingLesson >= progress.level) {
-            progress.level = Math.min(this.currentCodingLesson + 1, courseData.lessons.length);
-            if (progress.level >= courseData.lessons.length) {
+            progress.level = Math.min(this.currentCodingLesson + 1, lessons.length);
+            if (progress.level >= lessons.length) {
               progress.completed = true;
             }
             this.state.codingProgress[this.currentCodingCourse] = progress;
@@ -1323,29 +1640,33 @@
           }
         } else {
           feedback.className = 'feedback-box wrong';
-          feedback.textContent = '❌ Not quite right. Try again!';
+          feedback.textContent = '❌ Not quite right. Review the hint and try again!';
           SoundFX.playWrong();
         }
       },
 
       nextCodingLesson() {
-        const courseData = CodingLessons.find(c => c.course === this.currentCodingCourse);
-        if (!courseData) return;
+        const lessons = this.getCodingLessons(this.currentCodingCourse);
+        if (!lessons) return;
 
         const progress = this.state.codingProgress[this.currentCodingCourse] || { level: 0 };
-        if (this.currentCodingLesson + 1 < courseData.lessons.length && this.currentCodingLesson + 1 <= progress.level) {
+        if (this.currentCodingLesson + 1 < lessons.length && this.currentCodingLesson + 1 <= progress.level) {
           this.currentCodingLesson++;
-          document.getElementById('coding-lesson-progress').textContent = `Lesson ${this.currentCodingLesson + 1} of ${courseData.lessons.length}`;
+          const lesson = lessons[this.currentCodingLesson];
+          document.getElementById('coding-lesson-progress').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
           document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
-          document.getElementById('coding-instruction').textContent = courseData.lessons[this.currentCodingLesson].instruction;
+          document.getElementById('coding-instruction').textContent = lesson.instruction;
+          document.getElementById('code-hint').textContent = `💡 Hint: ${lesson.hint}`;
           document.getElementById('code-editor-input').value = '';
-          document.getElementById('coding-feedback').className = 'feedback-box';
-          document.getElementById('coding-feedback').textContent = 'Write your code and click "Check Code"';
-        } else if (this.currentCodingLesson + 1 >= courseData.lessons.length) {
-          alert('🎉 You completed all lessons in this course!');
+          const feedback = document.getElementById('coding-feedback');
+          feedback.className = 'feedback-box info';
+          feedback.textContent = 'Write your code and click "Check Code"';
+        } else if (this.currentCodingLesson + 1 >= lessons.length) {
+          SoundFX.playLevelComplete();
+          alert('🎉 Congratulations! You completed all levels in this course!');
           this.closeCodingLesson();
         } else {
-          alert('Complete this lesson first to unlock the next one!');
+          alert('Complete this level first to unlock the next one!');
         }
       },
 
@@ -1380,7 +1701,7 @@
 
         container.innerHTML = `
           <div style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">${ex.q}</div>
-          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">Level ${ex.difficulty}</div>
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">Level ${ex.difficulty} • ${ex.type === 'word' ? 'Word' : 'Sentence'}</div>
           <div class="options-grid">
             ${ex.opts.map((opt, i) => `
               <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i})">${opt}</button>
@@ -1397,13 +1718,17 @@
       },
 
       confirmAnswer() {
-        if (this.selectedOption === null) return;
+        if (this.selectedOption === null) {
+          alert('Please select an answer first!');
+          return;
+        }
         const ex = this.currentQuestions[this.activeExerciseIdx];
 
         if (this.selectedOption === ex.ans) {
           SoundFX.playCorrect();
           document.getElementById(`opt-${this.selectedOption}`).classList.add('correct');
           this.state.solvedCount = (this.state.solvedCount || 0) + 1;
+          this.state.gems += 5;
 
           setTimeout(() => {
             this.activeExerciseIdx++;
@@ -1426,6 +1751,13 @@
         } else {
           SoundFX.playWrong();
           document.getElementById(`opt-${this.selectedOption}`).classList.add('wrong');
+          this.state.hearts = Math.max(0, this.state.hearts - 1);
+          this.save();
+          if (this.state.hearts === 0) {
+            setTimeout(() => {
+              alert('💔 You have no hearts left! Take a break and come back later.');
+            }, 300);
+          }
         }
       },
 
@@ -1438,20 +1770,15 @@
       },
 
       resetProgress() {
-        if (confirm('Are you sure you want to reset all progress?')) {
+        if (confirm('⚠️ Are you sure you want to reset ALL progress? This cannot be undone!')) {
           localStorage.removeItem(Storage.KEY);
           this.state = Storage.load();
+          this.codingLessonsCache = {};
           this.init();
+          alert('All data has been reset successfully.');
         }
       }
     };
-
-    const LanguagesData = [
-      { id: 'hi', name: 'Hindi', flag: '🇮🇳' },
-      { id: 'es', name: 'Spanish', flag: '🇪🇸' },
-      { id: 'en', name: 'English', flag: '🇬🇧' },
-      { id: 'ja', name: 'Japanese', flag: '🇯🇵' }
-    ];
 
     window.addEventListener('DOMContentLoaded', () => App.init());
   </script>
