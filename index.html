@@ -428,7 +428,100 @@
     }
 
     /* ==========================================================================
-       7. BOTTOM NAVIGATION (4 TABS)
+       7. CODING SECTION
+       ========================================================================== */
+    .coding-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+
+    .coding-icon {
+      font-size: 2rem;
+      padding: 0.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .coding-progress {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .recording-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #f43f5e;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .coding-lesson-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      padding: 1.25rem;
+    }
+
+    .coding-lesson-modal.active { display: flex; }
+
+    .code-editor {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      min-height: 150px;
+      resize: vertical;
+      width: 100%;
+      outline: none;
+    }
+
+    .code-editor:focus {
+      border-color: var(--accent-purple);
+    }
+
+    .feedback-box {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-top: 0.5rem;
+      font-weight: 600;
+    }
+
+    .feedback-box.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .feedback-box.wrong {
+      background: rgba(244, 63, 94, 0.2);
+      border: 1px solid var(--accent-rose);
+      color: var(--accent-rose);
+    }
+
+    /* ==========================================================================
+       8. BOTTOM NAVIGATION (4 TABS)
        ========================================================================== */
     .bottom-nav {
       position: fixed;
@@ -489,6 +582,14 @@
 
     input:checked + .slider { background-color: var(--accent-purple); }
     input:checked + .slider:before { transform: translateX(24px); }
+
+    .level-badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--accent-purple);
+    }
   </style>
 </head>
 <body>
@@ -542,7 +643,7 @@
     <!-- 2. CODING SECTION -->
     <section id="view-coding" class="view-section">
       <div style="font-size:1.2rem; font-weight:800;">Programming Paths</div>
-      <p style="font-size:0.85rem; color:var(--text-secondary);">Coding courses are separated from spoken languages:</p>
+      <p style="font-size:0.85rem; color:var(--text-secondary);">Click any course to start learning with recording</p>
 
       <div style="display:grid; grid-template-columns:1fr; gap:1rem;" id="coding-list"></div>
     </section>
@@ -617,6 +718,33 @@
     </div>
   </div>
 
+  <!-- CODING LESSON MODAL -->
+  <div class="coding-lesson-modal" id="modal-coding-lesson">
+    <div style="display:flex; align-items:center; gap:1rem; max-width:650px; width:100%; margin:0 auto;">
+      <button style="color:#fff; font-size:1.2rem;" onclick="App.closeCodingLesson()">✕</button>
+      <div style="flex:1;">
+        <div style="font-weight:700; font-size:1rem;" id="coding-lesson-title">HTML Basics</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary);" id="coding-lesson-progress">Lesson 1 of 10</div>
+      </div>
+      <div>
+        <span class="level-badge" id="coding-level-badge">Level 1</span>
+      </div>
+    </div>
+
+    <div style="max-width:650px; width:100%; margin:0.5rem auto; flex:1; display:flex; flex-direction:column; gap:0.75rem;">
+      <div style="font-size:0.95rem; font-weight:600; color:var(--text-secondary);" id="coding-instruction">Write the HTML code to create a heading</div>
+      
+      <textarea class="code-editor" id="code-editor-input" placeholder="Write your code here..." rows="6"></textarea>
+      
+      <div id="coding-feedback" class="feedback-box"></div>
+      
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <button class="btn-primary" style="flex:1;" onclick="App.checkCode()">Check Code</button>
+        <button class="btn-primary" style="flex:1; background:rgba(255,255,255,0.1); box-shadow:none;" onclick="App.nextCodingLesson()">Next Lesson</button>
+      </div>
+    </div>
+  </div>
+
   <!-- BOTTOM NAVIGATION BAR (4 ITEMS) -->
   <nav class="bottom-nav glass">
     <div class="nav-item active" onclick="App.switchView('home', this)">
@@ -637,8 +765,10 @@
     </div>
   </nav>
 
-  <!-- SOUND EFFECTS ENGINE FIXED WITH UNLOCK -->
   <script>
+    /* ==========================================================================
+       SOUND EFFECTS ENGINE
+       ========================================================================== */
     const SoundFX = {
       ctx: null,
       init() {
@@ -650,179 +780,288 @@
           this.ctx.resume();
         }
       },
-      playConfirm() {
+      playCorrect() {
         this.init();
         if (!this.ctx) return;
         try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
-          osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.15); // G5
-          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.15);
+          const notes = [523.25, 659.25, 783.99];
+          notes.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.12);
+            gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.12 + 0.15);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + i * 0.12);
+            osc.stop(this.ctx.currentTime + i * 0.12 + 0.15);
+          });
         } catch(e){}
       },
-      playError() {
+      playWrong() {
         this.init();
         if (!this.ctx) return;
         try {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+          osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start();
-          osc.stop(this.ctx.currentTime + 0.2);
+          osc.stop(this.ctx.currentTime + 0.3);
+        } catch(e){}
+      },
+      playLevelComplete() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.1);
+            gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.1 + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + i * 0.1);
+            osc.stop(this.ctx.currentTime + i * 0.1 + 0.2);
+          });
         } catch(e){}
       }
     };
 
     /* ==========================================================================
-       DYNAMIC QUESTION GENERATOR FOR ALL LANGUAGES & 100 LEVELS
+       QUESTION GENERATOR WITH PROGRESSIVE DIFFICULTY
        ========================================================================== */
-    const LanguagesData = [
-      { id: 'hi', name: 'Hindi', flag: '🇮🇳' },
-      { id: 'es', name: 'Spanish', flag: '🇪🇸' },
-      { id: 'en', name: 'English', flag: '🇬🇧' },
-      { id: 'ja', name: 'Japanese', flag: '🇯🇵' }
-    ];
-
-    const LanguageQuestionBank = {
-      hi: {
-        basic: [
-          { q: 'Choose the correct word for "Namaste / Hello":', opts: ['नमस्ते (Namaste)', 'धन्यवाद (Dhanyavaad)', 'हाँ (Haan)'], ans: 0 },
-          { q: 'Which word means "Water"?', opts: ['पानी (Paani)', 'खाना (Khaana)', 'हवा (Hawa)'], ans: 0 },
-          { q: 'Select "Thank you":', opts: ['शुभरात्रि', 'धन्यवाद', 'नहीं'], ans: 1 },
-          { q: 'What does "Haan" mean?', opts: ['No', 'Yes', 'Please'], ans: 1 },
-          { q: 'Select "Mother":', opts: ['माता / माँ', 'पिता', 'भाई'], ans: 0 },
-          { q: 'What is "Friend"?', opts: ['मित्र / दोस्त', 'दुश्मन', 'शिक्षक'], ans: 0 },
-          { q: 'Select "Good":', opts: ['अच्छा', 'बुरा', 'काफी'], ans: 0 },
-          { q: 'What is "Night"?', opts: ['रात', 'दिन', 'सुबह'], ans: 0 },
-          { q: 'Select "Sun":', opts: ['सूरज', 'चाँद', 'तारे'], ans: 0 },
-          { q: 'Select "Food":', opts: ['खाना', 'चाय', 'दूध'], ans: 0 },
-          { q: 'What is "Book"?', opts: ['किताब', 'कलम', 'कागज़'], ans: 0 },
-          { q: 'Select "House":', opts: ['घर', 'दुकान', 'सड़क'], ans: 0 },
-          { q: 'Select "Big":', opts: ['बड़ा', 'छोटा', 'कम'], ans: 0 },
-          { q: 'Select "Boy":', opts: ['लड़का', 'लड़की', 'बच्चा'], ans: 0 },
-          { q: 'Select "Girl":', opts: ['लड़की', 'लड़का', 'औरत'], ans: 0 }
-        ],
-        sentences: [
-          { q: 'Translate: "How are you?"', opts: ['आप कैसे हैं?', 'मेरा नाम क्या है?', 'आप कहाँ हैं?'], ans: 0 },
-          { q: 'Translate: "My name is Raj"', opts: ['मेरा नाम राज है', 'मैं राज हूँ', 'तुम राज हो'], ans: 0 },
-          { q: 'Translate: "I want water"', opts: ['मुझे पानी चाहिए', 'मैं पानी हूँ', 'पानी लाओ'], ans: 0 },
-          { q: 'Translate: "Where are you going?"', opts: ['आप कहाँ जा रहे हैं?', 'आप क्या कर रहे हैं?', 'आप कौन हैं?'], ans: 0 },
-          { q: 'Translate: "I am fine"', opts: ['मैं ठीक हूँ', 'मैं बीमार हूँ', 'मैं जा रहा हूँ'], ans: 0 }
-        ]
-      },
-      es: {
-        basic: [
-          { q: 'Select correct word for "Hello":', opts: ['Hola', 'Adiós', 'Gracias'], ans: 0 },
-          { q: 'Which word means "Water"?', opts: ['Fuego', 'Agua', 'Tierra'], ans: 1 },
-          { q: 'Select "Thank you":', opts: ['De nada', 'Gracias', 'Por favor'], ans: 1 },
-          { q: 'Select "Yes":', opts: ['Sí', 'No', 'Hola'], ans: 0 },
-          { q: 'Select "Good morning":', opts: ['Buenos días', 'Buenas noches', 'Hola'], ans: 0 },
-          { q: 'Select "Friend":', opts: ['Amigo', 'Enemigo', 'Casa'], ans: 0 },
-          { q: 'Select "Cat":', opts: ['Gato', 'Perro', 'Pájaro'], ans: 0 },
-          { q: 'Select "Dog":', opts: ['Perro', 'Gato', 'Pez'], ans: 0 },
-          { q: 'Select "Apple":', opts: ['Manzana', 'Pan', 'Leche'], ans: 0 },
-          { q: 'Select "House":', opts: ['Casa', 'Escuela', 'Calle'], ans: 0 },
-          { q: 'Select "Boy":', opts: ['Niño', 'Niña', 'Hombre'], ans: 0 },
-          { q: 'Select "Girl":', opts: ['Niña', 'Niño', 'Mujer'], ans: 0 },
-          { q: 'Select "Book":', opts: ['Libro', 'Mesa', 'Silla'], ans: 0 },
-          { q: 'Select "Milk":', opts: ['Leche', 'Agua', 'Jugo'], ans: 0 },
-          { q: 'Select "Sun":', opts: ['Sol', 'Luna', 'Estrella'], ans: 0 }
-        ],
-        sentences: [
-          { q: 'Translate: "How are you?"', opts: ['¿Cómo estás?', '¿Dónde estás?', '¿Quién eres?'], ans: 0 },
-          { q: 'Translate: "Where is the bathroom?"', opts: ['¿Dónde está el baño?', '¿Qué hora es?', 'Me llamo Juan'], ans: 0 },
-          { q: 'Translate: "Good night"', opts: ['Buenas noches', 'Buenos días', 'Hasta luego'], ans: 0 },
-          { q: 'Translate: "I like coffee"', opts: ['Me gusta el café', 'No me gusta el café', 'Quiero agua'], ans: 0 },
-          { q: 'Translate: "See you later"', opts: ['Hasta luego', 'Hola', 'Gracias'], ans: 0 }
-        ]
-      },
-      en: {
-        basic: [
-          { q: 'Select greeting for meeting someone:', opts: ['Hello', 'Goodbye', 'Night'], ans: 0 },
-          { q: 'Which word is a liquid?', opts: ['Water', 'Stone', 'Wood'], ans: 0 },
-          { q: 'Select polite expression:', opts: ['Thank you', 'Go away', 'Stop'], ans: 0 },
-          { q: 'Opposite of "Day":', opts: ['Night', 'Morning', 'Noon'], ans: 0 },
-          { q: 'Select animal that barks:', opts: ['Dog', 'Cat', 'Fish'], ans: 0 },
-          { q: 'Select fruit:', opts: ['Apple', 'Carrot', 'Rice'], ans: 0 },
-          { q: 'Opposite of "Big":', opts: ['Small', 'Huge', 'Tall'], ans: 0 },
-          { q: 'Place where you live:', opts: ['House', 'Car', 'Park'], ans: 0 },
-          { q: 'Colour of sky:', opts: ['Blue', 'Green', 'Red'], ans: 0 },
-          { q: 'Used for writing:', opts: ['Pen', 'Spoon', 'Key'], ans: 0 },
-          { q: 'Opposite of "Hot":', opts: ['Cold', 'Warm', 'Fire'], ans: 0 },
-          { q: 'Select vehicle:', opts: ['Car', 'Table', 'Shoe'], ans: 0 },
-          { q: 'Select family member:', opts: ['Mother', 'Table', 'City'], ans: 0 },
-          { q: 'Time to sleep:', opts: ['Night', 'Morning', 'Afternoon'], ans: 0 },
-          { q: 'Meal in the morning:', opts: ['Breakfast', 'Dinner', 'Lunch'], ans: 0 }
-        ],
-        sentences: [
-          { q: 'Choose correct sentence:', opts: ['She is happy', 'She am happy', 'She be happy'], ans: 0 },
-          { q: 'Choose correct question:', opts: ['Where do you live?', 'Where you live?', 'Live you where?'], ans: 0 },
-          { q: 'Complete sentence: "I ___ going to school"', opts: ['am', 'is', 'are'], ans: 0 },
-          { q: 'Complete sentence: "They ___ playing football"', opts: ['are', 'is', 'am'], ans: 0 },
-          { q: 'Select correct form: "He ___ a book yesterday"', opts: ['read', 'reads', 'reading'], ans: 0 }
-        ]
-      },
-      ja: {
-        basic: [
-          { q: 'Select correct word for "Hello":', opts: ['こんにちは (Konnichiwa)', 'ありがとう (Arigatou)', 'さようなら (Sayounara)'], ans: 0 },
-          { q: 'Which word means "Water"?', opts: ['水 (Mizu)', '火 (Hi)', '木 (Ki)'], ans: 0 },
-          { q: 'Select "Thank you":', opts: ['ありがとう', 'すみません', 'はい'], ans: 0 },
-          { q: 'Select "Yes":', opts: ['はい (Hai)', 'いいえ (Iie)', 'なに (Nani)'], ans: 0 },
-          { q: 'Select "Cat":', opts: ['猫 (Neko)', '犬 (Inu)', '鳥 (Tori)'], ans: 0 },
-          { q: 'Select "Dog":', opts: ['犬 (Inu)', '猫 (Neko)', '魚 (Sakana)'], ans: 0 },
-          { q: 'Select "Friend":', opts: ['友達 (Tomodachi)', '先生 (Sensei)', '学生 (Gakusei)'], ans: 0 },
-          { q: 'Select "Teacher":', opts: ['先生 (Sensei)', '本 (Hon)', '車 (Kuruma)'], ans: 0 },
-          { q: 'Select "Book":', opts: ['本 (Hon)', '山 (Yama)', '川 (Kawa)'], ans: 0 },
-          { q: 'Select "Mountain":', opts: ['山 (Yama)', '川 (Kawa)', '空 (Sora)'], ans: 0 },
-          { q: 'Select "Red":', opts: ['赤 (Aka)', '青 (Ao)', '白 (Shiro)'], ans: 0 },
-          { q: 'Select "Blue":', opts: ['青 (Ao)', '赤 (Aka)', '黒 (Kuro)'], ans: 0 },
-          { q: 'Select "Sun":', opts: ['太陽 (Taiyou)', '月 (Tsuki)', '星 (Hoshi)'], ans: 0 },
-          { q: 'Select "Moon":', opts: ['月 (Tsuki)', '空 (Sora)', '雨 (Ame)'], ans: 0 },
-          { q: 'Select "Rain":', opts: ['雨 (Ame)', '雪 (Yuki)', '風 (Kaze)'], ans: 0 }
-        ],
-        sentences: [
-          { q: 'Translate: "Good morning"', opts: ['おはようございます', 'こんばんは', 'さようなら'], ans: 0 },
-          { q: 'Translate: "I am a student"', opts: ['私は学生です', '私は先生です', 'ここはどこです'], ans: 0 },
-          { q: 'Translate: "Delicious!"', opts: ['おいしい！', 'たかい！', 'さむい！'], ans: 0 },
-          { q: 'Translate: "Where is it?"', opts: ['どこですか？', 'だれですか？', 'なんですか？'], ans: 0 },
-          { q: 'Translate: "Excuse me"', opts: ['すみません', 'ごめんなさい', 'じゃあね'], ans: 0 }
-        ]
-      }
-    };
-
-    /* Generate 15 dynamic questions per level for any level from 1 to 100 */
-    function generate15Questions(lang, level) {
-      const bank = LanguageQuestionBank[lang] || LanguageQuestionBank.es;
+    function generateLevelQuestions(lang, level) {
       const questions = [];
-      const isAdvanced = level > 30;
+      const difficulty = Math.min(10, Math.ceil(level / 10));
+      
+      // Word banks by difficulty
+      const wordBanks = {
+        easy: {
+          words: [
+            ['Apple', 'Banana', 'Cat', 'Dog', 'Fish', 'Good', 'Happy', 'House', 'Love', 'Mother'],
+            ['Water', 'Sun', 'Moon', 'Star', 'Book', 'Tree', 'Flower', 'Friend', 'Teacher', 'School'],
+            ['Morning', 'Night', 'Day', 'Week', 'Month', 'Year', 'Rain', 'Snow', 'Wind', 'Cloud']
+          ],
+          sentences: [
+            ['I am happy', 'She is kind', 'We are here', 'It is hot', 'You are strong'],
+            ['I like apples', 'She reads books', 'We play games', 'They sing songs', 'He writes stories']
+          ]
+        },
+        medium: {
+          words: [
+            ['Beautiful', 'Wonderful', 'Important', 'Different', 'Amazing', 'Careful', 'Helpful', 'Thoughtful'],
+            ['Celebration', 'Adventure', 'Discovery', 'Inspiration', 'Determination', 'Imagination'],
+            ['Yesterday', 'Tomorrow', 'Together', 'Everywhere', 'Something', 'Anything']
+          ],
+          sentences: [
+            ['The beautiful flowers bloom in spring', 'She always helps others with kindness'],
+            ['Every day is a new opportunity to learn', 'Together we can achieve great things'],
+            ['The adventure of a lifetime awaits you', 'Determination leads to success']
+          ]
+        },
+        hard: {
+          words: [
+            ['Extraordinary', 'Unbelievable', 'Transformation', 'Accomplishment', 'Innovation'],
+            ['Sustainability', 'Responsibility', 'Understanding', 'Knowledgeable'],
+            ['Collaboration', 'Empowerment', 'Perseverance']
+          ],
+          sentences: [
+            ['The extraordinary discovery changed everything we knew', 'Sustainable practices are essential for our future'],
+            ['Knowledgeable individuals contribute to society in meaningful ways', 'Collaboration leads to innovation'],
+            ['Perseverance is the key to overcoming any obstacle', 'Empowerment comes from within']
+          ]
+        }
+      };
 
+      // Select difficulty based on level
+      let selectedBank;
+      if (level <= 25) selectedBank = wordBanks.easy;
+      else if (level <= 50) selectedBank = wordBanks.medium;
+      else if (level <= 75) selectedBank = { ...wordBanks.medium, ...wordBanks.hard };
+      else selectedBank = wordBanks.hard;
+
+      // Shuffle and pick words
+      const allWords = selectedBank.words.flat();
+      const shuffledWords = allWords.sort(() => Math.random() - 0.5);
+      const allSentences = selectedBank.sentences.flat();
+      const shuffledSentences = allSentences.sort(() => Math.random() - 0.5);
+
+      // Generate 15 questions with mix of word and sentence based questions
       for (let i = 0; i < 15; i++) {
-        const pool = (i % 2 === 0 || isAdvanced) ? bank.sentences : bank.basic;
-        const base = pool[i % pool.length];
-        questions.push({
-          q: `[Lvl ${level} - Q${i + 1}/15] ${base.q}`,
-          opts: base.opts,
-          ans: base.ans
-        });
+        let question;
+        if (i < 8) {
+          // Word-based questions
+          const word = shuffledWords[i % shuffledWords.length];
+          const wrongOptions = shuffledWords
+            .filter(w => w !== word)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+          
+          const options = [word, ...wrongOptions].sort(() => Math.random() - 0.5);
+          const correctIndex = options.indexOf(word);
+          
+          // Translate word for the target language
+          const translations = getTranslation(word, lang);
+          
+          question = {
+            q: `What is the meaning of "${translations.target}"?`,
+            opts: translations.options,
+            ans: correctIndex,
+            difficulty: level
+          };
+        } else {
+          // Sentence-based questions
+          const sentence = shuffledSentences[i % shuffledSentences.length];
+          const wrongSentences = shuffledSentences
+            .filter(s => s !== sentence)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+          
+          const options = [sentence, ...wrongSentences].sort(() => Math.random() - 0.5);
+          const correctIndex = options.indexOf(sentence);
+          
+          const translations = getSentenceTranslation(sentence, lang);
+          
+          question = {
+            q: `Choose the correct translation for: "${translations.target}"`,
+            opts: translations.options,
+            ans: correctIndex,
+            difficulty: level
+          };
+        }
+        questions.push(question);
       }
+      
       return questions;
     }
 
-    /* STORAGE ENGINE */
+    function getTranslation(word, lang) {
+      const translations = {
+        hi: {
+          'Apple': { target: 'सेब', options: ['सेब', 'केला', 'अंगूर', 'संतरा'] },
+          'Banana': { target: 'केला', options: ['केला', 'सेब', 'नारंगी', 'अनार'] },
+          'Cat': { target: 'बिल्ली', options: ['बिल्ली', 'कुत्ता', 'चूहा', 'पक्षी'] },
+          'Dog': { target: 'कुत्ता', options: ['कुत्ता', 'बिल्ली', 'घोड़ा', 'गाय'] },
+          'Fish': { target: 'मछली', options: ['मछली', 'पक्षी', 'सांप', 'कछुआ'] },
+          'Good': { target: 'अच्छा', options: ['अच्छा', 'बुरा', 'छोटा', 'बड़ा'] },
+          'Happy': { target: 'खुश', options: ['खुश', 'उदास', 'गुस्सा', 'डरा'] },
+          'House': { target: 'घर', options: ['घर', 'दुकान', 'स्कूल', 'अस्पताल'] },
+          'Love': { target: 'प्यार', options: ['प्यार', 'नफरत', 'खुशी', 'दुख'] },
+          'Mother': { target: 'माँ', options: ['माँ', 'पिता', 'भाई', 'बहन'] },
+          'Beautiful': { target: 'सुंदर', options: ['सुंदर', 'बदसूरत', 'लंबा', 'छोटा'] },
+          'Wonderful': { target: 'अद्भुत', options: ['अद्भुत', 'सामान्य', 'अजीब', 'बुरा'] },
+          'Important': { target: 'महत्वपूर्ण', options: ['महत्वपूर्ण', 'सामान्य', 'अनावश्यक', 'छोटा'] },
+          'Morning': { target: 'सुबह', options: ['सुबह', 'शाम', 'रात', 'दोपहर'] },
+          'Night': { target: 'रात', options: ['रात', 'दिन', 'सुबह', 'शाम'] }
+        },
+        es: {
+          'Apple': { target: 'Manzana', options: ['Manzana', 'Plátano', 'Naranja', 'Pera'] },
+          'Banana': { target: 'Plátano', options: ['Plátano', 'Manzana', 'Naranja', 'Fresa'] },
+          'Cat': { target: 'Gato', options: ['Gato', 'Perro', 'Ratón', 'Pájaro'] },
+          'Dog': { target: 'Perro', options: ['Perro', 'Gato', 'Caballo', 'Vaca'] },
+          'Good': { target: 'Bueno', options: ['Bueno', 'Malo', 'Pequeño', 'Grande'] },
+          'Happy': { target: 'Feliz', options: ['Feliz', 'Triste', 'Enojado', 'Asustado'] },
+          'House': { target: 'Casa', options: ['Casa', 'Tienda', 'Escuela', 'Hospital'] },
+          'Love': { target: 'Amor', options: ['Amor', 'Odio', 'Felicidad', 'Tristeza'] },
+          'Beautiful': { target: 'Hermoso', options: ['Hermoso', 'Feo', 'Alto', 'Bajo'] }
+        },
+        en: {
+          'Apple': { target: 'Apple', options: ['Apple', 'Orange', 'Banana', 'Grapes'] },
+          'Banana': { target: 'Banana', options: ['Banana', 'Apple', 'Orange', 'Mango'] }
+        },
+        ja: {
+          'Apple': { target: 'りんご', options: ['りんご', 'バナナ', 'みかん', 'ぶどう'] },
+          'Banana': { target: 'バナナ', options: ['バナナ', 'りんご', 'オレンジ', 'いちご'] },
+          'Cat': { target: '猫', options: ['猫', '犬', 'ネズミ', '鳥'] },
+          'Dog': { target: '犬', options: ['犬', '猫', '馬', '牛'] },
+          'Good': { target: '良い', options: ['良い', '悪い', '小さい', '大きい'] },
+          'Happy': { target: '幸せ', options: ['幸せ', '悲しい', '怒り', '怖い'] },
+          'House': { target: '家', options: ['家', '店', '学校', '病院'] }
+        }
+      };
+
+      const defaultTranslation = { target: word, options: [word, word + '1', word + '2', word + '3'] };
+      return (translations[lang] && translations[lang][word]) || defaultTranslation;
+    }
+
+    function getSentenceTranslation(sentence, lang) {
+      // Simplified sentence translation for demo
+      const translations = {
+        hi: {
+          'I am happy': { target: 'मैं खुश हूँ', options: ['मैं खुश हूँ', 'मैं दुखी हूँ', 'तुम खुश हो', 'वह खुश है'] },
+          'She is kind': { target: 'वह दयालु है', options: ['वह दयालु है', 'वह बुरा है', 'मैं दयालु हूँ', 'तुम दयालु हो'] },
+          'We are here': { target: 'हम यहाँ हैं', options: ['हम यहाँ हैं', 'हम वहाँ हैं', 'तुम यहाँ हो', 'वह यहाँ है'] },
+          'It is hot': { target: 'यह गर्म है', options: ['यह गर्म है', 'यह ठंडा है', 'यह बड़ा है', 'यह छोटा है'] },
+          'The beautiful flowers bloom in spring': { target: 'वसंत में सुंदर फूल खिलते हैं', options: ['वसंत में सुंदर फूल खिलते हैं', 'सुंदर फूल मुरझा जाते हैं', 'फूल बगीचे में हैं', 'वसंत ऋतु है'] }
+        },
+        es: {
+          'I am happy': { target: 'Estoy feliz', options: ['Estoy feliz', 'Estoy triste', 'Tú estás feliz', 'Él está feliz'] },
+          'She is kind': { target: 'Ella es amable', options: ['Ella es amable', 'Ella es mala', 'Yo soy amable', 'Tú eres amable'] }
+        },
+        en: {
+          'I am happy': { target: 'I am happy', options: ['I am happy', 'I am sad', 'You are happy', 'She is happy'] }
+        },
+        ja: {
+          'I am happy': { target: '私は幸せです', options: ['私は幸せです', '私は悲しいです', 'あなたは幸せです', '彼女は幸せです'] },
+          'She is kind': { target: '彼女は親切です', options: ['彼女は親切です', '彼女は悪いです', '私は親切です', 'あなたは親切です'] }
+        }
+      };
+
+      const defaultTranslation = { target: sentence, options: [sentence, sentence + ' (incorrect)', sentence + ' (wrong)', sentence + ' (false)'] };
+      return (translations[lang] && translations[lang][sentence]) || defaultTranslation;
+    }
+
+    /* ==========================================================================
+       CODING LESSONS DATA
+       ========================================================================== */
+    const CodingLessons = [
+      {
+        course: 'HTML',
+        lessons: [
+          { instruction: 'Write HTML code to create a heading that says "Hello World"', solution: '<h1>Hello World</h1>', check: (code) => code.includes('<h1>') && code.includes('Hello World') && code.includes('</h1>') },
+          { instruction: 'Create a paragraph with the text "This is my first paragraph"', solution: '<p>This is my first paragraph</p>', check: (code) => code.includes('<p>') && code.includes('This is my first paragraph') && code.includes('</p>') },
+          { instruction: 'Create an anchor tag linking to "https://example.com" with text "Click Here"', solution: '<a href="https://example.com">Click Here</a>', check: (code) => code.includes('<a') && code.includes('href') && code.includes('Click Here') && code.includes('</a>') },
+          { instruction: 'Create a div with class "container" containing a heading', solution: '<div class="container"><h1>Heading</h1></div>', check: (code) => code.includes('div') && code.includes('class="container"') && code.includes('h1') && code.includes('</div>') }
+        ]
+      },
+      {
+        course: 'CSS',
+        lessons: [
+          { instruction: 'Write CSS to make all h1 elements red color', solution: 'h1 { color: red; }', check: (code) => code.includes('h1') && code.includes('color: red') },
+          { instruction: 'Write CSS to set background color of body to blue', solution: 'body { background-color: blue; }', check: (code) => code.includes('body') && code.includes('background-color: blue') }
+        ]
+      },
+      {
+        course: 'JavaScript',
+        lessons: [
+          { instruction: 'Write JavaScript to declare a variable called "name" and assign it "John"', solution: 'let name = "John";', check: (code) => code.includes('let name') && code.includes('"John"') || code.includes("'John'") },
+          { instruction: 'Write a function called "greet" that returns "Hello"', solution: 'function greet() { return "Hello"; }', check: (code) => code.includes('function greet') && code.includes('return "Hello"') }
+        ]
+      },
+      {
+        course: 'Python',
+        lessons: [
+          { instruction: 'Write Python code to print "Hello World"', solution: 'print("Hello World")', check: (code) => code.includes('print') && code.includes('"Hello World"') },
+          { instruction: 'Create a variable called "x" and assign it the value 5', solution: 'x = 5', check: (code) => code.includes('x = 5') }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       STORAGE ENGINE
+       ========================================================================== */
     const Storage = {
-      KEY: 'stardust_v3_user_data',
+      KEY: 'stardust_v4_user_data',
       getDefaults() {
         return {
           currentLang: 'hi',
@@ -836,6 +1075,12 @@
             es: { unlockedLevel: 1 },
             en: { unlockedLevel: 1 },
             ja: { unlockedLevel: 1 }
+          },
+          codingProgress: {
+            HTML: { level: 0, completed: false },
+            CSS: { level: 0, completed: false },
+            JavaScript: { level: 0, completed: false },
+            Python: { level: 0, completed: false }
           }
         };
       },
@@ -848,13 +1093,6 @@
       }
     };
 
-    const CodingData = [
-      { name: 'HTML5 Foundations', icon: '🌐', desc: 'Elements, semantic structures, and web pages.' },
-      { name: 'CSS3 & Layouts', icon: '🎨', desc: 'Styling, Flexbox, CSS Grid, and Glassmorphism.' },
-      { name: 'JavaScript ES6+', icon: '⚡', desc: 'Variables, DOM, events, and async functions.' },
-      { name: 'Python Programming', icon: '🐍', desc: 'Data types, loops, logic, and functions.' }
-    ];
-
     /* ==========================================================================
        APP ENGINE
        ========================================================================== */
@@ -864,6 +1102,8 @@
       selectedOption: null,
       currentQuestions: [],
       currentLevelNum: 1,
+      currentCodingCourse: null,
+      currentCodingLesson: 0,
 
       init() {
         this.applyTheme(this.state.theme);
@@ -882,6 +1122,7 @@
         Storage.save(this.state);
         this.updateHeaderStats();
         this.updateGrowthView();
+        this.render100Levels();
       },
 
       applyTheme(theme) {
@@ -957,13 +1198,18 @@
         for (let lvl = 1; lvl <= 100; lvl++) {
           const isUnlocked = lvl <= prog.unlockedLevel;
           const isCompleted = lvl < prog.unlockedLevel;
+          
+          let levelType = 'Basic Vocabulary';
+          if (lvl > 70) levelType = 'Advanced Conversations';
+          else if (lvl > 40) levelType = 'Intermediate Phrases';
+          else if (lvl > 15) levelType = 'Essential Vocabulary';
 
           html += `
             <div class="glass glass-card level-card">
               <div class="level-header">
                 <div>
                   <div class="level-title">Level ${lvl} ${isCompleted ? '✓' : ''}</div>
-                  <div class="level-desc">${lvl <= 20 ? 'Basic Alphabet & Words' : lvl <= 60 ? 'Grammar & Vocabulary' : 'Fluency & Complex Phrases'} (15 Questions)</div>
+                  <div class="level-desc">${levelType} (${lvl > 50 ? 'Sentences & Complex' : lvl > 20 ? 'Words & Phrases' : 'Basic Words'})</div>
                 </div>
                 ${isUnlocked && lvl === prog.unlockedLevel ? `<button class="btn-skip" onclick="App.skipLevel(${lvl})">Skip ⏭</button>` : ''}
               </div>
@@ -980,7 +1226,7 @@
       },
 
       skipLevel(levelNum) {
-        SoundFX.playConfirm();
+        SoundFX.playCorrect();
         const prog = this.state.langProgress[this.state.currentLang];
         prog.unlockedLevel = Math.max(prog.unlockedLevel, levelNum + 1);
         this.save();
@@ -991,15 +1237,116 @@
       /* CODING SECTION */
       renderCodingCourses() {
         const grid = document.getElementById('coding-list');
-        grid.innerHTML = CodingData.map(c => `
-          <div class="glass glass-card" style="display:flex; align-items:center; gap:1rem;">
-            <div style="font-size:2rem; padding:0.5rem; background:rgba(255,255,255,0.05); border-radius:12px;">${c.icon}</div>
-            <div>
-              <div style="font-weight:700; font-size:1rem;">${c.name}</div>
-              <div style="font-size:0.8rem; color:var(--text-secondary);">${c.desc}</div>
+        grid.innerHTML = CodingLessons.map(c => {
+          const progress = this.state.codingProgress[c.course] || { level: 0 };
+          const completed = progress.completed || false;
+          return `
+            <div class="glass glass-card coding-card" onclick="App.openCodingLesson('${c.course}')">
+              <div class="coding-icon">${this.getCourseIcon(c.course)}</div>
+              <div>
+                <div style="font-weight:700; font-size:1rem;">${c.course}</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">${c.lessons.length} lessons</div>
+              </div>
+              <div class="coding-progress">
+                ${completed ? '✅ Completed' : `Lesson ${progress.level + 1}/${c.lessons.length}`}
+              </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+      },
+
+      getCourseIcon(course) {
+        const icons = {
+          'HTML': '🌐',
+          'CSS': '🎨',
+          'JavaScript': '⚡',
+          'Python': '🐍'
+        };
+        return icons[course] || '💻';
+      },
+
+      openCodingLesson(course) {
+        const courseData = CodingLessons.find(c => c.course === course);
+        if (!courseData) return;
+
+        this.currentCodingCourse = course;
+        const progress = this.state.codingProgress[course] || { level: 0 };
+        this.currentCodingLesson = Math.min(progress.level, courseData.lessons.length - 1);
+
+        document.getElementById('modal-coding-lesson').classList.add('active');
+        document.getElementById('coding-lesson-title').textContent = `${course} Learning`;
+        document.getElementById('coding-lesson-progress').textContent = `Lesson ${this.currentCodingLesson + 1} of ${courseData.lessons.length}`;
+        document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
+        document.getElementById('coding-instruction').textContent = courseData.lessons[this.currentCodingLesson].instruction;
+        document.getElementById('code-editor-input').value = '';
+        document.getElementById('coding-feedback').className = 'feedback-box';
+        document.getElementById('coding-feedback').textContent = 'Write your code and click "Check Code"';
+      },
+
+      closeCodingLesson() {
+        document.getElementById('modal-coding-lesson').classList.remove('active');
+      },
+
+      checkCode() {
+        const code = document.getElementById('code-editor-input').value.trim();
+        const feedback = document.getElementById('coding-feedback');
+        
+        if (!code) {
+          feedback.className = 'feedback-box wrong';
+          feedback.textContent = 'Please write some code first!';
+          SoundFX.playWrong();
+          return;
+        }
+
+        const courseData = CodingLessons.find(c => c.course === this.currentCodingCourse);
+        if (!courseData) return;
+
+        const lesson = courseData.lessons[this.currentCodingLesson];
+        const isCorrect = lesson.check(code);
+
+        if (isCorrect) {
+          feedback.className = 'feedback-box correct';
+          feedback.textContent = '✅ Correct! Great work!';
+          SoundFX.playCorrect();
+
+          // Update progress
+          const progress = this.state.codingProgress[this.currentCodingCourse] || { level: 0 };
+          if (this.currentCodingLesson >= progress.level) {
+            progress.level = Math.min(this.currentCodingLesson + 1, courseData.lessons.length);
+            if (progress.level >= courseData.lessons.length) {
+              progress.completed = true;
+            }
+            this.state.codingProgress[this.currentCodingCourse] = progress;
+            this.state.gems += 10;
+            this.save();
+            this.renderCodingCourses();
+          }
+        } else {
+          feedback.className = 'feedback-box wrong';
+          feedback.textContent = '❌ Not quite right. Try again!';
+          SoundFX.playWrong();
+        }
+      },
+
+      nextCodingLesson() {
+        const courseData = CodingLessons.find(c => c.course === this.currentCodingCourse);
+        if (!courseData) return;
+
+        const progress = this.state.codingProgress[this.currentCodingCourse] || { level: 0 };
+        if (this.currentCodingLesson + 1 < courseData.lessons.length && this.currentCodingLesson + 1 <= progress.level) {
+          this.currentCodingLesson++;
+          document.getElementById('coding-lesson-progress').textContent = `Lesson ${this.currentCodingLesson + 1} of ${courseData.lessons.length}`;
+          document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
+          document.getElementById('coding-instruction').textContent = courseData.lessons[this.currentCodingLesson].instruction;
+          document.getElementById('code-editor-input').value = '';
+          document.getElementById('coding-feedback').className = 'feedback-box';
+          document.getElementById('coding-feedback').textContent = 'Write your code and click "Check Code"';
+        } else if (this.currentCodingLesson + 1 >= courseData.lessons.length) {
+          alert('🎉 You completed all lessons in this course!');
+          this.closeCodingLesson();
+        } else {
+          alert('Complete this lesson first to unlock the next one!');
+        }
       },
 
       /* LESSON EXERCISES */
@@ -1008,7 +1355,7 @@
         if (levelNum > prog.unlockedLevel) return;
 
         this.currentLevelNum = levelNum;
-        this.currentQuestions = generate15Questions(this.state.currentLang, levelNum);
+        this.currentQuestions = generateLevelQuestions(this.state.currentLang, levelNum);
         this.activeExerciseIdx = 0;
         
         document.getElementById('modal-lesson').classList.add('active');
@@ -1032,7 +1379,8 @@
         document.getElementById('question-counter').innerText = `${current}/${total}`;
 
         container.innerHTML = `
-          <div style="font-size:1.2rem; font-weight:800;">${ex.q}</div>
+          <div style="font-size:1.2rem; font-weight:800; margin-bottom:0.5rem;">${ex.q}</div>
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">Level ${ex.difficulty}</div>
           <div class="options-grid">
             ${ex.opts.map((opt, i) => `
               <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i})">${opt}</button>
@@ -1053,7 +1401,7 @@
         const ex = this.currentQuestions[this.activeExerciseIdx];
 
         if (this.selectedOption === ex.ans) {
-          SoundFX.playConfirm();
+          SoundFX.playCorrect();
           document.getElementById(`opt-${this.selectedOption}`).classList.add('correct');
           this.state.solvedCount = (this.state.solvedCount || 0) + 1;
 
@@ -1069,11 +1417,14 @@
               this.save();
               this.render100Levels();
               this.closeLesson();
-              alert(`🎉 Level ${this.currentLevelNum} Completed! All 15 questions answered correctly!`);
+              SoundFX.playLevelComplete();
+              setTimeout(() => {
+                alert(`🎉 Level ${this.currentLevelNum} Completed! All 15 questions answered correctly!`);
+              }, 300);
             }
           }, 500);
         } else {
-          SoundFX.playError();
+          SoundFX.playWrong();
           document.getElementById(`opt-${this.selectedOption}`).classList.add('wrong');
         }
       },
@@ -1094,6 +1445,13 @@
         }
       }
     };
+
+    const LanguagesData = [
+      { id: 'hi', name: 'Hindi', flag: '🇮🇳' },
+      { id: 'es', name: 'Spanish', flag: '🇪🇸' },
+      { id: 'en', name: 'English', flag: '🇬🇧' },
+      { id: 'ja', name: 'Japanese', flag: '🇯🇵' }
+    ];
 
     window.addEventListener('DOMContentLoaded', () => App.init());
   </script>
