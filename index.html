@@ -269,6 +269,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
     .level-title {
@@ -282,6 +284,13 @@
       color: var(--text-secondary);
     }
 
+    .level-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     .btn-skip {
       padding: 0.35rem 0.75rem;
       font-size: 0.75rem;
@@ -290,6 +299,16 @@
       background: rgba(245, 158, 11, 0.2);
       color: var(--accent-amber);
       border: 1px solid var(--accent-amber);
+    }
+
+    .btn-jump {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--accent-purple);
+      border: 1px solid var(--accent-purple);
     }
 
     .node-chain {
@@ -494,17 +513,6 @@
       background: rgba(244, 63, 94, 0.25);
     }
 
-    .option-btn .pronounce-indicator {
-      float: right;
-      color: rgba(255,255,255,0.4);
-      font-size: 0.7rem;
-      transition: var(--transition);
-    }
-
-    .option-btn.selected .pronounce-indicator {
-      color: var(--accent-purple);
-    }
-
     .modal-overlay .btn-primary {
       background: var(--grad-stardust);
       color: #fff;
@@ -577,7 +585,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.6rem;
       padding: 0.5rem 0;
       overflow-y: auto;
     }
@@ -590,11 +598,11 @@
       font-family: var(--font-mono);
       font-size: 0.9rem;
       color: var(--modal-text);
-      min-height: 180px;
+      min-height: 200px;
       resize: vertical;
       width: 100%;
       outline: none;
-      line-height: 1.6;
+      line-height: 1.8;
       flex-shrink: 0;
     }
 
@@ -607,6 +615,7 @@
       border-radius: var(--radius-sm);
       font-weight: 600;
       flex-shrink: 0;
+      font-size: 0.95rem;
     }
 
     .feedback-box.correct {
@@ -634,9 +643,10 @@
       padding: 0.75rem 1rem;
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.8);
       white-space: pre-wrap;
       flex-shrink: 0;
+      border-left: 3px solid var(--accent-purple);
     }
 
     .code-hint strong {
@@ -647,6 +657,7 @@
       display: flex;
       gap: 0.75rem;
       flex-shrink: 0;
+      margin-top: 0.3rem;
     }
 
     .coding-btn-group .btn-primary {
@@ -676,7 +687,101 @@
     }
 
     /* ==========================================================================
-       8. BOTTOM NAVIGATION (4 TABS)
+       8. PROFESSIONAL SETTINGS
+       ========================================================================== */
+    .settings-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .settings-card .settings-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .settings-card .settings-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .settings-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .settings-btn-group .btn-settings {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      text-decoration: none;
+      width: 100%;
+    }
+
+    .settings-btn-group .btn-settings:hover {
+      background: rgba(139, 92, 246, 0.08);
+      border-color: var(--border-highlight);
+    }
+
+    .settings-btn-group .btn-settings .icon {
+      font-size: 1.2rem;
+    }
+
+    .settings-btn-group .btn-settings .arrow {
+      margin-left: auto;
+      color: var(--text-muted);
+    }
+
+    .settings-divider {
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin: 0.5rem 0;
+    }
+
+    .theme-toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+
+    input:checked + .slider { background-color: var(--accent-purple); }
+    input:checked + .slider:before { transform: translateX(24px); }
+
+    /* ==========================================================================
+       9. BOTTOM NAVIGATION (4 TABS)
        ========================================================================== */
     .bottom-nav {
       position: fixed;
@@ -712,34 +817,84 @@
 
     .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
 
-    .theme-toggle-row {
-      display: flex;
-      justify-content: space-between;
+    /* ==========================================================================
+       10. CUSTOM LEVEL COMPLETION POPUP
+       ========================================================================== */
+    .celebration-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
       align-items: center;
-      padding: 0.5rem 0;
+      justify-content: center;
+      padding: 2rem;
     }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 26px;
+    .celebration-overlay.active { display: flex; }
+
+    .celebration-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid var(--border-highlight);
+      box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
     }
 
-    .switch input { opacity: 0; width: 0; height: 0; }
-
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 34px;
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
-    .slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
-      background-color: white; transition: .4s; border-radius: 50%;
+    .celebration-card .emoji-big {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
     }
 
-    input:checked + .slider { background-color: var(--accent-purple); }
-    input:checked + .slider:before { transform: translateX(24px); }
+    .celebration-card .title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .celebration-card .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .celebration-card .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .celebration-card .stat-item {
+      text-align: center;
+    }
+
+    .celebration-card .stat-item .num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-purple);
+    }
+
+    .celebration-card .stat-item .label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .celebration-card .btn-primary {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
 
     .level-badge {
       font-size: 0.7rem;
@@ -749,17 +904,9 @@
       color: var(--accent-purple);
     }
 
-    /* Settings Buttons */
-    .settings-btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .settings-btn-group .btn-secondary {
-      justify-content: center;
-      text-align: center;
-      text-decoration: none;
+    .celebration-card .confetti {
+      position: relative;
+      overflow: hidden;
     }
 
     /* Scrollbar styling */
@@ -870,13 +1017,15 @@
       </div>
     </section>
 
-    <!-- 4. SETTINGS & LIGHT MODE SWITCH -->
+    <!-- 4. SETTINGS - PROFESSIONAL -->
     <section id="view-settings" class="view-section">
-      <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);">Settings & Data</div>
-      <div class="glass glass-card" style="display:flex; flex-direction:column; gap:1rem;">
+      <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">⚙️ Settings</div>
+      
+      <div class="settings-card">
+        <div class="settings-title">🎨 Appearance</div>
         <div class="theme-toggle-row">
           <div>
-            <div style="font-weight:700; color:var(--text-primary);">Dark Mode</div>
+            <div style="font-weight:600; color:var(--text-primary);">Dark Mode</div>
             <div style="font-size:0.8rem; color:var(--text-secondary);">Switch between light and dark themes</div>
           </div>
           <label class="switch">
@@ -884,26 +1033,33 @@
             <span class="slider"></span>
           </label>
         </div>
-        <hr style="border:0; border-top:1px solid var(--border-color);">
-        
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">📋 Legal & Support</div>
         <div class="settings-btn-group">
-          <button class="btn-secondary" onclick="window.open('https://stardustofficial.github.io/Stardustofficial/', '_blank')">
-            🔒 Privacy Policy
+          <button class="btn-settings" onclick="window.open('https://stardustofficial.github.io/Stardustofficial/', '_blank')">
+            <span class="icon">🔒</span>
+            Privacy Policy
+            <span class="arrow">→</span>
           </button>
-          <button class="btn-secondary" onclick="window.open('https://stardustofficial.github.io/Stardustofficial/#timeline', '_blank')">
-            📋 Terms of Service
+          <button class="btn-settings" onclick="window.open('https://stardustofficial.github.io/Stardustofficial/#timeline', '_blank')">
+            <span class="icon">📄</span>
+            Terms of Service
+            <span class="arrow">→</span>
           </button>
-          <button class="btn-secondary" onclick="window.location.href='mailto:support.stardustofficial@gmail.com'">
-            💬 Customer Support
+          <button class="btn-settings" onclick="window.location.href='mailto:support.stardustofficial@gmail.com'">
+            <span class="icon">💬</span>
+            Customer Support
+            <span class="arrow">→</span>
           </button>
         </div>
-        
-        <hr style="border:0; border-top:1px solid var(--border-color);">
-        <div>
-          <div style="font-weight:700; margin-bottom:0.25rem; color:var(--text-primary);">Storage</div>
-          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">Your progress is stored 100% locally on your device.</p>
-          <button class="btn-primary" onclick="App.resetProgress()">Reset All Data</button>
-        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">💾 Data Management</div>
+        <div class="settings-desc">Your progress is stored 100% locally on your device.</div>
+        <button class="btn-secondary" onclick="App.resetProgress()" style="margin-top:0.5rem;">🗑️ Reset All Data</button>
       </div>
     </section>
 
@@ -926,6 +1082,49 @@
     </div>
   </div>
 
+  <!-- CHALLENGE MODAL FOR SKIP/JUMP -->
+  <div class="modal-overlay" id="modal-challenge">
+    <div class="lesson-header">
+      <button onclick="App.closeChallenge()">✕</button>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="challenge-progress-bar"></div>
+      </div>
+      <div style="font-size:0.85rem; color:var(--modal-text); font-weight:700;" id="challenge-counter">1/8</div>
+    </div>
+
+    <div class="lesson-body" id="challenge-content"></div>
+
+    <div style="max-width:600px; width:100%; margin:0 auto; flex-shrink:0;">
+      <button class="btn-primary" id="challenge-confirm-btn" onclick="App.confirmChallengeAnswer()">Confirm Answer</button>
+    </div>
+  </div>
+
+  <!-- CELEBRATION POPUP -->
+  <div class="celebration-overlay" id="celebration-popup">
+    <div class="celebration-card">
+      <div class="confetti">
+        <div class="emoji-big">🎉</div>
+        <div class="title" id="celebration-title">Level Complete!</div>
+        <div class="subtitle" id="celebration-subtitle">Amazing work! You're making great progress.</div>
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="num" id="celebration-level">1</div>
+            <div class="label">Level</div>
+          </div>
+          <div class="stat-item">
+            <div class="num" id="celebration-gems">+25</div>
+            <div class="label">Gems Earned</div>
+          </div>
+          <div class="stat-item">
+            <div class="num" id="celebration-streak">1</div>
+            <div class="label">Day Streak</div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="App.closeCelebration()">Continue Learning 🚀</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CODING LESSON MODAL - FULL SCREEN -->
   <div class="coding-lesson-modal" id="modal-coding-lesson">
     <div class="coding-lesson-header">
@@ -940,12 +1139,12 @@
     </div>
 
     <div class="coding-lesson-body">
-      <div class="coding-progress-text" id="coding-progress-text">Level 1</div>
+      <div class="coding-progress-text" id="coding-progress-text">Level 1 of 100</div>
       <div class="coding-instruction" id="coding-instruction">Write the code to complete this task</div>
       
       <div class="code-hint" id="code-hint">💡 <strong>Hint:</strong> Example: &lt;h1&gt;Hello World&lt;/h1&gt;</div>
       
-      <textarea class="code-editor" id="code-editor-input" placeholder="Write your code here..." rows="6"></textarea>
+      <textarea class="code-editor" id="code-editor-input" placeholder="Write your code here..." rows="7"></textarea>
       
       <div id="coding-feedback" class="feedback-box info">✏️ Write your code and click "Check Code"</div>
       
@@ -1046,10 +1245,8 @@
           });
         } catch(e){}
       },
-      // Text to speech for pronunciation
       speak(text, lang) {
         if (window.speechSynthesis) {
-          // Cancel any ongoing speech
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = lang || 'en-US';
@@ -1266,37 +1463,43 @@
     };
 
     /* ==========================================================================
-       QUESTION GENERATOR - UNIQUE QUESTIONS PER LEVEL
+       QUESTION GENERATOR - UNIQUE QUESTIONS PER LEVEL WITH DIFFICULTY
        ========================================================================== */
-    function generateLevelQuestions(lang, level) {
+    function generateLevelQuestions(lang, level, isHard = false) {
       const questions = [];
+      const seed = level * 137 + (isHard ? 999 : 0);
+      const count = isHard ? 8 : 15;
       
-      // Use level as seed for deterministic but unique questions
-      const seed = level * 137;
-      
-      // Word pools based on difficulty
+      // Word pools based on difficulty - harder words for higher levels
       const wordPools = {
         easy: ['Apple', 'Banana', 'Cat', 'Dog', 'Fish', 'Good', 'Happy', 'House', 'Love', 'Mother',
                'Father', 'Brother', 'Sister', 'Friend', 'Teacher', 'Student', 'School', 'Book'],
         medium: ['Beautiful', 'Wonderful', 'Important', 'Different', 'Amazing', 'Helpful', 'Thoughtful',
-                 'Kind', 'Strong', 'Brave', 'Smart', 'Water', 'Sun', 'Moon', 'Star', 'Flower', 'Tree'],
+                 'Kind', 'Strong', 'Brave', 'Smart', 'Water', 'Sun', 'Moon', 'Star', 'Flower', 'Tree',
+                 'Mountain', 'Ocean', 'Forest', 'Garden', 'Palace', 'Castle', 'Diamond', 'Crystal'],
         hard: ['Extraordinary', 'Unbelievable', 'Transformation', 'Accomplishment', 'Innovation',
-               'Sustainability', 'Responsibility', 'Understanding', 'Knowledgeable', 'Collaboration']
+               'Sustainability', 'Responsibility', 'Understanding', 'Knowledgeable', 'Collaboration',
+               'Revolutionary', 'Independence', 'Intelligence', 'Consciousness', 'Determination',
+               'Perseverance', 'Masterpiece', 'Phoenix', 'Eclipse', 'Galaxy', 'Universe']
       };
 
       const sentencePools = {
         easy: ['I am happy', 'She is kind', 'We are here', 'It is hot', 'You are strong'],
-        medium: ['Good morning', 'How are you', 'Thank you', 'I love you', 'They are friends'],
+        medium: ['Good morning', 'How are you', 'Thank you', 'I love you', 'They are friends',
+                 'Beautiful sunset', 'Amazing journey', 'Wonderful day'],
         hard: ['The beautiful flowers bloom in spring', 'Every day is a new opportunity to learn',
-               'Determination leads to success', 'Knowledge is power', 'Together we can achieve great things']
+               'Determination leads to success', 'Knowledge is power', 'Together we can achieve great things',
+               'The majestic mountains stand tall', 'Life is a beautiful journey', 'Courage is the foundation of success']
       };
 
-      // Select pools based on level
+      // Select pools based on level and hardness
       let wordPool, sentencePool;
-      if (level <= 33) {
+      const effectiveLevel = isHard ? Math.min(level + 20, 100) : level;
+      
+      if (effectiveLevel <= 30) {
         wordPool = wordPools.easy;
         sentencePool = sentencePools.easy;
-      } else if (level <= 66) {
+      } else if (effectiveLevel <= 60) {
         wordPool = [...wordPools.easy, ...wordPools.medium];
         sentencePool = [...sentencePools.easy, ...sentencePools.medium];
       } else {
@@ -1304,27 +1507,25 @@
         sentencePool = [...sentencePools.medium, ...sentencePools.hard];
       }
 
-      // Use seed-based shuffling for consistent but unique questions per level
+      // Shuffle with seed
       const shuffledWords = [...wordPool];
       const shuffledSentences = [...sentencePool];
       
-      // Custom shuffle with seed
       for (let i = shuffledWords.length - 1; i > 0; i--) {
-        const j = Math.abs((seed + i * 31) % (i + 1));
+        const j = Math.abs((seed + i * 31 + 7) % (i + 1));
         [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
       }
       for (let i = shuffledSentences.length - 1; i > 0; i--) {
-        const j = Math.abs((seed + i * 17 + 7) % (i + 1));
+        const j = Math.abs((seed + i * 17 + 13) % (i + 1));
         [shuffledSentences[i], shuffledSentences[j]] = [shuffledSentences[j], shuffledSentences[i]];
       }
 
-      // Generate 15 unique questions per level
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < count; i++) {
         let question;
-        const useWord = i < 10;
+        const useWord = i < (isHard ? 5 : 10);
         
         if (useWord) {
-          const wordIndex = (i + level * 3) % shuffledWords.length;
+          const wordIndex = (i + level * 3 + seed) % shuffledWords.length;
           const word = shuffledWords[wordIndex];
           
           let questionText, options, correctIndex;
@@ -1357,10 +1558,11 @@
             ans: correctIndex,
             difficulty: level,
             type: 'word',
-            lang: lang
+            lang: lang,
+            isHard: isHard
           };
         } else {
-          const sentenceIndex = (i + level * 5 + 3) % shuffledSentences.length;
+          const sentenceIndex = (i + level * 5 + seed + 3) % shuffledSentences.length;
           const sentence = shuffledSentences[sentenceIndex];
           
           let questionText, options, correctIndex;
@@ -1393,7 +1595,8 @@
             ans: correctIndex,
             difficulty: level,
             type: 'sentence',
-            lang: lang
+            lang: lang,
+            isHard: isHard
           };
         }
         questions.push(question);
@@ -1624,7 +1827,9 @@
           solvedCount: 0,
           theme: 'light',
           langProgress: langProgress,
-          codingProgress: codingProgress
+          codingProgress: codingProgress,
+          // Track which levels have been completed
+          completedLevels: {}
         };
       },
       load() {
@@ -1648,6 +1853,14 @@
       currentCodingCourse: null,
       currentCodingLesson: 0,
       codingLessonsCache: {},
+      
+      // Challenge mode state
+      challengeMode: null, // 'skip' or 'jump'
+      challengeTargetLevel: null,
+      challengeQuestions: [],
+      challengeIdx: 0,
+      challengeCorrect: 0,
+      challengeSelectedOption: null,
 
       init() {
         this.applyTheme(this.state.theme);
@@ -1741,14 +1954,25 @@
         const prog = this.state.langProgress[this.state.currentLang] || { unlockedLevel: 1 };
         let html = '';
 
+        const milestoneLevels = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
         for (let lvl = 1; lvl <= 100; lvl++) {
           const isUnlocked = lvl <= prog.unlockedLevel;
           const isCompleted = lvl < prog.unlockedLevel;
+          const isMilestone = milestoneLevels.includes(lvl);
           
           let levelType = 'Basic Words';
           if (lvl > 70) levelType = 'Advanced Sentences';
           else if (lvl > 40) levelType = 'Intermediate Phrases';
           else if (lvl > 15) levelType = 'Essential Vocabulary';
+
+          let actionsHtml = '';
+          if (isUnlocked && lvl === prog.unlockedLevel) {
+            actionsHtml += `<button class="btn-skip" onclick="App.startChallenge('skip', ${lvl})">Skip ⏭</button>`;
+          }
+          if (isMilestone && isUnlocked && lvl > prog.unlockedLevel) {
+            actionsHtml += `<button class="btn-jump" onclick="App.startChallenge('jump', ${lvl})">🚀 Jump to ${lvl}</button>`;
+          }
 
           html += `
             <div class="glass glass-card level-card">
@@ -1757,7 +1981,7 @@
                   <div class="level-title">Level ${lvl} ${isCompleted ? '✓' : ''}</div>
                   <div class="level-desc">${levelType} (${lvl > 50 ? 'Complex Sentences' : lvl > 25 ? 'Words & Phrases' : 'Basic Words'})</div>
                 </div>
-                ${isUnlocked && lvl === prog.unlockedLevel ? `<button class="btn-skip" onclick="App.skipLevel(${lvl})">Skip ⏭</button>` : ''}
+                ${actionsHtml ? `<div class="level-actions">${actionsHtml}</div>` : ''}
               </div>
 
               <div class="node-chain">
@@ -1771,13 +1995,141 @@
         pathList.innerHTML = html;
       },
 
-      skipLevel(levelNum) {
-        SoundFX.playCorrect();
-        const prog = this.state.langProgress[this.state.currentLang];
-        prog.unlockedLevel = Math.max(prog.unlockedLevel, levelNum + 1);
-        this.save();
-        this.render100Levels();
-        alert(`Level ${levelNum} skipped! Level ${levelNum + 1} unlocked.`);
+      /* CHALLENGE SYSTEM - Skip and Jump */
+      startChallenge(type, targetLevel) {
+        const prog = this.state.langProgress[this.state.currentLang] || { unlockedLevel: 1 };
+        
+        if (type === 'skip') {
+          if (targetLevel !== prog.unlockedLevel) return;
+          this.challengeMode = 'skip';
+          this.challengeTargetLevel = targetLevel;
+        } else if (type === 'jump') {
+          if (targetLevel <= prog.unlockedLevel) return;
+          this.challengeMode = 'jump';
+          this.challengeTargetLevel = targetLevel;
+        }
+
+        // Generate 8 hard questions
+        this.challengeQuestions = generateLevelQuestions(this.state.currentLang, targetLevel, true);
+        this.challengeIdx = 0;
+        this.challengeCorrect = 0;
+        this.challengeSelectedOption = null;
+
+        document.getElementById('modal-challenge').classList.add('active');
+        this.renderChallengeQuestion();
+      },
+
+      renderChallengeQuestion() {
+        const ex = this.challengeQuestions[this.challengeIdx];
+        const container = document.getElementById('challenge-content');
+        this.challengeSelectedOption = null;
+
+        const total = this.challengeQuestions.length;
+        const current = this.challengeIdx + 1;
+        const pct = Math.round((this.challengeIdx / total) * 100);
+
+        document.getElementById('challenge-progress-bar').style.width = `${pct}%`;
+        document.getElementById('challenge-counter').innerText = `${current}/${total}`;
+
+        container.innerHTML = `
+          <div class="question-text">${ex.q}</div>
+          <div class="question-meta">Level ${ex.difficulty} • Challenge Question ${current}</div>
+          <div class="options-grid">
+            ${ex.opts.map((opt, i) => `
+              <button class="option-btn" id="ch-opt-${i}" onclick="App.selectChallengeOption(${i})">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        `;
+      },
+
+      selectChallengeOption(idx) {
+        document.querySelectorAll('#challenge-content .option-btn').forEach(b => b.classList.remove('selected'));
+        this.challengeSelectedOption = idx;
+        document.getElementById(`ch-opt-${idx}`).classList.add('selected');
+      },
+
+      confirmChallengeAnswer() {
+        if (this.challengeSelectedOption === null) {
+          alert('Please select an answer first!');
+          return;
+        }
+
+        const ex = this.challengeQuestions[this.challengeIdx];
+
+        if (this.challengeSelectedOption === ex.ans) {
+          SoundFX.playCorrect();
+          document.getElementById(`ch-opt-${this.challengeSelectedOption}`).classList.add('correct');
+          this.challengeCorrect++;
+        } else {
+          SoundFX.playWrong();
+          document.getElementById(`ch-opt-${this.challengeSelectedOption}`).classList.add('wrong');
+        }
+
+        setTimeout(() => {
+          this.challengeIdx++;
+          if (this.challengeIdx < this.challengeQuestions.length) {
+            this.renderChallengeQuestion();
+          } else {
+            // Challenge completed
+            this.closeChallenge();
+            
+            const needed = 5; // Need 5 correct out of 8 to pass
+            if (this.challengeCorrect >= needed) {
+              const prog = this.state.langProgress[this.state.currentLang];
+              
+              if (this.challengeMode === 'skip') {
+                // Skip: unlock next level
+                prog.unlockedLevel = Math.max(prog.unlockedLevel, this.challengeTargetLevel + 1);
+                SoundFX.playLevelComplete();
+                this.showCelebration(
+                  '⭐ Challenge Passed!',
+                  `You answered ${this.challengeCorrect}/${this.challengeQuestions.length} correctly! Level ${this.challengeTargetLevel} skipped.`,
+                  this.challengeTargetLevel,
+                  15
+                );
+              } else if (this.challengeMode === 'jump') {
+                // Jump: unlock to target level
+                prog.unlockedLevel = Math.max(prog.unlockedLevel, this.challengeTargetLevel);
+                SoundFX.playLevelComplete();
+                this.showCelebration(
+                  '🚀 Jump Successful!',
+                  `You answered ${this.challengeCorrect}/${this.challengeQuestions.length} correctly! You've jumped to Level ${this.challengeTargetLevel}.`,
+                  this.challengeTargetLevel,
+                  30
+                );
+              }
+              
+              this.state.gems += (this.challengeMode === 'jump' ? 30 : 15);
+              this.save();
+              this.render100Levels();
+            } else {
+              alert(`❌ You scored ${this.challengeCorrect}/${this.challengeQuestions.length}. Need 5 correct to ${this.challengeMode === 'skip' ? 'skip' : 'jump'} this level. Try again!`);
+            }
+            
+            this.challengeMode = null;
+            this.challengeTargetLevel = null;
+          }
+        }, 500);
+      },
+
+      closeChallenge() {
+        document.getElementById('modal-challenge').classList.remove('active');
+      },
+
+      /* CELEBRATION POPUP */
+      showCelebration(title, subtitle, level, gemsEarned) {
+        document.getElementById('celebration-title').textContent = title;
+        document.getElementById('celebration-subtitle').textContent = subtitle;
+        document.getElementById('celebration-level').textContent = level;
+        document.getElementById('celebration-gems').textContent = `+${gemsEarned}`;
+        document.getElementById('celebration-streak').textContent = this.state.streak;
+        document.getElementById('celebration-popup').classList.add('active');
+      },
+
+      closeCelebration() {
+        document.getElementById('celebration-popup').classList.remove('active');
       },
 
       /* CODING SECTION */
@@ -1902,7 +2254,12 @@
           feedback.textContent = '✏️ Write your code and click "Check Code"';
         } else if (this.currentCodingLesson + 1 >= lessons.length) {
           SoundFX.playLevelComplete();
-          alert('🎉 Congratulations! You completed all levels in this course!');
+          this.showCelebration(
+            '🎉 Course Complete!',
+            `You've mastered all ${lessons.length} levels of ${this.currentCodingCourse}!`,
+            lessons.length,
+            50
+          );
           this.closeCodingLesson();
         } else {
           alert('Complete this level first to unlock the next one!');
@@ -1915,7 +2272,7 @@
         if (levelNum > prog.unlockedLevel) return;
 
         this.currentLevelNum = levelNum;
-        this.currentQuestions = generateLevelQuestions(this.state.currentLang, levelNum);
+        this.currentQuestions = generateLevelQuestions(this.state.currentLang, levelNum, false);
         this.activeExerciseIdx = 0;
         
         document.getElementById('modal-lesson').classList.add('active');
@@ -1924,7 +2281,6 @@
 
       closeLesson() {
         document.getElementById('modal-lesson').classList.remove('active');
-        // Cancel any ongoing speech
         window.speechSynthesis && window.speechSynthesis.cancel();
       },
 
@@ -1940,6 +2296,9 @@
         document.getElementById('lesson-progress-bar').style.width = `${pct}%`;
         document.getElementById('question-counter').innerText = `${current}/${total}`;
 
+        const langObj = LanguagesData.find(l => l.id === this.state.currentLang);
+        const ttsLang = langObj ? langObj.ttsLang : 'en-US';
+
         container.innerHTML = `
           <div class="question-text">${ex.q}</div>
           <div class="question-meta">Level ${ex.difficulty} • ${ex.type === 'word' ? 'Word' : 'Sentence'}</div>
@@ -1947,7 +2306,6 @@
             ${ex.opts.map((opt, i) => `
               <button class="option-btn" id="opt-${i}" onclick="App.selectOption(${i}, '${opt.replace(/'/g, "\\'")}')">
                 ${opt}
-                <span class="pronounce-indicator">🔊</span>
               </button>
             `).join('')}
           </div>
@@ -1987,13 +2345,18 @@
               const prog = this.state.langProgress[this.state.currentLang];
               prog.unlockedLevel = Math.max(prog.unlockedLevel, this.currentLevelNum + 1);
               this.state.gems += 25;
+              this.state.streak++;
               this.save();
               this.render100Levels();
               this.closeLesson();
               SoundFX.playLevelComplete();
-              setTimeout(() => {
-                alert(`🎉 Level ${this.currentLevelNum} Completed! All 15 questions answered correctly!`);
-              }, 300);
+              
+              this.showCelebration(
+                '🎉 Level Complete!',
+                `Amazing work! You've mastered Level ${this.currentLevelNum}. Keep going!`,
+                this.currentLevelNum,
+                25
+              );
             }
           }, 500);
         } else {
