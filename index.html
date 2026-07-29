@@ -642,15 +642,21 @@
       border-radius: var(--radius-sm);
       padding: 0.75rem 1rem;
       font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
       white-space: pre-wrap;
       flex-shrink: 0;
       border-left: 3px solid var(--accent-purple);
+      line-height: 1.6;
     }
 
     .code-hint strong {
       color: var(--accent-purple);
+    }
+
+    .code-hint .example {
+      color: var(--accent-cyan);
+      font-weight: 600;
     }
 
     .coding-btn-group {
@@ -1470,7 +1476,6 @@
       const seed = level * 137 + (isHard ? 999 : 0);
       const count = isHard ? 8 : 15;
       
-      // Word pools based on difficulty - harder words for higher levels
       const wordPools = {
         easy: ['Apple', 'Banana', 'Cat', 'Dog', 'Fish', 'Good', 'Happy', 'House', 'Love', 'Mother',
                'Father', 'Brother', 'Sister', 'Friend', 'Teacher', 'Student', 'School', 'Book'],
@@ -1492,7 +1497,6 @@
                'The majestic mountains stand tall', 'Life is a beautiful journey', 'Courage is the foundation of success']
       };
 
-      // Select pools based on level and hardness
       let wordPool, sentencePool;
       const effectiveLevel = isHard ? Math.min(level + 20, 100) : level;
       
@@ -1507,7 +1511,6 @@
         sentencePool = [...sentencePools.medium, ...sentencePools.hard];
       }
 
-      // Shuffle with seed
       const shuffledWords = [...wordPool];
       const shuffledSentences = [...sentencePool];
       
@@ -1606,7 +1609,7 @@
     }
 
     /* ==========================================================================
-       CODING LESSONS - 100 Levels per language
+       CODING LESSONS - 100 Levels with Beginner-Friendly Hints
        ========================================================================== */
     const CodingLessons = {
       'HTML': {
@@ -1615,22 +1618,63 @@
         generateLessons: function() {
           const lessons = [];
           const topics = [
-            { instruction: 'Create a heading with the text "Hello World"', solution: '<h1>Hello World</h1>', hint: '<h1>Hello World</h1>' },
-            { instruction: 'Create a paragraph with the text "This is my first paragraph"', solution: '<p>This is my first paragraph</p>', hint: '<p>text</p>' },
-            { instruction: 'Create an anchor link to "https://example.com" with text "Click Here"', solution: '<a href="https://example.com">Click Here</a>', hint: '<a href="url">text</a>' },
-            { instruction: 'Create a div with class "container" containing a heading', solution: '<div class="container"><h1>Heading</h1></div>', hint: '<div class="name">...</div>' },
-            { instruction: 'Create an unordered list with items: Apple, Banana, Orange', solution: '<ul><li>Apple</li><li>Banana</li><li>Orange</li></ul>', hint: '<ul><li>item1</li><li>item2</li></ul>' },
-            { instruction: 'Create a button with text "Click Me"', solution: '<button>Click Me</button>', hint: '<button>text</button>' },
-            { instruction: 'Create an image tag with src "image.jpg" and alt "Image"', solution: '<img src="image.jpg" alt="Image">', hint: '<img src="file" alt="description">' },
-            { instruction: 'Create a form with an input field', solution: '<form><input type="text"></form>', hint: '<form><input type="text"></form>' },
-            { instruction: 'Create a table with 2 rows and 2 columns', solution: '<table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table>', hint: '<table><tr><td>data</td></tr></table>' },
-            { instruction: 'Create a span with class "highlight" containing text', solution: '<span class="highlight">Text</span>', hint: '<span class="name">text</span>' }
+            { 
+              instruction: 'Level 1: Create a heading with the text "Hello World"',
+              solution: '<h1>Hello World</h1>',
+              hint: '📝 <strong>What to write:</strong> HTML heading tag with text inside\n💡 <span class="example">Example: <h1>Hello World</h1></span>\n🔑 <strong>Key points:</strong> Use h1 for main heading, always close with </h1>'
+            },
+            { 
+              instruction: 'Level 2: Create a paragraph with the text "This is my first paragraph"',
+              solution: '<p>This is my first paragraph</p>',
+              hint: '📝 <strong>What to write:</strong> HTML paragraph tag with text inside\n💡 <span class="example">Example: <p>Your text here</p></span>\n🔑 <strong>Key points:</strong> Use p for paragraphs, text goes between opening and closing tags'
+            },
+            { 
+              instruction: 'Level 3: Create an anchor link to "https://example.com" with text "Click Here"',
+              solution: '<a href="https://example.com">Click Here</a>',
+              hint: '📝 <strong>What to write:</strong> HTML anchor tag with href and text\n💡 <span class="example">Example: <a href="url">Link Text</a></span>\n🔑 <strong>Key points:</strong> href attribute tells where to go, text between tags is what users click'
+            },
+            { 
+              instruction: 'Level 4: Create a div with class "container" containing a heading',
+              solution: '<div class="container"><h1>Heading</h1></div>',
+              hint: '📝 <strong>What to write:</strong> A div container with a heading inside\n💡 <span class="example">Example: <div class="name"><h1>Text</h1></div></span>\n🔑 <strong>Key points:</strong> div is a container, class helps style it, put other tags inside'
+            },
+            { 
+              instruction: 'Level 5: Create an unordered list with items: Apple, Banana, Orange',
+              solution: '<ul><li>Apple</li><li>Banana</li><li>Orange</li></ul>',
+              hint: '📝 <strong>What to write:</strong> Unordered list with list items\n💡 <span class="example">Example: <ul><li>Item1</li><li>Item2</li></ul></span>\n🔑 <strong>Key points:</strong> ul for bullet list, li for each item, close both tags properly'
+            },
+            { 
+              instruction: 'Level 6: Create a button with text "Click Me"',
+              solution: '<button>Click Me</button>',
+              hint: '📝 <strong>What to write:</strong> Button element with text\n💡 <span class="example">Example: <button>Your Text</button></span>\n🔑 <strong>Key points:</strong> Use button tag, text goes between opening and closing tags'
+            },
+            { 
+              instruction: 'Level 7: Create an image tag with src "image.jpg" and alt "Image"',
+              solution: '<img src="image.jpg" alt="Image">',
+              hint: '📝 <strong>What to write:</strong> Image tag with src and alt attributes\n💡 <span class="example">Example: <img src="filename.jpg" alt="Description"></span>\n🔑 <strong>Key points:</strong> img is self-closing, src is file path, alt describes image for accessibility'
+            },
+            { 
+              instruction: 'Level 8: Create a form with an input field',
+              solution: '<form><input type="text"></form>',
+              hint: '📝 <strong>What to write:</strong> Form with a text input field\n💡 <span class="example">Example: <form><input type="text"></form></span>\n🔑 <strong>Key points:</strong> form wraps inputs, type="text" creates a text box'
+            },
+            { 
+              instruction: 'Level 9: Create a table with 2 rows and 2 columns',
+              solution: '<table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table>',
+              hint: '📝 <strong>What to write:</strong> Table with rows and data cells\n💡 <span class="example">Example: <table><tr><td>Data</td></tr></table></span>\n🔑 <strong>Key points:</strong> table creates table, tr is row, td is data cell, order matters'
+            },
+            { 
+              instruction: 'Level 10: Create a span with class "highlight" containing text',
+              solution: '<span class="highlight">Text</span>',
+              hint: '📝 <strong>What to write:</strong> Span with a class attribute\n💡 <span class="example">Example: <span class="name">Your Text</span></span>\n🔑 <strong>Key points:</strong> span is inline container, class helps with styling'
+            }
           ];
           for (let i = 0; i < 100; i++) {
             const topic = topics[i % topics.length];
             const level = i + 1;
+            const adjustedInstruction = topic.instruction.replace(/Level \d+:/, `Level ${level}:`);
             lessons.push({
-              instruction: `Level ${level}: ${topic.instruction}`,
+              instruction: adjustedInstruction,
               solution: topic.solution,
               hint: topic.hint,
               check: function(code) {
@@ -1649,22 +1693,63 @@
         generateLessons: function() {
           const lessons = [];
           const topics = [
-            { instruction: 'Make all h1 elements red', solution: 'h1 { color: red; }', hint: 'selector { property: value; }' },
-            { instruction: 'Set background color of body to blue', solution: 'body { background-color: blue; }', hint: 'body { background-color: color; }' },
-            { instruction: 'Make all paragraphs bold', solution: 'p { font-weight: bold; }', hint: 'p { font-weight: bold; }' },
-            { instruction: 'Set font size of h1 to 24px', solution: 'h1 { font-size: 24px; }', hint: 'h1 { font-size: size; }' },
-            { instruction: 'Center align all headings', solution: 'h1, h2, h3 { text-align: center; }', hint: 'selector { text-align: center; }' },
-            { instruction: 'Add 10px padding to all divs', solution: 'div { padding: 10px; }', hint: 'div { padding: value; }' },
-            { instruction: 'Set margin of all paragraphs to 20px', solution: 'p { margin: 20px; }', hint: 'p { margin: value; }' },
-            { instruction: 'Make all links blue with underline', solution: 'a { color: blue; text-decoration: underline; }', hint: 'a { property: value; }' },
-            { instruction: 'Set width of all images to 100%', solution: 'img { width: 100%; }', hint: 'img { width: value; }' },
-            { instruction: 'Create a hover effect on buttons', solution: 'button:hover { background-color: gray; }', hint: 'selector:hover { property: value; }' }
+            { 
+              instruction: 'Level 1: Make all h1 elements red',
+              solution: 'h1 { color: red; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to make h1 text red\n💡 <span class="example">Example: h1 { color: red; }</span>\n🔑 <strong>Key points:</strong> Selector (h1), property (color), value (red)'
+            },
+            { 
+              instruction: 'Level 2: Set background color of body to blue',
+              solution: 'body { background-color: blue; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to set body background\n💡 <span class="example">Example: body { background-color: blue; }</span>\n🔑 <strong>Key points:</strong> body selector, background-color property'
+            },
+            { 
+              instruction: 'Level 3: Make all paragraphs bold',
+              solution: 'p { font-weight: bold; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to make p text bold\n💡 <span class="example">Example: p { font-weight: bold; }</span>\n🔑 <strong>Key points:</strong> p selector, font-weight property with bold value'
+            },
+            { 
+              instruction: 'Level 4: Set font size of h1 to 24px',
+              solution: 'h1 { font-size: 24px; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to set h1 font size\n💡 <span class="example">Example: h1 { font-size: 24px; }</span>\n🔑 <strong>Key points:</strong> h1 selector, font-size with px value'
+            },
+            { 
+              instruction: 'Level 5: Center align all headings',
+              solution: 'h1, h2, h3 { text-align: center; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to center multiple headings\n💡 <span class="example">Example: h1, h2, h3 { text-align: center; }</span>\n🔑 <strong>Key points:</strong> Multiple selectors with comma, text-align property'
+            },
+            { 
+              instruction: 'Level 6: Add 10px padding to all divs',
+              solution: 'div { padding: 10px; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to add padding to divs\n💡 <span class="example">Example: div { padding: 10px; }</span>\n🔑 <strong>Key points:</strong> div selector, padding adds space inside element'
+            },
+            { 
+              instruction: 'Level 7: Set margin of all paragraphs to 20px',
+              solution: 'p { margin: 20px; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to add margin to paragraphs\n💡 <span class="example">Example: p { margin: 20px; }</span>\n🔑 <strong>Key points:</strong> p selector, margin adds space outside element'
+            },
+            { 
+              instruction: 'Level 8: Make all links blue with underline',
+              solution: 'a { color: blue; text-decoration: underline; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to style links\n💡 <span class="example">Example: a { color: blue; text-decoration: underline; }</span>\n🔑 <strong>Key points:</strong> a selector, multiple properties, text-decoration'
+            },
+            { 
+              instruction: 'Level 9: Set width of all images to 100%',
+              solution: 'img { width: 100%; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule to make images full width\n💡 <span class="example">Example: img { width: 100%; }</span>\n🔑 <strong>Key points:</strong> img selector, width property with percentage'
+            },
+            { 
+              instruction: 'Level 10: Create a hover effect on buttons',
+              solution: 'button:hover { background-color: gray; }',
+              hint: '📝 <strong>What to write:</strong> CSS rule for hover state on buttons\n💡 <span class="example">Example: button:hover { background-color: gray; }</span>\n🔑 <strong>Key points:</strong> :hover pseudo-class, triggers when mouse is over element'
+            }
           ];
           for (let i = 0; i < 100; i++) {
             const topic = topics[i % topics.length];
             const level = i + 1;
+            const adjustedInstruction = topic.instruction.replace(/Level \d+:/, `Level ${level}:`);
             lessons.push({
-              instruction: `Level ${level}: ${topic.instruction}`,
+              instruction: adjustedInstruction,
               solution: topic.solution,
               hint: topic.hint,
               check: function(code) {
@@ -1683,22 +1768,63 @@
         generateLessons: function() {
           const lessons = [];
           const topics = [
-            { instruction: 'Declare a variable "name" and assign it "John"', solution: 'let name = "John";', hint: 'let variable = value;' },
-            { instruction: 'Create a function "greet" that returns "Hello"', solution: 'function greet() { return "Hello"; }', hint: 'function name() { return value; }' },
-            { instruction: 'Create an array of fruits: Apple, Banana, Orange', solution: 'const fruits = ["Apple", "Banana", "Orange"];', hint: 'const array = [item1, item2, item3];' },
-            { instruction: 'Create a for loop from 0 to 5', solution: 'for (let i = 0; i < 5; i++) { console.log(i); }', hint: 'for (let i = 0; i < count; i++) { }' },
-            { instruction: 'Create an if statement checking if x > 10', solution: 'if (x > 10) { console.log("Greater"); }', hint: 'if (condition) { }' },
-            { instruction: 'Create an object with name and age properties', solution: 'const person = { name: "John", age: 25 };', hint: 'const obj = { key: value };' },
-            { instruction: 'Create an arrow function that adds two numbers', solution: 'const add = (a, b) => a + b;', hint: 'const func = (params) => expression;' },
-            { instruction: 'Use map to double all numbers in an array', solution: 'const doubled = numbers.map(n => n * 2);', hint: 'array.map(element => expression);' },
-            { instruction: 'Create a class "Car" with a constructor', solution: 'class Car { constructor(brand) { this.brand = brand; } }', hint: 'class Name { constructor() { } }' },
-            { instruction: 'Use fetch to get data from an API', solution: 'fetch("https://api.example.com/data").then(res => res.json());', hint: 'fetch(url).then(response => response.json());' }
+            { 
+              instruction: 'Level 1: Declare a variable "name" and assign it "John"',
+              solution: 'let name = "John";',
+              hint: '📝 <strong>What to write:</strong> Create a variable with let keyword\n💡 <span class="example">Example: let variableName = "value";</span>\n🔑 <strong>Key points:</strong> let declares variable, = assigns value, strings in quotes'
+            },
+            { 
+              instruction: 'Level 2: Create a function "greet" that returns "Hello"',
+              solution: 'function greet() { return "Hello"; }',
+              hint: '📝 <strong>What to write:</strong> Create a function with function keyword\n💡 <span class="example">Example: function name() { return "value"; }</span>\n🔑 <strong>Key points:</strong> function keyword, parentheses (), curly braces {}, return statement'
+            },
+            { 
+              instruction: 'Level 3: Create an array of fruits: Apple, Banana, Orange',
+              solution: 'const fruits = ["Apple", "Banana", "Orange"];',
+              hint: '📝 <strong>What to write:</strong> Create an array with const\n💡 <span class="example">Example: const arrayName = ["item1", "item2", "item3"];</span>\n🔑 <strong>Key points:</strong> const for constant, [] for array, items separated by comma'
+            },
+            { 
+              instruction: 'Level 4: Create a for loop from 0 to 5',
+              solution: 'for (let i = 0; i < 5; i++) { console.log(i); }',
+              hint: '📝 <strong>What to write:</strong> A for loop that counts 0 to 4\n💡 <span class="example">Example: for (let i = 0; i < 5; i++) { console.log(i); }</span>\n🔑 <strong>Key points:</strong> for keyword, initialization, condition, increment, code block'
+            },
+            { 
+              instruction: 'Level 5: Create an if statement checking if x > 10',
+              solution: 'if (x > 10) { console.log("Greater"); }',
+              hint: '📝 <strong>What to write:</strong> If statement with condition\n💡 <span class="example">Example: if (condition) { // code }</span>\n🔑 <strong>Key points:</strong> if keyword, condition in (), code block in {}'
+            },
+            { 
+              instruction: 'Level 6: Create an object with name and age properties',
+              solution: 'const person = { name: "John", age: 25 };',
+              hint: '📝 <strong>What to write:</strong> Create an object with properties\n💡 <span class="example">Example: const obj = { key: "value", key2: value2 };</span>\n🔑 <strong>Key points:</strong> {} for object, key: value pairs, comma separated'
+            },
+            { 
+              instruction: 'Level 7: Create an arrow function that adds two numbers',
+              solution: 'const add = (a, b) => a + b;',
+              hint: '📝 <strong>What to write:</strong> Arrow function with parameters\n💡 <span class="example">Example: const func = (param1, param2) => expression;</span>\n🔑 <strong>Key points:</strong> => arrow, parameters in (), returns expression result'
+            },
+            { 
+              instruction: 'Level 8: Use map to double all numbers in an array',
+              solution: 'const doubled = numbers.map(n => n * 2);',
+              hint: '📝 <strong>What to write:</strong> Use map to transform array\n💡 <span class="example">Example: array.map(element => element * 2);</span>\n🔑 <strong>Key points:</strong> map method, arrow function, transforms each element'
+            },
+            { 
+              instruction: 'Level 9: Create a class "Car" with a constructor',
+              solution: 'class Car { constructor(brand) { this.brand = brand; } }',
+              hint: '📝 <strong>What to write:</strong> Class with constructor method\n💡 <span class="example">Example: class Name { constructor(param) { this.property = param; } }</span>\n🔑 <strong>Key points:</strong> class keyword, constructor method, this keyword'
+            },
+            { 
+              instruction: 'Level 10: Use fetch to get data from an API',
+              solution: 'fetch("https://api.example.com/data").then(res => res.json());',
+              hint: '📝 <strong>What to write:</strong> Fetch API call with promise\n💡 <span class="example">Example: fetch("url").then(response => response.json());</span>\n🔑 <strong>Key points:</strong> fetch function, .then method, response handling'
+            }
           ];
           for (let i = 0; i < 100; i++) {
             const topic = topics[i % topics.length];
             const level = i + 1;
+            const adjustedInstruction = topic.instruction.replace(/Level \d+:/, `Level ${level}:`);
             lessons.push({
-              instruction: `Level ${level}: ${topic.instruction}`,
+              instruction: adjustedInstruction,
               solution: topic.solution,
               hint: topic.hint,
               check: function(code) {
@@ -1717,22 +1843,63 @@
         generateLessons: function() {
           const lessons = [];
           const topics = [
-            { instruction: 'Print "Hello World" to the console', solution: 'print("Hello World")', hint: 'print("text")' },
-            { instruction: 'Create a variable "x" and assign it 5', solution: 'x = 5', hint: 'variable = value' },
-            { instruction: 'Create a list of numbers: 1, 2, 3', solution: 'numbers = [1, 2, 3]', hint: 'list = [item1, item2, item3]' },
-            { instruction: 'Create a for loop that prints numbers 0 to 4', solution: 'for i in range(5): print(i)', hint: 'for variable in range(count):' },
-            { instruction: 'Create an if statement checking if x > 10', solution: 'if x > 10: print("Greater")', hint: 'if condition:' },
-            { instruction: 'Create a function "greet" that returns "Hello"', solution: 'def greet(): return "Hello"', hint: 'def name(): return value' },
-            { instruction: 'Create a dictionary with name and age', solution: 'person = {"name": "John", "age": 25}', hint: 'dict = {"key": "value"}' },
-            { instruction: 'Use list comprehension to square numbers', solution: 'squares = [x**2 for x in range(5)]', hint: 'new_list = [expression for item in iterable]' },
-            { instruction: 'Create a class "Car" with __init__ method', solution: 'class Car: def __init__(self, brand): self.brand = brand', hint: 'class Name: def __init__(self, params):' },
-            { instruction: 'Use try/except to handle division by zero', solution: 'try: result = x / 0 except ZeroDivisionError: print("Error")', hint: 'try: code except ErrorType: handler' }
+            { 
+              instruction: 'Level 1: Print "Hello World" to the console',
+              solution: 'print("Hello World")',
+              hint: '📝 <strong>What to write:</strong> Use print function to display text\n💡 <span class="example">Example: print("Your text")</span>\n🔑 <strong>Key points:</strong> print() function, text in quotes, no semicolon needed'
+            },
+            { 
+              instruction: 'Level 2: Create a variable "x" and assign it 5',
+              solution: 'x = 5',
+              hint: '📝 <strong>What to write:</strong> Variable assignment\n💡 <span class="example">Example: variable = value</span>\n🔑 <strong>Key points:</strong> variable name on left, value on right, no keyword needed'
+            },
+            { 
+              instruction: 'Level 3: Create a list of numbers: 1, 2, 3',
+              solution: 'numbers = [1, 2, 3]',
+              hint: '📝 <strong>What to write:</strong> Create a list with numbers\n💡 <span class="example">Example: listName = [item1, item2, item3]</span>\n🔑 <strong>Key points:</strong> [] for lists, items separated by comma'
+            },
+            { 
+              instruction: 'Level 4: Create a for loop that prints numbers 0 to 4',
+              solution: 'for i in range(5): print(i)',
+              hint: '📝 <strong>What to write:</strong> For loop with range\n💡 <span class="example">Example: for variable in range(count): print(variable)</span>\n🔑 <strong>Key points:</strong> for keyword, range() function, colon :, indentation'
+            },
+            { 
+              instruction: 'Level 5: Create an if statement checking if x > 10',
+              solution: 'if x > 10: print("Greater")',
+              hint: '📝 <strong>What to write:</strong> If statement with condition\n💡 <span class="example">Example: if condition: code</span>\n🔑 <strong>Key points:</strong> if keyword, condition, colon :, indented code'
+            },
+            { 
+              instruction: 'Level 6: Create a function "greet" that returns "Hello"',
+              solution: 'def greet(): return "Hello"',
+              hint: '📝 <strong>What to write:</strong> Function definition with return\n💡 <span class="example">Example: def name(): return "value"</span>\n🔑 <strong>Key points:</strong> def keyword, parentheses (), colon :, return statement'
+            },
+            { 
+              instruction: 'Level 7: Create a dictionary with name and age',
+              solution: 'person = {"name": "John", "age": 25}',
+              hint: '📝 <strong>What to write:</strong> Create a dictionary with key:value pairs\n💡 <span class="example">Example: dict = {"key1": "value1", "key2": value2}</span>\n🔑 <strong>Key points:</strong> {} for dictionary, key:value pairs, comma separated'
+            },
+            { 
+              instruction: 'Level 8: Use list comprehension to square numbers',
+              solution: 'squares = [x**2 for x in range(5)]',
+              hint: '📝 <strong>What to write:</strong> List comprehension with expression\n💡 <span class="example">Example: new_list = [expression for item in iterable]</span>\n🔑 <strong>Key points:</strong> expression before for, for loop inside list'
+            },
+            { 
+              instruction: 'Level 9: Create a class "Car" with __init__ method',
+              solution: 'class Car: def __init__(self, brand): self.brand = brand',
+              hint: '📝 <strong>What to write:</strong> Class with __init__ constructor\n💡 <span class="example">Example: class Name: def __init__(self, param): self.property = param</span>\n🔑 <strong>Key points:</strong> class keyword, __init__ method, self parameter'
+            },
+            { 
+              instruction: 'Level 10: Use try/except to handle division by zero',
+              solution: 'try: result = x / 0 except ZeroDivisionError: print("Error")',
+              hint: '📝 <strong>What to write:</strong> Try/except for error handling\n💡 <span class="example">Example: try: code except ErrorType: handler</span>\n🔑 <strong>Key points:</strong> try block, except with error type, handles errors gracefully'
+            }
           ];
           for (let i = 0; i < 100; i++) {
             const topic = topics[i % topics.length];
             const level = i + 1;
+            const adjustedInstruction = topic.instruction.replace(/Level \d+:/, `Level ${level}:`);
             lessons.push({
-              instruction: `Level ${level}: ${topic.instruction}`,
+              instruction: adjustedInstruction,
               solution: topic.solution,
               hint: topic.hint,
               check: function(code) {
@@ -1751,16 +1918,33 @@
         generateLessons: function() {
           const lessons = [];
           const topics = [
-            { instruction: 'Print "Hello World" using cout', solution: 'cout << "Hello World";', hint: 'cout << "text";' },
-            { instruction: 'Declare an integer variable x = 5', solution: 'int x = 5;', hint: 'datatype variable = value;' },
-            { instruction: 'Create a for loop from 0 to 4', solution: 'for (int i = 0; i < 5; i++) { cout << i; }', hint: 'for (int i = 0; i < count; i++) { }' },
-            { instruction: 'Create an if statement checking if x > 10', solution: 'if (x > 10) { cout << "Greater"; }', hint: 'if (condition) { }' }
+            { 
+              instruction: 'Level 1: Print "Hello World" using cout',
+              solution: 'cout << "Hello World";',
+              hint: '📝 <strong>What to write:</strong> Use cout to print text\n💡 <span class="example">Example: cout << "Your text";</span>\n🔑 <strong>Key points:</strong> cout for output, << operator, string in quotes, semicolon ;'
+            },
+            { 
+              instruction: 'Level 2: Declare an integer variable x = 5',
+              solution: 'int x = 5;',
+              hint: '📝 <strong>What to write:</strong> Variable declaration with int\n💡 <span class="example">Example: int variable = value;</span>\n🔑 <strong>Key points:</strong> int for integers, variable name, = assignment, semicolon'
+            },
+            { 
+              instruction: 'Level 3: Create a for loop from 0 to 4',
+              solution: 'for (int i = 0; i < 5; i++) { cout << i; }',
+              hint: '📝 <strong>What to write:</strong> For loop with cout\n💡 <span class="example">Example: for (int i = 0; i < count; i++) { cout << i; }</span>\n🔑 <strong>Key points:</strong> for keyword, initialization, condition, increment, braces {}'
+            },
+            { 
+              instruction: 'Level 4: Create an if statement checking if x > 10',
+              solution: 'if (x > 10) { cout << "Greater"; }',
+              hint: '📝 <strong>What to write:</strong> If statement with condition\n💡 <span class="example">Example: if (condition) { cout << "text"; }</span>\n🔑 <strong>Key points:</strong> if keyword, condition in (), braces {} for code block'
+            }
           ];
           for (let i = 0; i < 100; i++) {
             const topic = topics[i % topics.length];
             const level = i + 1;
+            const adjustedInstruction = topic.instruction.replace(/Level \d+:/, `Level ${level}:`);
             lessons.push({
-              instruction: `Level ${level}: ${topic.instruction}`,
+              instruction: adjustedInstruction,
               solution: topic.solution,
               hint: topic.hint,
               check: function(code) {
@@ -1779,16 +1963,33 @@
         generateLessons: function() {
           const lessons = [];
           const topics = [
-            { instruction: 'Print "Hello World" using System.out.println', solution: 'System.out.println("Hello World");', hint: 'System.out.println("text");' },
-            { instruction: 'Declare an integer variable x = 5', solution: 'int x = 5;', hint: 'datatype variable = value;' },
-            { instruction: 'Create a for loop from 0 to 4', solution: 'for (int i = 0; i < 5; i++) { System.out.println(i); }', hint: 'for (int i = 0; i < count; i++) { }' },
-            { instruction: 'Create an if statement checking if x > 10', solution: 'if (x > 10) { System.out.println("Greater"); }', hint: 'if (condition) { }' }
+            { 
+              instruction: 'Level 1: Print "Hello World" using System.out.println',
+              solution: 'System.out.println("Hello World");',
+              hint: '📝 <strong>What to write:</strong> Use System.out.println to print\n💡 <span class="example">Example: System.out.println("Your text");</span>\n🔑 <strong>Key points:</strong> System.out.println(), text in quotes, semicolon ;'
+            },
+            { 
+              instruction: 'Level 2: Declare an integer variable x = 5',
+              solution: 'int x = 5;',
+              hint: '📝 <strong>What to write:</strong> Variable declaration with int\n💡 <span class="example">Example: int variable = value;</span>\n🔑 <strong>Key points:</strong> int for integers, variable name, = assignment, semicolon'
+            },
+            { 
+              instruction: 'Level 3: Create a for loop from 0 to 4',
+              solution: 'for (int i = 0; i < 5; i++) { System.out.println(i); }',
+              hint: '📝 <strong>What to write:</strong> For loop with print statement\n💡 <span class="example">Example: for (int i = 0; i < count; i++) { System.out.println(i); }</span>\n🔑 <strong>Key points:</strong> for keyword, initialization, condition, increment, braces {}'
+            },
+            { 
+              instruction: 'Level 4: Create an if statement checking if x > 10',
+              solution: 'if (x > 10) { System.out.println("Greater"); }',
+              hint: '📝 <strong>What to write:</strong> If statement with condition\n💡 <span class="example">Example: if (condition) { System.out.println("text"); }</span>\n🔑 <strong>Key points:</strong> if keyword, condition in (), braces {} for code block'
+            }
           ];
           for (let i = 0; i < 100; i++) {
             const topic = topics[i % topics.length];
             const level = i + 1;
+            const adjustedInstruction = topic.instruction.replace(/Level \d+:/, `Level ${level}:`);
             lessons.push({
-              instruction: `Level ${level}: ${topic.instruction}`,
+              instruction: adjustedInstruction,
               solution: topic.solution,
               hint: topic.hint,
               check: function(code) {
@@ -1828,7 +2029,6 @@
           theme: 'light',
           langProgress: langProgress,
           codingProgress: codingProgress,
-          // Track which levels have been completed
           completedLevels: {}
         };
       },
@@ -1854,8 +2054,7 @@
       currentCodingLesson: 0,
       codingLessonsCache: {},
       
-      // Challenge mode state
-      challengeMode: null, // 'skip' or 'jump'
+      challengeMode: null,
       challengeTargetLevel: null,
       challengeQuestions: [],
       challengeIdx: 0,
@@ -1917,7 +2116,6 @@
         document.getElementById('growth-streak').innerText = `${this.state.streak} Days`;
       },
 
-      /* LANGUAGE SELECTION */
       openLangModal() {
         document.getElementById('modal-lang-select').classList.add('active');
       },
@@ -1948,7 +2146,6 @@
         this.closeLangModal();
       },
 
-      /* RENDER 100 LEVELS */
       render100Levels() {
         const pathList = document.getElementById('level-path-list');
         const prog = this.state.langProgress[this.state.currentLang] || { unlockedLevel: 1 };
@@ -1995,7 +2192,6 @@
         pathList.innerHTML = html;
       },
 
-      /* CHALLENGE SYSTEM - Skip and Jump */
       startChallenge(type, targetLevel) {
         const prog = this.state.langProgress[this.state.currentLang] || { unlockedLevel: 1 };
         
@@ -2009,7 +2205,6 @@
           this.challengeTargetLevel = targetLevel;
         }
 
-        // Generate 8 hard questions
         this.challengeQuestions = generateLevelQuestions(this.state.currentLang, targetLevel, true);
         this.challengeIdx = 0;
         this.challengeCorrect = 0;
@@ -2072,15 +2267,13 @@
           if (this.challengeIdx < this.challengeQuestions.length) {
             this.renderChallengeQuestion();
           } else {
-            // Challenge completed
             this.closeChallenge();
             
-            const needed = 5; // Need 5 correct out of 8 to pass
+            const needed = 5;
             if (this.challengeCorrect >= needed) {
               const prog = this.state.langProgress[this.state.currentLang];
               
               if (this.challengeMode === 'skip') {
-                // Skip: unlock next level
                 prog.unlockedLevel = Math.max(prog.unlockedLevel, this.challengeTargetLevel + 1);
                 SoundFX.playLevelComplete();
                 this.showCelebration(
@@ -2090,12 +2283,11 @@
                   15
                 );
               } else if (this.challengeMode === 'jump') {
-                // Jump: unlock to target level
                 prog.unlockedLevel = Math.max(prog.unlockedLevel, this.challengeTargetLevel);
                 SoundFX.playLevelComplete();
                 this.showCelebration(
                   '🚀 Jump Successful!',
-                  `You answered ${this.challengeCorrect}/${this.challengeQuestions.length} correctly! You've jumped to Level ${this.challengeTargetLevel}.`,
+                  `You answered ${this.challengeCorrect}/${this.challengeQuestions.length} correctly! You\'ve jumped to Level ${this.challengeTargetLevel}.`,
                   this.challengeTargetLevel,
                   30
                 );
@@ -2118,7 +2310,6 @@
         document.getElementById('modal-challenge').classList.remove('active');
       },
 
-      /* CELEBRATION POPUP */
       showCelebration(title, subtitle, level, gemsEarned) {
         document.getElementById('celebration-title').textContent = title;
         document.getElementById('celebration-subtitle').textContent = subtitle;
@@ -2132,7 +2323,6 @@
         document.getElementById('celebration-popup').classList.remove('active');
       },
 
-      /* CODING SECTION */
       renderCodingCourses() {
         const grid = document.getElementById('coding-list');
         grid.innerHTML = Object.keys(CodingLessons).map(name => {
@@ -2183,7 +2373,7 @@
         
         const lesson = lessons[this.currentCodingLesson];
         document.getElementById('coding-instruction').textContent = lesson.instruction;
-        document.getElementById('code-hint').innerHTML = `💡 <strong>Hint:</strong> ${lesson.hint}`;
+        document.getElementById('code-hint').innerHTML = lesson.hint;
         document.getElementById('code-editor-input').value = '';
         
         const feedback = document.getElementById('coding-feedback');
@@ -2247,7 +2437,7 @@
           document.getElementById('coding-level-badge').textContent = `Level ${this.currentCodingLesson + 1}`;
           document.getElementById('coding-progress-text').textContent = `Level ${this.currentCodingLesson + 1} of ${lessons.length}`;
           document.getElementById('coding-instruction').textContent = lesson.instruction;
-          document.getElementById('code-hint').innerHTML = `💡 <strong>Hint:</strong> ${lesson.hint}`;
+          document.getElementById('code-hint').innerHTML = lesson.hint;
           document.getElementById('code-editor-input').value = '';
           const feedback = document.getElementById('coding-feedback');
           feedback.className = 'feedback-box info';
@@ -2266,7 +2456,6 @@
         }
       },
 
-      /* LESSON EXERCISES */
       startLesson(levelNum) {
         const prog = this.state.langProgress[this.state.currentLang] || { unlockedLevel: 1 };
         if (levelNum > prog.unlockedLevel) return;
@@ -2318,7 +2507,6 @@
         this.selectedOption = idx;
         document.getElementById(`opt-${idx}`).classList.add('selected');
         
-        // Auto-pronounce the selected option
         const langObj = LanguagesData.find(l => l.id === this.state.currentLang);
         const ttsLang = langObj ? langObj.ttsLang : 'en-US';
         SoundFX.speak(text, ttsLang);
